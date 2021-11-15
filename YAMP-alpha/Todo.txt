@@ -1,0 +1,3 @@
+﻿* To improve file loading.
+* To Implement Session Notification Catching.
+* To Implement onEndOfStream or any alternative to track whether an audio is finished playing.
