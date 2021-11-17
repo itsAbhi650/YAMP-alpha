@@ -1,5 +1,6 @@
 ﻿using CSCore;
 using CSCore.CoreAudioAPI;
+using CSCore.Streams;
 using CSCore.Streams.Effects;
 using System;
 using System.Drawing;
@@ -17,6 +18,8 @@ namespace YAMP_alpha
         private AudioSessionEnumerator AudioSessionEnum;
         private AudioSessionManager2 SessionManager;
         private PitchShifter _PitchShift;
+        private PeakMeter _AudioPeakMeter = null;
+        public PeakMeter AudioPeakMeter { get { return _AudioPeakMeter; } private set { _AudioPeakMeter = value; } }
         public PitchShifter PitchShift { get { return _PitchShift; } private set { _PitchShift = value; } }
         private DmoEchoEffect _DCE;
         public DmoEchoEffect DCE { get { return _DCE; } private set { _DCE = value; } }
@@ -128,12 +131,23 @@ namespace YAMP_alpha
             {
                 LoadFile(filename);
                 PlayerSource = PlayerSource
-                .AppendSource(x => new PitchShifter(x.ToSampleSource()), out _PitchShift)
+                .ToSampleSource()
+                .AppendSource(x => new PitchShifter(x), out _PitchShift)
                 .ToWaveSource()
-                .AppendSource(x => new DmoEchoEffect(x) { WetDryMix = 0 }, out _DCE);
+                .AppendSource(x => new DmoEchoEffect(x) { WetDryMix = 0 }, out _DCE)
+                .ToSampleSource()
+                .AppendSource(x=> new PeakMeter(x), out _AudioPeakMeter)
+                .ToWaveSource();
                 Player.Initialize(PlayerSource);
             }).Wait();
+            _AudioPeakMeter.Interval = 25;
+            _AudioPeakMeter.PeakCalculated += _AudioPeakMeter_PeakCalculated;
             TagInfo = GetID3Info();
+        }
+        //YAMP_Vars yvar = new YAMP_Vars();
+        private void _AudioPeakMeter_PeakCalculated(object sender, PeakEventArgs e)
+        {
+            YAMP_Vars.PeakVals = _AudioPeakMeter.ChannelPeakValues.Select(x=> (int)(x*100F)).ToArray();
         }
 
         public void ReleasePlayer()
@@ -185,6 +199,11 @@ namespace YAMP_alpha
             }
             Player.Dispose();
         }
+    }
+
+    public static class YAMP_Vars
+    {
+        internal static int[] PeakVals { get; set; }
     }
 
     public struct ID3Info
