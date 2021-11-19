@@ -178,7 +178,7 @@ namespace YAMP_alpha
             //notificationSource.SingleBlockStreamAlmostFinished += NotificationSource_SingleBlockStreamAlmostFinished; ;
             //notificationSource.SingleBlockRead += NotificationSource_SingleBlockRead;
             //var PeakMeterSampleSource = notificationSource.ToWaveSource(8).ToSampleSource();
-            using (PeakMeterDialog PMD = new PeakMeterDialog())
+            using (PeakMeterDialog PMD = new PeakMeterDialog() { Core = YAMPCore})
             {
                 PMD.ShowDialog();
             }
