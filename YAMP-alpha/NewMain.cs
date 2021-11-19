@@ -1,4 +1,6 @@
-﻿using System.Drawing;
+﻿using CSCore;
+using CSCore.Streams;
+using System.Drawing;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -10,6 +12,7 @@ namespace YAMP_alpha
 
 
         YAMP_Core YAMPCore;
+        //PeakMeterDialog PeakDialog = new PeakMeterDialog();
         public NewMain()
         {
             InitializeComponent();
@@ -171,10 +174,24 @@ namespace YAMP_alpha
 
         private void peakMtToolStripMenuItem_Click(object sender, System.EventArgs e)
         {
-            using (PeakMeterDialog PMD = new PeakMeterDialog(YAMPCore))
+            //var notificationSource = new SingleBlockNotificationStream(YAMPCore.GetSampleSource(), 15000);
+            //notificationSource.SingleBlockStreamAlmostFinished += NotificationSource_SingleBlockStreamAlmostFinished; ;
+            //notificationSource.SingleBlockRead += NotificationSource_SingleBlockRead;
+            //var PeakMeterSampleSource = notificationSource.ToWaveSource(8).ToSampleSource();
+            using (PeakMeterDialog PMD = new PeakMeterDialog())
             {
                 PMD.ShowDialog();
             }
+        }
+
+        private void NotificationSource_SingleBlockRead(object sender, SingleBlockReadEventArgs e)
+        {
+            //throw new System.NotImplementedException();
+        }
+
+        private void NotificationSource_SingleBlockStreamAlmostFinished(object sender, SingleBlockStreamAlmostFinishedEventArgs e)
+        {
+            //throw new System.NotImplementedException();
         }
     }
 }
