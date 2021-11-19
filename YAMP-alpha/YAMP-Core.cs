@@ -147,7 +147,7 @@ namespace YAMP_alpha
         //YAMP_Vars yvar = new YAMP_Vars();
         private void _AudioPeakMeter_PeakCalculated(object sender, PeakEventArgs e)
         {
-            YAMP_Vars.PeakVals = _AudioPeakMeter.ChannelPeakValues.Select(x=> (int)(x*100F)).ToArray();
+            //YAMP_Vars.PeakVals = _AudioPeakMeter.ChannelPeakValues.Select(x=> (int)(x*100F)).ToArray();
         }
 
         public void ReleasePlayer()
@@ -201,10 +201,10 @@ namespace YAMP_alpha
         }
     }
 
-    public static class YAMP_Vars
-    {
-        internal static int[] PeakVals { get; set; }
-    }
+    //public static class YAMP_Vars
+    //{
+    //    internal static int[] PeakVals { get; set; }
+    //}
 
     public struct ID3Info
     {
