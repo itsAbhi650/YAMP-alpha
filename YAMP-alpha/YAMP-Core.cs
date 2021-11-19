@@ -120,7 +120,6 @@ namespace YAMP_alpha
         {
             Task.Run(() =>
             {
-                //PitchShift = new PitchShifter(PlayerSource.ToSampleSource());
                 Player.Initialize(PlayerSource);
             }).Wait();
         }
@@ -141,13 +140,7 @@ namespace YAMP_alpha
                 Player.Initialize(PlayerSource);
             }).Wait();
             _AudioPeakMeter.Interval = 25;
-            _AudioPeakMeter.PeakCalculated += _AudioPeakMeter_PeakCalculated;
             TagInfo = GetID3Info();
-        }
-        //YAMP_Vars yvar = new YAMP_Vars();
-        private void _AudioPeakMeter_PeakCalculated(object sender, PeakEventArgs e)
-        {
-            //YAMP_Vars.PeakVals = _AudioPeakMeter.ChannelPeakValues.Select(x=> (int)(x*100F)).ToArray();
         }
 
         public void ReleasePlayer()
@@ -200,11 +193,6 @@ namespace YAMP_alpha
             Player.Dispose();
         }
     }
-
-    //public static class YAMP_Vars
-    //{
-    //    internal static int[] PeakVals { get; set; }
-    //}
 
     public struct ID3Info
     {
