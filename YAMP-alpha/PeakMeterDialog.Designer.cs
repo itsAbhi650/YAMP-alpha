@@ -28,11 +28,13 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.trackBar1 = new System.Windows.Forms.TrackBar();
             this.button1 = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.trackBar2 = new System.Windows.Forms.TrackBar();
+            this.PeakFetch = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -50,6 +52,7 @@
             this.trackBar1.TabIndex = 0;
             this.trackBar1.TickFrequency = 5;
             this.trackBar1.TickStyle = System.Windows.Forms.TickStyle.Both;
+//            this.trackBar1.ValueChanged += new System.EventHandler(this.trackBar1_ValueChanged);
             // 
             // button1
             // 
@@ -95,6 +98,12 @@
             this.trackBar2.TabIndex = 0;
             this.trackBar2.TickFrequency = 5;
             this.trackBar2.TickStyle = System.Windows.Forms.TickStyle.Both;
+           // this.trackBar2.ValueChanged += new System.EventHandler(this.trackBar2_ValueChanged);
+            // 
+            // PeakFetch
+            // 
+            this.PeakFetch.Interval = 25;
+            this.PeakFetch.Tick += new System.EventHandler(this.PeakFetch_Tick);
             // 
             // PeakMeterDialog
             // 
@@ -126,5 +135,6 @@
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.TrackBar trackBar2;
+        private System.Windows.Forms.Timer PeakFetch;
     }
 }
