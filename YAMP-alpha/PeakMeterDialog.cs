@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace YAMP_alpha
 {
     public partial class PeakMeterDialog : Form
     {
-        //public YAMP_Core Core { get; set; }
+        public YAMP_Core Core { get; set; }
         //public PeakMeter PeakMeter { get; set; }
         // private ISampleSource PeakMeterSampleSource;
         // bool AlmostEndOfStream;
@@ -94,7 +95,7 @@ namespace YAMP_alpha
 
         private void PeakFetch_Tick(object sender, EventArgs e)
         {
-            int[] PeakVals = YAMP_Vars.PeakVals;
+            int[] PeakVals = Core.AudioPeakMeter.ChannelPeakValues.Select(x => (int)(x * 100F)).ToArray();
             trackBar1.Value = PeakVals[0];//(int)(PeakVals[0] * 100F);
             trackBar2.Value = PeakVals[1];//(int)(PeakVals[1] * 100F);
         }
