@@ -256,7 +256,7 @@
             this.LoadFileStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("LoadFileStripMenuItem.Image")));
             this.LoadFileStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.LoadFileStripMenuItem.Name = "LoadFileStripMenuItem";
-            this.LoadFileStripMenuItem.Size = new System.Drawing.Size(151, 22);
+            this.LoadFileStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.LoadFileStripMenuItem.Text = "Load File";
             this.LoadFileStripMenuItem.Click += new System.EventHandler(this.LoadFileStripMenuItem_Click);
             // 
@@ -265,18 +265,18 @@
             this.LoadDirStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("LoadDirStripMenuItem.Image")));
             this.LoadDirStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.LoadDirStripMenuItem.Name = "LoadDirStripMenuItem";
-            this.LoadDirStripMenuItem.Size = new System.Drawing.Size(151, 22);
+            this.LoadDirStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.LoadDirStripMenuItem.Text = "Load Directory";
             // 
             // toolStripSeparator
             // 
             this.toolStripSeparator.Name = "toolStripSeparator";
-            this.toolStripSeparator.Size = new System.Drawing.Size(148, 6);
+            this.toolStripSeparator.Size = new System.Drawing.Size(177, 6);
             // 
             // ExitStripMenuItem
             // 
             this.ExitStripMenuItem.Name = "ExitStripMenuItem";
-            this.ExitStripMenuItem.Size = new System.Drawing.Size(151, 22);
+            this.ExitStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.ExitStripMenuItem.Text = "E&xit";
             // 
             // viewToolStripMenuItem
