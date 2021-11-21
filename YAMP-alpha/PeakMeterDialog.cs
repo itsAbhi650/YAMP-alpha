@@ -96,8 +96,14 @@ namespace YAMP_alpha
         private void PeakFetch_Tick(object sender, EventArgs e)
         {
             int[] PeakVals = Core.AudioPeakMeter.ChannelPeakValues.Select(x => (int)(x * 100F)).ToArray();
-            trackBar1.Value = PeakVals[0];//(int)(PeakVals[0] * 100F);
-            trackBar2.Value = PeakVals[1];//(int)(PeakVals[1] * 100F);
+            int Left = PeakVals[0];
+            int Right = PeakVals[1];
+            int avgpeak = (int)((Left + Right) / 2F);
+            trackBar1.Value = Left;
+            trackBar2.Value = Right;
+            trackBar3.Value = avgpeak;
+            //trackBar1.Value = PeakVals[0];//(int)(PeakVals[0] * 100F);
+            //trackBar2.Value = PeakVals[1];//(int)(PeakVals[1] * 100F);
         }
 
 
