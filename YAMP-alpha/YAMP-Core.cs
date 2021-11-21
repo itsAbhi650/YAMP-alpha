@@ -24,8 +24,8 @@ namespace YAMP_alpha
         private DmoEchoEffect _DCE;
         public DmoEchoEffect DCE { get { return _DCE; } private set { _DCE = value; } }
         public string PlayingFile { get; private set; }
+        public CSCore.DSP.FftProvider FFTP = new CSCore.DSP.FftProvider(2, CSCore.DSP.FftSize.Fft64);
         public IWaveSource PlayerSource { get; private set; }
-
 
         public int SoundOutVolume
         {
@@ -135,7 +135,7 @@ namespace YAMP_alpha
                 .ToWaveSource()
                 .AppendSource(x => new DmoEchoEffect(x) { WetDryMix = 0 }, out _DCE)
                 .ToSampleSource()
-                .AppendSource(x=> new PeakMeter(x), out _AudioPeakMeter)
+                .AppendSource(x => new PeakMeter(x), out _AudioPeakMeter)
                 .ToWaveSource();
                 Player.Initialize(PlayerSource);
             }).Wait();
