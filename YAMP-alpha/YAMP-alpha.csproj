@@ -114,6 +114,12 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="GargleEffectDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GargleEffectDialog.Designer.cs">
+      <DependentUpon>GargleEffectDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="LineSpectrum.cs" />
     <Compile Include="NewMain.cs">
       <SubType>Form</SubType>
@@ -144,6 +150,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GargleEffectDialog.resx">
+      <DependentUpon>GargleEffectDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="NewMain.resx">
       <DependentUpon>NewMain.cs</DependentUpon>
