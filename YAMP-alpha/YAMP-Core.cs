@@ -24,7 +24,9 @@ namespace YAMP_alpha
         private DmoEchoEffect _DCE;
         public DmoEchoEffect DCE { get { return _DCE; } private set { _DCE = value; } }
         public string PlayingFile { get; private set; }
-        public CSCore.DSP.FftProvider FFTP = new CSCore.DSP.FftProvider(2, CSCore.DSP.FftSize.Fft64);
+        public CSCore.DSP.FftProvider FFTP;
+        public DmoGargleEffect _GargleEffect;
+
         public IWaveSource PlayerSource { get; private set; }
 
         public int SoundOutVolume
@@ -126,21 +128,36 @@ namespace YAMP_alpha
 
         public void InitializePlayer(string filename)
         {
-            Task.Run(() =>
-            {
-                LoadFile(filename);
-                PlayerSource = PlayerSource
-                .ToSampleSource()
-                .AppendSource(x => new PitchShifter(x), out _PitchShift)
-                .ToWaveSource()
-                .AppendSource(x => new DmoEchoEffect(x) { WetDryMix = 0 }, out _DCE)
-                .ToSampleSource()
-                .AppendSource(x => new PeakMeter(x), out _AudioPeakMeter)
-                .ToWaveSource();
-                Player.Initialize(PlayerSource);
-            }).Wait();
+            // Task.Run(() =>
+            // {
+            LoadFile(filename);
+            FFTP = new CSCore.DSP.FftProvider(PlayerSource.WaveFormat.Channels, CSCore.DSP.FftSize.Fft64);
+            PlayerSource = PlayerSource
+            .ToSampleSource()
+            .AppendSource(x => new PitchShifter(x), out _PitchShift)
+            .ToWaveSource()
+            .AppendSource(x => new DmoEchoEffect(x) { WetDryMix = 0 }, out _DCE)
+            .ToSampleSource()
+            .AppendSource(x => new PeakMeter(x), out _AudioPeakMeter)
+            .ToWaveSource()
+            .AppendSource(x => new DmoGargleEffect(x), out _GargleEffect);
+            var NotificationStream = new SingleBlockNotificationStream(PlayerSource.ToSampleSource());
+            NotificationStream.SingleBlockRead += NotificationStream_SingleBlockRead;
+            PlayerSource = NotificationStream.ToWaveSource();
+            //
+            Player.Initialize(PlayerSource);
+
+            // }).Wait();
+            //_GargleEffect.WaveShape = GargleWaveShape.
             _AudioPeakMeter.Interval = 25;
-            TagInfo = GetID3Info();
+
+            //TagInfo = GetID3Info();
+        }
+
+        private void NotificationStream_SingleBlockRead(object sender, SingleBlockReadEventArgs e)
+        {
+            FFTP.Add(e.Left, e.Right);
+            //FFTCalc();
         }
 
         public void ReleasePlayer()
@@ -161,6 +178,35 @@ namespace YAMP_alpha
         public void InitializePlayer(IWaveSource WaveSource)
         {
             Task.Run(() => { Player.Initialize(WaveSource); });
+        }
+
+        public void FFTCalc()
+        {
+            var samplebuffer = new float[(int)FFTP.FftSize/2];
+            bool calculated = FFTP.GetFftData(samplebuffer);
+            if (calculated)
+            {
+                foreach (var samp in samplebuffer)
+                {
+                    var amp = samp;
+                    var y = Remap(amp, 0, 256, 0, 150);
+                }
+            }
+        }
+
+        public float Remap(float from, float fromMin, float fromMax, float toMin, float toMax)
+        {
+            var fromAbs = from - fromMin;
+            var fromMaxAbs = fromMax - fromMin;
+
+            var normal = fromAbs / fromMaxAbs;
+
+            var toMaxAbs = toMax - toMin;
+            var toAbs = toMaxAbs * normal;
+
+            var to = toAbs + toMin;
+
+            return to;
         }
 
         public void ReinitializePlayer()
