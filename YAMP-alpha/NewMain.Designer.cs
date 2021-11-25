@@ -57,6 +57,7 @@
             this.echoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.PlayTimer = new System.Windows.Forms.Timer(this.components);
+            this.gargleEffectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
@@ -256,7 +257,7 @@
             this.LoadFileStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("LoadFileStripMenuItem.Image")));
             this.LoadFileStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.LoadFileStripMenuItem.Name = "LoadFileStripMenuItem";
-            this.LoadFileStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.LoadFileStripMenuItem.Size = new System.Drawing.Size(151, 22);
             this.LoadFileStripMenuItem.Text = "Load File";
             this.LoadFileStripMenuItem.Click += new System.EventHandler(this.LoadFileStripMenuItem_Click);
             // 
@@ -265,18 +266,18 @@
             this.LoadDirStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("LoadDirStripMenuItem.Image")));
             this.LoadDirStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.LoadDirStripMenuItem.Name = "LoadDirStripMenuItem";
-            this.LoadDirStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.LoadDirStripMenuItem.Size = new System.Drawing.Size(151, 22);
             this.LoadDirStripMenuItem.Text = "Load Directory";
             // 
             // toolStripSeparator
             // 
             this.toolStripSeparator.Name = "toolStripSeparator";
-            this.toolStripSeparator.Size = new System.Drawing.Size(177, 6);
+            this.toolStripSeparator.Size = new System.Drawing.Size(148, 6);
             // 
             // ExitStripMenuItem
             // 
             this.ExitStripMenuItem.Name = "ExitStripMenuItem";
-            this.ExitStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.ExitStripMenuItem.Size = new System.Drawing.Size(151, 22);
             this.ExitStripMenuItem.Text = "E&xit";
             // 
             // viewToolStripMenuItem
@@ -298,7 +299,8 @@
             // 
             this.effectsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.pitchShifterToolStripMenuItem,
-            this.echoToolStripMenuItem});
+            this.echoToolStripMenuItem,
+            this.gargleEffectToolStripMenuItem});
             this.effectsToolStripMenuItem.Name = "effectsToolStripMenuItem";
             this.effectsToolStripMenuItem.Size = new System.Drawing.Size(54, 19);
             this.effectsToolStripMenuItem.Text = "Effects";
@@ -306,14 +308,14 @@
             // pitchShifterToolStripMenuItem
             // 
             this.pitchShifterToolStripMenuItem.Name = "pitchShifterToolStripMenuItem";
-            this.pitchShifterToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
+            this.pitchShifterToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.pitchShifterToolStripMenuItem.Text = "Pitch Shifter";
             this.pitchShifterToolStripMenuItem.Click += new System.EventHandler(this.pitchShifterToolStripMenuItem_Click);
             // 
             // echoToolStripMenuItem
             // 
             this.echoToolStripMenuItem.Name = "echoToolStripMenuItem";
-            this.echoToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
+            this.echoToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.echoToolStripMenuItem.Text = "Echo";
             this.echoToolStripMenuItem.Click += new System.EventHandler(this.echoToolStripMenuItem_Click);
             // 
@@ -331,6 +333,13 @@
             // PlayTimer
             // 
             this.PlayTimer.Tick += new System.EventHandler(this.PlayTimer_Tick);
+            // 
+            // gargleEffectToolStripMenuItem
+            // 
+            this.gargleEffectToolStripMenuItem.Name = "gargleEffectToolStripMenuItem";
+            this.gargleEffectToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.gargleEffectToolStripMenuItem.Text = "Gargle Effect";
+            this.gargleEffectToolStripMenuItem.Click += new System.EventHandler(this.gargleEffectToolStripMenuItem_Click);
             // 
             // NewMain
             // 
@@ -384,5 +393,6 @@
         private System.Windows.Forms.ToolStripMenuItem echoToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem viewToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem peakMtToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem gargleEffectToolStripMenuItem;
     }
 }

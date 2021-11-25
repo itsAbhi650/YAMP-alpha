@@ -2,6 +2,7 @@
 using CSCore.Streams;
 using System.Drawing;
 using System.Windows.Forms;
+using System;
 
 
 namespace YAMP_alpha
@@ -84,8 +85,9 @@ namespace YAMP_alpha
         {
             if (YAMPCore.PlayerPlaybackState == CSCore.SoundOut.PlaybackState.Playing)
             {
-                TimeStamp Duration = Extensions.GetPosition(YAMPCore.PlayerSource);
+                TimeSpan Duration = Extensions.GetPosition(YAMPCore.PlayerSource);
                 trackBar1.Value = (Duration.Minutes * 60) + Duration.Seconds;
+                
             }
         }
 
@@ -193,6 +195,13 @@ namespace YAMP_alpha
         private void NotificationSource_SingleBlockStreamAlmostFinished(object sender, SingleBlockStreamAlmostFinishedEventArgs e)
         {
             //throw new System.NotImplementedException();
+        }
+
+        private void gargleEffectToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            GargleEffectDialog GED = new GargleEffectDialog(ref YAMPCore._GargleEffect);
+            
+            GED.ShowDialog();
         }
     }
 }
