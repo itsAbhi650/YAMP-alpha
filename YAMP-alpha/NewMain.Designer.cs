@@ -55,9 +55,11 @@
             this.effectsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pitchShifterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.echoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.gargleEffectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.flangerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.PlayTimer = new System.Windows.Forms.Timer(this.components);
-            this.gargleEffectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.chorusToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
@@ -300,7 +302,9 @@
             this.effectsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.pitchShifterToolStripMenuItem,
             this.echoToolStripMenuItem,
-            this.gargleEffectToolStripMenuItem});
+            this.gargleEffectToolStripMenuItem,
+            this.flangerToolStripMenuItem,
+            this.chorusToolStripMenuItem});
             this.effectsToolStripMenuItem.Name = "effectsToolStripMenuItem";
             this.effectsToolStripMenuItem.Size = new System.Drawing.Size(54, 19);
             this.effectsToolStripMenuItem.Text = "Effects";
@@ -319,6 +323,20 @@
             this.echoToolStripMenuItem.Text = "Echo";
             this.echoToolStripMenuItem.Click += new System.EventHandler(this.echoToolStripMenuItem_Click);
             // 
+            // gargleEffectToolStripMenuItem
+            // 
+            this.gargleEffectToolStripMenuItem.Name = "gargleEffectToolStripMenuItem";
+            this.gargleEffectToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.gargleEffectToolStripMenuItem.Text = "Gargle Effect";
+            this.gargleEffectToolStripMenuItem.Click += new System.EventHandler(this.gargleEffectToolStripMenuItem_Click);
+            // 
+            // flangerToolStripMenuItem
+            // 
+            this.flangerToolStripMenuItem.Name = "flangerToolStripMenuItem";
+            this.flangerToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.flangerToolStripMenuItem.Text = "Flanger";
+            this.flangerToolStripMenuItem.Click += new System.EventHandler(this.flangerToolStripMenuItem_Click);
+            // 
             // pictureBox1
             // 
             this.pictureBox1.BackColor = System.Drawing.Color.Black;
@@ -334,12 +352,12 @@
             // 
             this.PlayTimer.Tick += new System.EventHandler(this.PlayTimer_Tick);
             // 
-            // gargleEffectToolStripMenuItem
+            // chorusToolStripMenuItem
             // 
-            this.gargleEffectToolStripMenuItem.Name = "gargleEffectToolStripMenuItem";
-            this.gargleEffectToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.gargleEffectToolStripMenuItem.Text = "Gargle Effect";
-            this.gargleEffectToolStripMenuItem.Click += new System.EventHandler(this.gargleEffectToolStripMenuItem_Click);
+            this.chorusToolStripMenuItem.Name = "chorusToolStripMenuItem";
+            this.chorusToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.chorusToolStripMenuItem.Text = "Chorus";
+            this.chorusToolStripMenuItem.Click += new System.EventHandler(this.chorusToolStripMenuItem_Click);
             // 
             // NewMain
             // 
@@ -394,5 +412,7 @@
         private System.Windows.Forms.ToolStripMenuItem viewToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem peakMtToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem gargleEffectToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem flangerToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem chorusToolStripMenuItem;
     }
 }
