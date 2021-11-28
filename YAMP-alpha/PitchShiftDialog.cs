@@ -1,38 +1,57 @@
-﻿using System;
+﻿using CSCore.Streams.Effects;
+using System;
 using System.Windows.Forms;
 
 namespace YAMP_alpha
 {
     public partial class PitchShiftDialog : Form
     {
-        public YAMP_Core Core { get; set; }
+        PitchShifter pitchShift;
         int ShiftJump;
         public PitchShiftDialog()
         {
             InitializeComponent();
         }
 
-        private void PitchShiftDialog_Load(object sender, EventArgs e)
+        public PitchShiftDialog(ref PitchShifter pitchShifter)
         {
-            if (Core.PlayerSource != null)
+            InitializeComponent();
+            if (pitchShifter != null)
             {
-                var value = (int)(Core.PitchShift != null
-                ? Math.Log10(Core.PitchShift.PitchShiftFactor) / Math.Log10(2) * 120
-                : 0);
-                Tb_PitchShiftingBar.Value = value;
-                textBox1.Text = "1";
+                pitchShift = pitchShifter;
             }
             else
             {
-                MessageBox.Show("Core not initialized");
+                throw new NullReferenceException("pitchShifter");
             }
+        }
+
+        public PitchShiftDialog(ref YAMP_Core YampCore)
+        {
+            InitializeComponent();
+            if (YampCore != null)
+            {
+                pitchShift = YampCore.PitchShift;
+            }
+            else
+            {
+                throw new NullReferenceException("YampCore");
+            }
+        }
+
+        private void PitchShiftDialog_Load(object sender, EventArgs e)
+        {
+            var value = Math.Log10(pitchShift.PitchShiftFactor) / Math.Log10(2) * 120;
+            Tb_PitchShiftingBar.Value = (int)value;
+            checkBox1.Checked = true;
+            textBox1.Text = "1";
         }
 
         private void Tb_PitchShiftingBar_ValueChanged(object sender, EventArgs e)
         {
-            if (Core.PitchShift != null)
+            if (pitchShift != null)
             {
-                Core.PitchShift.PitchShiftFactor = (float)Math.Pow(2, Tb_PitchShiftingBar.Value / 120.0);
+                pitchShift.PitchShiftFactor = (float)Math.Pow(2, Tb_PitchShiftingBar.Value / 120.0);
             }
         }
 
@@ -51,6 +70,17 @@ namespace YAMP_alpha
             int.TryParse(textBox1.Text, out ShiftJump);
         }
 
-
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBox1.Checked)
+            {
+                Tb_PitchShiftingBar.Enabled = true;
+            }
+            else
+            {
+                Tb_PitchShiftingBar.Value = 0;
+                Tb_PitchShiftingBar.Enabled = false;
+            }
+        }
     }
 }
