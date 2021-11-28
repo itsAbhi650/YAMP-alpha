@@ -107,6 +107,12 @@
     <Compile Include="ChorusEffectDialog.Designer.cs">
       <DependentUpon>ChorusEffectDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="CompressorEffectDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CompressorEffectDialog.Designer.cs">
+      <DependentUpon>CompressorEffectDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="dump.cs" />
     <Compile Include="EchoSignalDialog.cs">
       <SubType>Form</SubType>
@@ -153,12 +159,21 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WavesReverbEffectDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="WavesReverbEffectDialog.Designer.cs">
+      <DependentUpon>WavesReverbEffectDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="YAMP-Core.cs" />
     <EmbeddedResource Include="BigArt.resx">
       <DependentUpon>BigArt.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ChorusEffectDialog.resx">
       <DependentUpon>ChorusEffectDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="CompressorEffectDialog.resx">
+      <DependentUpon>CompressorEffectDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="EchoSignalDialog.resx">
       <DependentUpon>EchoSignalDialog.cs</DependentUpon>
@@ -191,6 +206,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="WavesReverbEffectDialog.resx">
+      <DependentUpon>WavesReverbEffectDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

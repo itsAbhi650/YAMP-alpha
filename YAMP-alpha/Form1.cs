@@ -34,8 +34,8 @@ namespace YAMP_alpha
         public bool dragging { get; private set; }
         public int[] PeakChannelValues { get { return new int[] { Tb_PeakMeterLeft.Value, Tb_PeakMeterRight.Value }; } set { Tb_PeakMeterLeft.Value = value[0]; Tb_PeakMeterRight.Value = value[1]; } }
         private Point StartPoint;
-        private bool AlmostEndOfStream;
-        private bool EndOfStream;
+        //private bool AlmostEndOfStream;
+        //private bool EndOfStream;
         Random Random = new Random();
         private Color SpectrumBarColor = Color.Green;
 
@@ -77,8 +77,8 @@ namespace YAMP_alpha
                 propertyGrid1.SelectedObject = LS;
                 var notificationSource = new SingleBlockNotificationStream(PlayerSampleSource, 150000);
                 notificationSource.SingleBlockRead += (s, a) => BSP.Add(a.Left, a.Right);
-                notificationSource.SingleBlockStreamAlmostFinished += (s, a) => AlmostEndOfStream = true;
-                notificationSource.SingleBlockStreamFinished += (s, a) => EndOfStream = true;
+                notificationSource.SingleBlockStreamAlmostFinished += (s, a) => { };// AlmostEndOfStream = true;
+                notificationSource.SingleBlockStreamFinished += (s, a) => { };//EndOfStream = true;
                 PlayerSampleSource = notificationSource.ToWaveSource(8).ToSampleSource();
                 meter = new PeakMeter(PlayerSampleSource)
                 {
@@ -241,9 +241,9 @@ namespace YAMP_alpha
             AuSeM = AudioSessionManager2.FromMMDevice(MMDEV);
             AuSeEn = AuSeM.GetSessionEnumerator();
             AuSeM.SessionCreated += AuSeM_SessionCreated;
-           // PeakMeterInfo = new AudioMeterInformation(MMDEV.Activate(typeof(AudioMeterInformation).GUID, CSCore.Win32.CLSCTX.CLSCTX_ALL, IntPtr.Zero));
+            // PeakMeterInfo = new AudioMeterInformation(MMDEV.Activate(typeof(AudioMeterInformation).GUID, CSCore.Win32.CLSCTX.CLSCTX_ALL, IntPtr.Zero));
             directSound = new CSCore.SoundOut.DirectSoundOut();
-            
+
         }
 
         private void AuSeM_SessionCreated(object sender, SessionCreatedEventArgs e)

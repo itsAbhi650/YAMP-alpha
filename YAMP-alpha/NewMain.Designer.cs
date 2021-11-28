@@ -57,9 +57,11 @@
             this.echoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.gargleEffectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.flangerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.chorusToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.PlayTimer = new System.Windows.Forms.Timer(this.components);
-            this.chorusToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.compressorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.wavesReverbToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
@@ -304,7 +306,9 @@
             this.echoToolStripMenuItem,
             this.gargleEffectToolStripMenuItem,
             this.flangerToolStripMenuItem,
-            this.chorusToolStripMenuItem});
+            this.chorusToolStripMenuItem,
+            this.compressorToolStripMenuItem,
+            this.wavesReverbToolStripMenuItem});
             this.effectsToolStripMenuItem.Name = "effectsToolStripMenuItem";
             this.effectsToolStripMenuItem.Size = new System.Drawing.Size(54, 19);
             this.effectsToolStripMenuItem.Text = "Effects";
@@ -327,7 +331,7 @@
             // 
             this.gargleEffectToolStripMenuItem.Name = "gargleEffectToolStripMenuItem";
             this.gargleEffectToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.gargleEffectToolStripMenuItem.Text = "Gargle Effect";
+            this.gargleEffectToolStripMenuItem.Text = "Gargle";
             this.gargleEffectToolStripMenuItem.Click += new System.EventHandler(this.gargleEffectToolStripMenuItem_Click);
             // 
             // flangerToolStripMenuItem
@@ -336,6 +340,13 @@
             this.flangerToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.flangerToolStripMenuItem.Text = "Flanger";
             this.flangerToolStripMenuItem.Click += new System.EventHandler(this.flangerToolStripMenuItem_Click);
+            // 
+            // chorusToolStripMenuItem
+            // 
+            this.chorusToolStripMenuItem.Name = "chorusToolStripMenuItem";
+            this.chorusToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.chorusToolStripMenuItem.Text = "Chorus";
+            this.chorusToolStripMenuItem.Click += new System.EventHandler(this.chorusToolStripMenuItem_Click);
             // 
             // pictureBox1
             // 
@@ -352,12 +363,19 @@
             // 
             this.PlayTimer.Tick += new System.EventHandler(this.PlayTimer_Tick);
             // 
-            // chorusToolStripMenuItem
+            // compressorToolStripMenuItem
             // 
-            this.chorusToolStripMenuItem.Name = "chorusToolStripMenuItem";
-            this.chorusToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.chorusToolStripMenuItem.Text = "Chorus";
-            this.chorusToolStripMenuItem.Click += new System.EventHandler(this.chorusToolStripMenuItem_Click);
+            this.compressorToolStripMenuItem.Name = "compressorToolStripMenuItem";
+            this.compressorToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.compressorToolStripMenuItem.Text = "Compressor";
+            this.compressorToolStripMenuItem.Click += new System.EventHandler(this.compressorToolStripMenuItem_Click);
+            // 
+            // wavesReverbToolStripMenuItem
+            // 
+            this.wavesReverbToolStripMenuItem.Name = "wavesReverbToolStripMenuItem";
+            this.wavesReverbToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.wavesReverbToolStripMenuItem.Text = "Waves Reverb";
+            this.wavesReverbToolStripMenuItem.Click += new System.EventHandler(this.wavesReverbToolStripMenuItem_Click);
             // 
             // NewMain
             // 
@@ -414,5 +432,7 @@
         private System.Windows.Forms.ToolStripMenuItem gargleEffectToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem flangerToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem chorusToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem compressorToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem wavesReverbToolStripMenuItem;
     }
 }

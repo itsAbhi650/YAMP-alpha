@@ -206,5 +206,21 @@ namespace YAMP_alpha
                 CED.ShowDialog();
             }
         }
+
+        private void compressorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (CompressorEffectDialog CmpED = new CompressorEffectDialog(ref YAMPCore))
+            {
+                CmpED.ShowDialog();
+            }
+        }
+
+        private void wavesReverbToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (WavesReverbEffectDialog WRED = new WavesReverbEffectDialog(ref YAMPCore))
+            {
+                WRED.ShowDialog();
+            }
+        }
     }
 }
