@@ -21,11 +21,13 @@ namespace YAMP_alpha
         private PeakMeter _AudioPeakMeter = null;
         public PeakMeter AudioPeakMeter { get { return _AudioPeakMeter; } private set { _AudioPeakMeter = value; } }
         public PitchShifter PitchShift { get { return _PitchShift; } private set { _PitchShift = value; } }
-        private DmoEchoEffect _DCE;
-        public DmoEchoEffect DCE { get { return _DCE; } private set { _DCE = value; } }
+        public DmoFlangerEffect Flanger;
+        private DmoEchoEffect EchoEffect;
+        internal DmoChorusEffect ChorusEffect;
+        public DmoEchoEffect DCE { get { return EchoEffect; } private set { EchoEffect = value; } }
         public string PlayingFile { get; private set; }
         public CSCore.DSP.FftProvider FFTP;
-        public DmoGargleEffect _GargleEffect;
+        public DmoGargleEffect GargleEffect;
 
         public IWaveSource PlayerSource { get; private set; }
 
@@ -132,15 +134,15 @@ namespace YAMP_alpha
             // {
             LoadFile(filename);
             FFTP = new CSCore.DSP.FftProvider(PlayerSource.WaveFormat.Channels, CSCore.DSP.FftSize.Fft64);
-            PlayerSource = PlayerSource
-            .ToSampleSource()
-            .AppendSource(x => new PitchShifter(x), out _PitchShift)
-            .ToWaveSource()
-            .AppendSource(x => new DmoEchoEffect(x) { WetDryMix = 0 }, out _DCE)
-            .ToSampleSource()
+            PlayerSource = PlayerSource.ToSampleSource()
+            .AppendSource(x => new PitchShifter(x), out _PitchShift)            
             .AppendSource(x => new PeakMeter(x), out _AudioPeakMeter)
             .ToWaveSource()
-            .AppendSource(x => new DmoGargleEffect(x), out _GargleEffect);
+            .AppendSource(x=> new DmoChorusEffect(x) {WetDryMix = 0, IsEnabled = false }, out ChorusEffect)
+            .AppendSource(x => new DmoEchoEffect(x) { WetDryMix = 0, IsEnabled = false  }, out EchoEffect)
+            .AppendSource(x => new DmoGargleEffect(x) { RateHz = 1, IsEnabled = false }, out GargleEffect)
+            .AppendSource(x => new DmoFlangerEffect(x) { IsEnabled = false, WetDryMix = 0}, out Flanger);
+            
             var NotificationStream = new SingleBlockNotificationStream(PlayerSource.ToSampleSource());
             NotificationStream.SingleBlockRead += NotificationStream_SingleBlockRead;
             PlayerSource = NotificationStream.ToWaveSource();
