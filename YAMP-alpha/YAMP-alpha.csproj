@@ -101,12 +101,24 @@
     <Compile Include="BigArt.Designer.cs">
       <DependentUpon>BigArt.cs</DependentUpon>
     </Compile>
+    <Compile Include="ChorusEffectDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ChorusEffectDialog.Designer.cs">
+      <DependentUpon>ChorusEffectDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="dump.cs" />
     <Compile Include="EchoSignalDialog.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="EchoSignalDialog.Designer.cs">
       <DependentUpon>EchoSignalDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FlangerEffectDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FlangerEffectDialog.Designer.cs">
+      <DependentUpon>FlangerEffectDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
@@ -145,8 +157,14 @@
     <EmbeddedResource Include="BigArt.resx">
       <DependentUpon>BigArt.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="ChorusEffectDialog.resx">
+      <DependentUpon>ChorusEffectDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="EchoSignalDialog.resx">
       <DependentUpon>EchoSignalDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FlangerEffectDialog.resx">
+      <DependentUpon>FlangerEffectDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
