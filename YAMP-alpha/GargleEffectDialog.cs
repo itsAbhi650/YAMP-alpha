@@ -18,11 +18,33 @@ namespace YAMP_alpha
             InitializeComponent();
         }
         internal DmoGargleEffect GargleEffect;
+
+        public GargleEffectDialog(ref YAMP_Core YampCore)
+        {
+            InitializeComponent();
+            if (YampCore!=null)
+            {
+                GargleEffect = YampCore.GargleEffect;
+                updateInfo();
+            }
+            else
+            {
+                throw new NullReferenceException("YampCore");
+            }
+        }
+
         public GargleEffectDialog(ref DmoGargleEffect GargleEffectRef)
         {
             InitializeComponent();
-            GargleEffect = GargleEffectRef;
-            updatelabel();
+            if (GargleEffect!=null)
+            {
+                GargleEffect = GargleEffectRef;
+                updateInfo();
+            }
+            else
+            {
+                throw new NullReferenceException("GargleEffectRef");
+            }
         }
 
         private void GargleEffectDialog_Load(object sender, EventArgs e)
@@ -30,13 +52,12 @@ namespace YAMP_alpha
             trackBar1.Value = GargleEffect.RateHz;
             comboBox1.SelectedIndex = (int)GargleEffect.WaveShape;
             checkBox1.Checked = GargleEffect.IsEnabled;
-            updatelabel();
         }
 
         private void trackBar1_ValueChanged(object sender, EventArgs e)
         {
             GargleEffect.RateHz = trackBar1.Value;
-            updatelabel();
+            updateInfo();
         }
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
@@ -46,17 +67,17 @@ namespace YAMP_alpha
 
         private void button1_Click(object sender, EventArgs e)
         {
-            trackBar1.Value = trackBar1.Value - 1;
-            updatelabel();
+            trackBar1.Value = trackBar1.Value - Convert.ToInt32(textBox1.Text);
+            updateInfo();
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            trackBar1.Value = trackBar1.Value + 1;
-            updatelabel();
+            trackBar1.Value = trackBar1.Value + Convert.ToInt32(textBox1.Text);
+            updateInfo();
         }
 
-        private void updatelabel()
+        private void updateInfo()
         {
             label1.Text = string.Format("Change the value ({0} Hz) to observe a change in effect", GargleEffect.RateHz);
         }
