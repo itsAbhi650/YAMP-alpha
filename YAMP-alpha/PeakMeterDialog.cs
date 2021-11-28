@@ -6,7 +6,7 @@ namespace YAMP_alpha
 {
     public partial class PeakMeterDialog : Form
     {
-        public YAMP_Core Core { get; set; }
+        private CSCore.Streams.PeakMeter PeakMeter;
         //public PeakMeter PeakMeter { get; set; }
         // private ISampleSource PeakMeterSampleSource;
         // bool AlmostEndOfStream;
@@ -37,28 +37,23 @@ namespace YAMP_alpha
         //    //throw new NotImplementedException();
         //}
 
-        //public PeakMeterDialog(IWaveSource PlayerSource)
-        //{
-        //    InitializeComponent();
-        //    var PlayerSampleSource = PlayerSource.ToSampleSource();
-        //    var notificationSource = new SingleBlockNotificationStream(PlayerSampleSource, 15000);
-        //    PlayerSampleSource = notificationSource.ToWaveSource(8).ToSampleSource();
-        //    PeakMeter = new PeakMeter(PlayerSampleSource)
-        //    {
-        //        Interval = 25
-        //    };
-        //    PeakMeter.PeakCalculated += PeakMeter_PeakCalculated;
-        //}
-
-        //private void PeakMeter_PeakCalculated(object sender, PeakEventArgs e)
-        //{
-
-        //}
-
         public PeakMeterDialog()
         {
             InitializeComponent();
             //Core = core;
+        }
+
+        public PeakMeterDialog(ref YAMP_Core YampCore)
+        {
+            InitializeComponent();
+            if (YampCore!=null)
+            {
+                PeakMeter = YampCore.AudioPeakMeter;
+            }
+            else
+            {
+                throw new NullReferenceException("YampCore");
+            }
         }
 
         private void PeakMeterDialog_Load(object sender, EventArgs e)
@@ -89,44 +84,18 @@ namespace YAMP_alpha
 
         private void button1_Click(object sender, EventArgs e)
         {
-            //PeakMeter.Dispose();
             Close();
         }
 
         private void PeakFetch_Tick(object sender, EventArgs e)
         {
-            int[] PeakVals = Core.AudioPeakMeter.ChannelPeakValues.Select(x => (int)(x * 100F)).ToArray();
+            int[] PeakVals = PeakMeter.ChannelPeakValues.Select(x => (int)(x * 100F)).ToArray();
             int Left = PeakVals[0];
             int Right = PeakVals[1];
             int avgpeak = (int)((Left + Right) / 2F);
             trackBar1.Value = Left;
             trackBar2.Value = Right;
             trackBar3.Value = avgpeak;
-            //trackBar1.Value = PeakVals[0];//(int)(PeakVals[0] * 100F);
-            //trackBar2.Value = PeakVals[1];//(int)(PeakVals[1] * 100F);
         }
-
-
-        //private void PeakMeter_PeakCalculated1(object sender, PeakEventArgs e)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-
-        //private void trackBar2_ValueChanged(object sender, EventArgs e)
-        //{
-        //    //float[] PeakVals = YAMP_Vars.PeakVals;
-        //    //trackBar1.Value = (int)(PeakVals[0] * 100F);
-        //    //trackBar2.Value = (int)(PeakVals[1] * 100F);
-        //}
-
-        //private void trackBar1_ValueChanged(object sender, EventArgs e)
-        //{
-        //    //float[] PeakVals = YAMP_Vars.PeakVals;
-        //    //trackBar1.Value = (int)(PeakVals[0] * 100F);
-        //    //trackBar2.Value = (int)(PeakVals[1] * 100F);
-        //}
-
-
     }
 }
