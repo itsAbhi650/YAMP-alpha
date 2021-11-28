@@ -1,37 +1,55 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CSCore.Streams.Effects;
+using System;
 using System.Windows.Forms;
 
 namespace YAMP_alpha
 {
     public partial class EchoSignalDialog : Form
     {
-        public YAMP_Core Core { get; set; }
+        public DmoEchoEffect EchoEffect;
         int EchoJump;
         public EchoSignalDialog()
         {
             InitializeComponent();
         }
 
-        private void EchoSignalDialog_Load(object sender, EventArgs e)
+        public EchoSignalDialog(ref DmoEchoEffect dmoEchoEffect)
         {
-            if (Core!=null)
+            InitializeComponent();
+            if (dmoEchoEffect != null)
             {
-                Tb_EchoShiftingBar.Value = (int)Core.DCE.WetDryMix;
-                Tb_EchoShiftingBar.ValueChanged += Tb_EchoShiftingBar_ValueChanged;
-                textBox1.TextChanged += TextBox1_TextChanged;
-                textBox1.Text = "1";
+                EchoEffect = dmoEchoEffect;
             }
             else
             {
-                MessageBox.Show("Core not initialized");
+                throw new NullReferenceException("dmoEchoEffect");
             }
+        }
+
+        public EchoSignalDialog(ref YAMP_Core YampCore)
+        {
+            InitializeComponent();
+            if (YampCore != null)
+            {
+                EchoEffect = YampCore.DCE;
+            }
+            else
+            {
+                throw new NullReferenceException("YampCore");
+            }
+        }
+
+        private void EchoSignalDialog_Load(object sender, EventArgs e)
+        {
+            Tb_EchoShiftingBar.Value = (int)EchoEffect.WetDryMix;
+            Tb_EchoShiftingBar.ValueChanged += Tb_EchoShiftingBar_ValueChanged;
+            textBox1.TextChanged += TextBox1_TextChanged;
+            textBox1.Text = "1";
+            EchoEffect.IsEnabled = checkBox1.Checked;
+            checkBox2.Checked = EchoEffect.PanDelay;
+            numericUpDown1.Value = Convert.ToDecimal(EchoEffect.Feedback);
+            numericUpDown2.Value = Convert.ToDecimal(EchoEffect.LeftDelay);
+            numericUpDown3.Value = Convert.ToDecimal(EchoEffect.RightDelay);
         }
 
         private void TextBox1_TextChanged(object sender, EventArgs e)
@@ -41,9 +59,9 @@ namespace YAMP_alpha
 
         private void Tb_EchoShiftingBar_ValueChanged(object sender, EventArgs e)
         {
-            if (Core!=null)
+            if (EchoEffect != null)
             {
-                Core.DCE.WetDryMix = Tb_EchoShiftingBar.Value;
+                EchoEffect.WetDryMix = Tb_EchoShiftingBar.Value;
             }
         }
 
@@ -57,6 +75,31 @@ namespace YAMP_alpha
         {
             int JUMP = Tb_EchoShiftingBar.Value - EchoJump;
             Tb_EchoShiftingBar.Value = JUMP > Tb_EchoShiftingBar.Minimum ? JUMP : Tb_EchoShiftingBar.Minimum;
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            EchoEffect.IsEnabled = checkBox1.Checked;
+        }
+
+        private void checkBox2_CheckedChanged(object sender, EventArgs e)
+        {
+            EchoEffect.PanDelay = checkBox2.Checked;
+        }
+
+        private void numericUpDown1_ValueChanged(object sender, EventArgs e)
+        {
+            EchoEffect.Feedback = Convert.ToSingle(numericUpDown1.Value);
+        }
+
+        private void numericUpDown2_ValueChanged(object sender, EventArgs e)
+        {
+            EchoEffect.LeftDelay = Convert.ToSingle(numericUpDown2.Value);
+        }
+
+        private void numericUpDown3_ValueChanged(object sender, EventArgs e)
+        {
+            EchoEffect.RightDelay = Convert.ToSingle(numericUpDown3.Value);
         }
     }
 }
