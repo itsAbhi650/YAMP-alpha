@@ -1,8 +1,8 @@
 ﻿using CSCore;
 using CSCore.Streams;
+using System;
 using System.Drawing;
 using System.Windows.Forms;
-using System;
 
 
 namespace YAMP_alpha
@@ -44,12 +44,10 @@ namespace YAMP_alpha
                     if (OPD.ShowDialog() == DialogResult.OK)
                     {
                         YAMPCore.InitializePlayer(OPD.FileName);
-                        var Duration = TimeConverterFactory.Instance.GetTimeConverterForSource(YAMPCore.PlayerSource).
-                            ToTimeSpan(YAMPCore.PlayerSource.WaveFormat, YAMPCore.PlayerSource.Length).TotalSeconds;
-                        int durationS = (int)Duration + 1;
-                        //DoResize(YAMPCore.TagInfo.Cover);
+                        var Dur = Extensions.GetLength(YAMPCore.PlayerSource).TotalSeconds;
+                        int durationS = (int)Dur + 1;
                         trackBar2.Value = YAMPCore.SoundOutVolume;
-                        trackBar1.Maximum = durationS;// YAMPCore.PlayerLength;
+                        trackBar1.Maximum = durationS;
 
                         pictureBox1.BackgroundImage = YAMPCore.TagInfo.Cover;
                     }
@@ -85,7 +83,7 @@ namespace YAMP_alpha
             {
                 TimeSpan Duration = Extensions.GetPosition(YAMPCore.PlayerSource);
                 trackBar1.Value = (Duration.Minutes * 60) + Duration.Seconds;
-                
+
             }
         }
 
@@ -142,24 +140,22 @@ namespace YAMP_alpha
         {
             if (YAMPCore.PlayerInitialized)
             {
-                YAMPCore.PlayerSource.Position = trackBar1.Value;
+                TimeSpan ts = TimeSpan.FromSeconds(trackBar1.Value);
+                Extensions.SetPosition(YAMPCore.PlayerSource, ts);
             }
         }
 
         private void pitchShifterToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            using (PitchShiftDialog PSD = new PitchShiftDialog(ref YAMPCore))
-            {
-                PSD.ShowDialog();
-            }
+            PitchShiftDialog PSD = new PitchShiftDialog(ref YAMPCore);
+            PSD.Show();
         }
 
         private void echoToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            using (EchoSignalDialog ESD = new EchoSignalDialog(ref YAMPCore))
-            {
-                ESD.ShowDialog();
-            }
+            EchoSignalDialog ESD = new EchoSignalDialog(ref YAMPCore);
+            ESD.Show();
+
         }
 
         private void peakMtToolStripMenuItem_Click(object sender, EventArgs e)
@@ -168,10 +164,9 @@ namespace YAMP_alpha
             //notificationSource.SingleBlockStreamAlmostFinished += NotificationSource_SingleBlockStreamAlmostFinished; ;
             //notificationSource.SingleBlockRead += NotificationSource_SingleBlockRead;
             //var PeakMeterSampleSource = notificationSource.ToWaveSource(8).ToSampleSource();
-            using (PeakMeterDialog PMD = new PeakMeterDialog(ref YAMPCore))
-            {
-                PMD.ShowDialog();
-            }
+            PeakMeterDialog PMD = new PeakMeterDialog(ref YAMPCore);
+            PMD.Show();
+
         }
 
         private void NotificationSource_SingleBlockRead(object sender, SingleBlockReadEventArgs e)
@@ -187,40 +182,31 @@ namespace YAMP_alpha
         private void gargleEffectToolStripMenuItem_Click(object sender, EventArgs e)
         {
             GargleEffectDialog GED = new GargleEffectDialog(ref YAMPCore);
-            
-            GED.ShowDialog();
+            GED.Show();
         }
 
         private void flangerToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            using (FlangerEffectDialog FED = new FlangerEffectDialog(ref YAMPCore))
-            {
-                FED.ShowDialog();
-            }
+            FlangerEffectDialog FED = new FlangerEffectDialog(ref YAMPCore);
+            FED.Show();
         }
 
         private void chorusToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            using (ChorusEffectDialog CED = new ChorusEffectDialog(ref YAMPCore))
-            {
-                CED.ShowDialog();
-            }
+            ChorusEffectDialog CED = new ChorusEffectDialog(ref YAMPCore);
+            CED.Show();
         }
 
         private void compressorToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            using (CompressorEffectDialog CmpED = new CompressorEffectDialog(ref YAMPCore))
-            {
-                CmpED.ShowDialog();
-            }
+            CompressorEffectDialog CmpED = new CompressorEffectDialog(ref YAMPCore);
+            CmpED.Show();
         }
 
         private void wavesReverbToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            using (WavesReverbEffectDialog WRED = new WavesReverbEffectDialog(ref YAMPCore))
-            {
-                WRED.ShowDialog();
-            }
+            WavesReverbEffectDialog WRED = new WavesReverbEffectDialog(ref YAMPCore);
+            WRED.Show();
         }
     }
 }
