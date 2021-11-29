@@ -48,7 +48,6 @@ namespace YAMP_alpha
                         int durationS = (int)Dur + 1;
                         trackBar2.Value = YAMPCore.SoundOutVolume;
                         trackBar1.Maximum = durationS;
-
                         pictureBox1.BackgroundImage = YAMPCore.TagInfo.Cover;
                     }
                 }
