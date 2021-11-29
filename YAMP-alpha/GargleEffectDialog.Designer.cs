@@ -62,7 +62,7 @@
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(348, 22);
             this.label1.TabIndex = 9;
-            this.label1.Text = "Change the value (Hz) to observe a change in effect. (1 to 1000) Hz";
+            this.label1.Text = "Change the value (Hz) to observe a change in Gargle effect";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // groupBox1
