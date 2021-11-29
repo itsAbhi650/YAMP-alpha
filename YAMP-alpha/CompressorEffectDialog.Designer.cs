@@ -188,7 +188,7 @@
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(411, 22);
             this.label1.TabIndex = 35;
-            this.label1.Text = "Change the values to observe a change in Chorus Effect";
+            this.label1.Text = "Change the values to observe a change in Compressor Effect";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // Btn_UpShift
