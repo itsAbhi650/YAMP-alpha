@@ -3,6 +3,7 @@ using CSCore.CoreAudioAPI;
 using CSCore.Streams;
 using CSCore.Streams.Effects;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -48,6 +49,7 @@ namespace YAMP_alpha
         public YAMP_Core()
         {
             Player = new CSCore.SoundOut.DirectSoundOut();
+            Player.Stopped += Player_Stopped;
             MediaDevice = new MMDeviceEnumerator().GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
             Task.Run(() =>
             {
@@ -56,10 +58,16 @@ namespace YAMP_alpha
 
         }
 
+        private void Player_Stopped(object sender, CSCore.SoundOut.PlaybackStoppedEventArgs e)
+        {
+            System.Windows.Forms.MessageBox.Show("Player Stopped");
+        }
+
         public void LoadFile(string Filename)
         {
             PlayingFile = Filename;
             PlayerSource = CSCore.Codecs.CodecFactory.Instance.GetCodec(PlayingFile);
+
 
         }
 
@@ -96,6 +104,7 @@ namespace YAMP_alpha
             return Picture;
         }
 
+      
         private ID3Info GetID3Info()
         {
             using (TagLib.File AudioFile = TagLib.File.Create(PlayingFile))
@@ -108,9 +117,6 @@ namespace YAMP_alpha
                     Artists = AudioFile.Tag.JoinedPerformers,
                     AlbumArtist = AudioFile.Tag.JoinedAlbumArtists,
                     Bitrate = AudioFile.Properties.AudioBitrate,
-                    Cover = GetCoverImage(Picture),
-                    CoverMIME = Picture.MimeType,
-                    CoverType = Picture.Type.ToString(),
                     Duration = AudioFile.Properties.Duration.ToString("mm\\:ss"),
                     FileSize = AudioFile.FileAbstraction.ReadStream.Length.ToString(),
                     Genre = AudioFile.Tag.JoinedGenres,
@@ -118,6 +124,12 @@ namespace YAMP_alpha
                     Format = AudioFile.Properties.Description,
                     CompleteName = AudioFile.Name,
                 };
+                if (Picture != null)
+                {
+                    info.Cover = GetCoverImage(Picture);
+                    info.CoverMIME = Picture.MimeType;
+                    info.CoverType = Picture.Type.ToString();
+                }
                 return info;
             }
         }
@@ -132,15 +144,13 @@ namespace YAMP_alpha
 
         public void InitializePlayer(string filename)
         {
-            // Task.Run(() =>
-            // {
             LoadFile(filename);
             FFTP = new CSCore.DSP.FftProvider(PlayerSource.WaveFormat.Channels, CSCore.DSP.FftSize.Fft64);
             PlayerSource = PlayerSource.ToSampleSource()
             .AppendSource(x => new PitchShifter(x), out _PitchShift)
             .AppendSource(x => new PeakMeter(x), out _AudioPeakMeter)
             .ToWaveSource()
-            .AppendSource(x=> new DmoWavesReverbEffect(x) { IsEnabled = false}, out WavesReverbEffect)
+            .AppendSource(x => new DmoWavesReverbEffect(x) { IsEnabled = false }, out WavesReverbEffect)
             .AppendSource(x => new DmoCompressorEffect(x) { IsEnabled = false, }, out CompressorEffect)
             .AppendSource(x => new DmoChorusEffect(x) { WetDryMix = 0, IsEnabled = false }, out ChorusEffect)
             .AppendSource(x => new DmoEchoEffect(x) { WetDryMix = 0, IsEnabled = false }, out EchoEffect)
@@ -150,11 +160,7 @@ namespace YAMP_alpha
             var NotificationStream = new SingleBlockNotificationStream(PlayerSource.ToSampleSource());
             NotificationStream.SingleBlockRead += NotificationStream_SingleBlockRead;
             PlayerSource = NotificationStream.ToWaveSource();
-            //
             Player.Initialize(PlayerSource);
-
-            // }).Wait();
-            //_GargleEffect.WaveShape = GargleWaveShape.
             _AudioPeakMeter.Interval = 25;
 
             TagInfo = GetID3Info();
@@ -163,7 +169,6 @@ namespace YAMP_alpha
         private void NotificationStream_SingleBlockRead(object sender, SingleBlockReadEventArgs e)
         {
             FFTP.Add(e.Left, e.Right);
-            //FFTCalc();
         }
 
         public void ReleasePlayer()
