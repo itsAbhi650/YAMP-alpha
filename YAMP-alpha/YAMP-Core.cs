@@ -31,7 +31,7 @@ namespace YAMP_alpha
         public string PlayingFile { get; private set; }
         public CSCore.DSP.FftProvider FFTP;
         public DmoGargleEffect GargleEffect;
-
+        public bool PlayerStopped = false;
         public IWaveSource PlayerSource { get; private set; }
 
         public int SoundOutVolume
@@ -60,7 +60,7 @@ namespace YAMP_alpha
 
         private void Player_Stopped(object sender, CSCore.SoundOut.PlaybackStoppedEventArgs e)
         {
-            System.Windows.Forms.MessageBox.Show("Player Stopped");
+            PlayerStopped = true;
         }
 
         public void LoadFile(string Filename)
@@ -159,6 +159,8 @@ namespace YAMP_alpha
 
             var NotificationStream = new SingleBlockNotificationStream(PlayerSource.ToSampleSource());
             NotificationStream.SingleBlockRead += NotificationStream_SingleBlockRead;
+            NotificationStream.SingleBlockStreamAlmostFinished += NotificationStream_SingleBlockStreamAlmostFinished;
+            NotificationStream.SingleBlockStreamFinished += NotificationStream_SingleBlockStreamFinished;
             PlayerSource = NotificationStream.ToWaveSource();
             Player.Initialize(PlayerSource);
             _AudioPeakMeter.Interval = 25;
@@ -166,9 +168,21 @@ namespace YAMP_alpha
             TagInfo = GetID3Info();
         }
 
+        private void NotificationStream_SingleBlockStreamFinished(object sender, SingleBlockStreamFinishedEventArgs e)
+        {
+            PlayerStopped = true;
+        }
+
+        private void NotificationStream_SingleBlockStreamAlmostFinished(object sender, SingleBlockStreamAlmostFinishedEventArgs e)
+        {
+            
+        }
+
         private void NotificationStream_SingleBlockRead(object sender, SingleBlockReadEventArgs e)
         {
             FFTP.Add(e.Left, e.Right);
+            WaveFormLEFT = e.Left;
+            WaveFormRIGHT = e.Right;
         }
 
         public void ReleasePlayer()
@@ -229,6 +243,10 @@ namespace YAMP_alpha
         }
 
         public bool PlayerInitialized { get { return Player.WaveSource != null; } }
+
+        public float WaveFormLEFT { get; private set; }
+        public float WaveFormRIGHT { get; private set; }
+        public bool PlayerPaused { get; internal set; }
 
         public void Play()
         {
