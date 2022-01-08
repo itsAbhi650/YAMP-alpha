@@ -6,6 +6,7 @@ My prime objective of creating this project is to learn about the library as it 
  
 ## Libraries used
 * CSCore
+* NAudio
 * TagLibSharp
 * MediaInfo
 
