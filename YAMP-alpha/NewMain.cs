@@ -56,6 +56,8 @@ namespace YAMP_alpha
             {
                 if (YAMPCore.PlayerPlaybackState != CSCore.SoundOut.PlaybackState.Playing)
                 {
+                    YAMPCore.PlayerStopped = false;
+                    YAMPCore.PlayerPaused = false;
                     YAMPCore.Play();
                     PlayTimer.Start();
                 }
@@ -73,16 +75,27 @@ namespace YAMP_alpha
             {
                 YAMPCore.Pause();
                 PlayTimer.Stop();
+                YAMPCore.PlayerPaused = true;
             }
         }
 
         private void PlayTimer_Tick(object sender, EventArgs e)
         {
-            if (YAMPCore.PlayerPlaybackState == CSCore.SoundOut.PlaybackState.Playing)
+            if (!YAMPCore.PlayerStopped)
             {
                 TimeSpan Duration = Extensions.GetPosition(YAMPCore.PlayerSource);
                 trackBar1.Value = (Duration.Minutes * 60) + Duration.Seconds;
-
+                waveformPainter1.AddMax(YAMPCore.WaveFormLEFT);
+            }
+            else if(YAMPCore.PlayerPaused)
+            {
+                PlayTimer.Stop();
+            }
+            else
+            {
+                trackBar1.Value = 0;
+                YAMPCore.PlayerSource.Position = 0;
+                YAMPCore.Player.Stop();
             }
         }
 
@@ -96,10 +109,11 @@ namespace YAMP_alpha
 
         private void button4_Click(object sender, EventArgs e)
         {
-            if (YAMPCore.PlayerPlaybackState == CSCore.SoundOut.PlaybackState.Playing)
+            if (!YAMPCore.PlayerStopped)
             {
                 trackBar1.Value = 0;
-                YAMPCore.ReinitializePlayer();
+                YAMPCore.PlayerSource.Position = 0;
+                YAMPCore.Player.Stop();
             }
         }
 
@@ -206,6 +220,18 @@ namespace YAMP_alpha
         {
             WavesReverbEffectDialog WRED = new WavesReverbEffectDialog(ref YAMPCore);
             WRED.Show();
+        }
+
+        private void changeSampleRateToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SampleConverterDialog SCD = new SampleConverterDialog(YAMPCore.PlayerSource);
+            SCD.Show();
+        }
+
+        private void waveformNAudioToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Waveform WF = new Waveform(ref YAMPCore);
+            WF.Show();
         }
     }
 }
