@@ -15,6 +15,7 @@ namespace YAMP_alpha
         public static DmoFlangerEffect FlangerEffect;
         public static DmoEchoEffect EchoEffect;
         public static DmoChorusEffect ChorusEffect;
+        public static Equalizer EqualizerEffect;
         //public static DmoEchoEffect DCE { get { return EchoEffect; } private set { EchoEffect = value; } }
         public static DmoGargleEffect GargleEffect;
         public static PitchShifter PitchShiftEffect;
