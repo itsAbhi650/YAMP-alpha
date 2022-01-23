@@ -68,11 +68,11 @@ namespace YAMP_alpha
                 PlayingFile = new FileInfo(filename);
 
                 BSP = new BasicSpectrumProvider(Player.WaveFormat.Channels, Player.WaveFormat.SampleRate, FftSize.Fft16384);
-                LS = new LineSpectrum(BSP.FftSize, BSP)
+                LS = new LineSpectrum(BSP.FftSize)
                 {
                     BarCount = 25,
                     BarSpacing = 1,
-                    ScaleStrategy = LineSpectrum.ScalingStrategy.Sqrt
+                    ScalingStrategy = ScalingStrategy.Sqrt
                 };
                 propertyGrid1.SelectedObject = LS;
                 var notificationSource = new SingleBlockNotificationStream(PlayerSampleSource, 150000);
@@ -224,7 +224,7 @@ namespace YAMP_alpha
                 SpectrumBarColor = Color.FromArgb(r, g, b);
             }
             Image image = spectrumBox.Image;
-            var newImage = LS.CreateSpectrumLine(spectrumBox.Size, SpectrumBarColor, Color.FromArgb(45, 45, 48), true);
+            var newImage = LS.CreateSpectrumLine(spectrumBox.Size, SpectrumBarColor, SpectrumBarColor, Color.FromArgb(45, 45, 48), true);
             if (newImage != null)
             {
                 spectrumBox.Image = newImage;
