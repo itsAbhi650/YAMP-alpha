@@ -3,7 +3,6 @@ using CSCore.CoreAudioAPI;
 using CSCore.Streams;
 using CSCore.Streams.Effects;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -13,24 +12,10 @@ namespace YAMP_alpha
 {
     public class YAMP_Core : IDisposable
     {
-        private MMDevice MediaDevice;
+
         public ID3Info TagInfo { get; set; }
         public CSCore.SoundOut.ISoundOut Player { get; private set; }
-        private AudioSessionEnumerator AudioSessionEnum;
-        internal DmoCompressorEffect CompressorEffect;
-        internal DmoWavesReverbEffect WavesReverbEffect;
-        private AudioSessionManager2 SessionManager;
-        private PitchShifter _PitchShift;
-        private PeakMeter _AudioPeakMeter = null;
-        public PeakMeter AudioPeakMeter { get { return _AudioPeakMeter; } private set { _AudioPeakMeter = value; } }
-        public PitchShifter PitchShift { get { return _PitchShift; } private set { _PitchShift = value; } }
-        public DmoFlangerEffect Flanger;
-        private DmoEchoEffect EchoEffect;
-        internal DmoChorusEffect ChorusEffect;
-        public DmoEchoEffect DCE { get { return EchoEffect; } private set { EchoEffect = value; } }
         public string PlayingFile { get; private set; }
-        public CSCore.DSP.FftProvider FFTP;
-        public DmoGargleEffect GargleEffect;
         public bool PlayerStopped = false;
         public IWaveSource PlayerSource { get; private set; }
 
@@ -50,11 +35,11 @@ namespace YAMP_alpha
         {
             Player = new CSCore.SoundOut.DirectSoundOut();
             Player.Stopped += Player_Stopped;
-            MediaDevice = new MMDeviceEnumerator().GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
+            YAMPVars.MediaDevice = new MMDeviceEnumerator().GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
             Task.Run(() =>
             {
-                SessionManager = AudioSessionManager2.FromMMDevice(MediaDevice);
-            }).ContinueWith((t) => AudioSessionEnum = SessionManager.GetSessionEnumerator());
+                YAMPVars.AudioSessionManager = AudioSessionManager2.FromMMDevice(YAMPVars.MediaDevice);
+            }).ContinueWith((t) => YAMPVars.SessionEnumerator = YAMPVars.AudioSessionManager.GetSessionEnumerator());
 
         }
 
@@ -67,8 +52,6 @@ namespace YAMP_alpha
         {
             PlayingFile = Filename;
             PlayerSource = CSCore.Codecs.CodecFactory.Instance.GetCodec(PlayingFile);
-
-
         }
 
         private Image GetCoverImage(TagLib.File Audiofile)
@@ -104,7 +87,7 @@ namespace YAMP_alpha
             return Picture;
         }
 
-      
+
         private ID3Info GetID3Info()
         {
             using (TagLib.File AudioFile = TagLib.File.Create(PlayingFile))
@@ -145,26 +128,24 @@ namespace YAMP_alpha
         public void InitializePlayer(string filename)
         {
             LoadFile(filename);
-            FFTP = new CSCore.DSP.FftProvider(PlayerSource.WaveFormat.Channels, CSCore.DSP.FftSize.Fft64);
-            PlayerSource = PlayerSource.ToSampleSource()
-            .AppendSource(x => new PitchShifter(x), out _PitchShift)
-            .AppendSource(x => new PeakMeter(x), out _AudioPeakMeter)
+            PlayerSource = PlayerSource
+            .ToSampleSource()
+            .AppendSource(x => new PitchShifter(x), out YAMPVars.PitchShiftEffect)
+            .AppendSource(x => new PeakMeter(x), out YAMPVars.AudioPeakMeter)
+            .AppendSource(x => new SingleBlockNotificationStream(x), out YAMPVars.SingleBlockNotificationStream)
             .ToWaveSource()
-            .AppendSource(x => new DmoWavesReverbEffect(x) { IsEnabled = false }, out WavesReverbEffect)
-            .AppendSource(x => new DmoCompressorEffect(x) { IsEnabled = false, }, out CompressorEffect)
-            .AppendSource(x => new DmoChorusEffect(x) { WetDryMix = 0, IsEnabled = false }, out ChorusEffect)
-            .AppendSource(x => new DmoEchoEffect(x) { WetDryMix = 0, IsEnabled = false }, out EchoEffect)
-            .AppendSource(x => new DmoGargleEffect(x) { RateHz = 1, IsEnabled = false }, out GargleEffect)
-            .AppendSource(x => new DmoFlangerEffect(x) { IsEnabled = false, WetDryMix = 0 }, out Flanger);
+            .AppendSource(x => new DmoWavesReverbEffect(x) { IsEnabled = false }, out YAMPVars.WavesReverbEffect)
+            .AppendSource(x => new DmoCompressorEffect(x) { IsEnabled = false, }, out YAMPVars.CompressorEffect)
+            .AppendSource(x => new DmoChorusEffect(x) { WetDryMix = 0, IsEnabled = false }, out YAMPVars.ChorusEffect)
+            .AppendSource(x => new DmoEchoEffect(x) { WetDryMix = 0, IsEnabled = false }, out YAMPVars.EchoEffect)
+            .AppendSource(x => new DmoGargleEffect(x) { RateHz = 1, IsEnabled = false }, out YAMPVars.GargleEffect)
+            .AppendSource(x => new DmoFlangerEffect(x) { IsEnabled = false, WetDryMix = 0 }, out YAMPVars.FlangerEffect);
 
-            var NotificationStream = new SingleBlockNotificationStream(PlayerSource.ToSampleSource());
-            NotificationStream.SingleBlockRead += NotificationStream_SingleBlockRead;
-            NotificationStream.SingleBlockStreamAlmostFinished += NotificationStream_SingleBlockStreamAlmostFinished;
-            NotificationStream.SingleBlockStreamFinished += NotificationStream_SingleBlockStreamFinished;
-            PlayerSource = NotificationStream.ToWaveSource();
+            YAMPVars.SingleBlockNotificationStream.SingleBlockRead += NotificationStream_SingleBlockRead;
+            YAMPVars.SingleBlockNotificationStream.SingleBlockStreamAlmostFinished += NotificationStream_SingleBlockStreamAlmostFinished;
+            YAMPVars.SingleBlockNotificationStream.SingleBlockStreamFinished += NotificationStream_SingleBlockStreamFinished;
             Player.Initialize(PlayerSource);
-            _AudioPeakMeter.Interval = 25;
-
+            YAMPVars.AudioPeakMeter.Interval = 25;
             TagInfo = GetID3Info();
         }
 
@@ -175,12 +156,11 @@ namespace YAMP_alpha
 
         private void NotificationStream_SingleBlockStreamAlmostFinished(object sender, SingleBlockStreamAlmostFinishedEventArgs e)
         {
-            
+
         }
 
         private void NotificationStream_SingleBlockRead(object sender, SingleBlockReadEventArgs e)
         {
-            FFTP.Add(e.Left, e.Right);
             WaveFormLEFT = e.Left;
             WaveFormRIGHT = e.Right;
         }
@@ -203,20 +183,6 @@ namespace YAMP_alpha
         public void InitializePlayer(IWaveSource WaveSource)
         {
             Task.Run(() => { Player.Initialize(WaveSource); });
-        }
-
-        public void FFTCalc()
-        {
-            var samplebuffer = new float[(int)FFTP.FftSize / 2];
-            bool calculated = FFTP.GetFftData(samplebuffer);
-            if (calculated)
-            {
-                foreach (var samp in samplebuffer)
-                {
-                    var amp = samp;
-                    var y = Remap(amp, 0, 256, 0, 150);
-                }
-            }
         }
 
         public float Remap(float from, float fromMin, float fromMax, float toMin, float toMax)

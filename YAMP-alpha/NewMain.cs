@@ -9,7 +9,7 @@ namespace YAMP_alpha
 {
     public partial class NewMain : Form
     {
-        YAMP_Core YAMPCore;
+        //YAMP_Core YAMPCore;
         public NewMain()
         {
             InitializeComponent();
@@ -32,33 +32,33 @@ namespace YAMP_alpha
 
         private void NewMain_Load(object sender, EventArgs e)
         {
-            YAMPCore = new YAMP_Core();
+            YAMPVars.CORE = new YAMP_Core();
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            if (YAMPCore.PlayerSource == null)
+            if (YAMPVars.CORE.PlayerSource == null)
             {
                 using (OpenFileDialog OPD = new OpenFileDialog())
                 {
                     if (OPD.ShowDialog() == DialogResult.OK)
                     {
-                        YAMPCore.InitializePlayer(OPD.FileName);
-                        var Dur = Extensions.GetLength(YAMPCore.PlayerSource).TotalSeconds;
+                        YAMPVars.CORE.InitializePlayer(OPD.FileName);
+                        var Dur = Extensions.GetLength(YAMPVars.CORE.PlayerSource).TotalSeconds;
                         int durationS = (int)Dur + 1;
-                        trackBar2.Value = YAMPCore.SoundOutVolume;
+                        trackBar2.Value = YAMPVars.CORE.SoundOutVolume;
                         trackBar1.Maximum = durationS;
-                        pictureBox1.BackgroundImage = YAMPCore.TagInfo.Cover;
+                        pictureBox1.BackgroundImage = YAMPVars.CORE.TagInfo.Cover;
                     }
                 }
             }
             else
             {
-                if (YAMPCore.PlayerPlaybackState != CSCore.SoundOut.PlaybackState.Playing)
+                if (YAMPVars.CORE.PlayerPlaybackState != CSCore.SoundOut.PlaybackState.Playing)
                 {
-                    YAMPCore.PlayerStopped = false;
-                    YAMPCore.PlayerPaused = false;
-                    YAMPCore.Play();
+                    YAMPVars.CORE.PlayerStopped = false;
+                    YAMPVars.CORE.PlayerPaused = false;
+                    YAMPVars.CORE.Play();
                     PlayTimer.Start();
                 }
             }
@@ -66,54 +66,54 @@ namespace YAMP_alpha
 
         private void trackBar2_Scroll(object sender, EventArgs e)
         {
-            YAMPCore.SoundOutVolume = trackBar2.Value;
+            YAMPVars.CORE.SoundOutVolume = trackBar2.Value;
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
-            if (YAMPCore.PlayerPlaybackState == CSCore.SoundOut.PlaybackState.Playing)
+            if (YAMPVars.CORE.PlayerPlaybackState == CSCore.SoundOut.PlaybackState.Playing)
             {
-                YAMPCore.Pause();
+                YAMPVars.CORE.Pause();
                 PlayTimer.Stop();
-                YAMPCore.PlayerPaused = true;
+                YAMPVars.CORE.PlayerPaused = true;
             }
         }
 
         private void PlayTimer_Tick(object sender, EventArgs e)
         {
-            if (!YAMPCore.PlayerStopped)
+            if (!YAMPVars.CORE.PlayerStopped)
             {
-                TimeSpan Duration = Extensions.GetPosition(YAMPCore.PlayerSource);
+                TimeSpan Duration = Extensions.GetPosition(YAMPVars.CORE.PlayerSource);
                 trackBar1.Value = (Duration.Minutes * 60) + Duration.Seconds;
-                waveformPainter1.AddMax(YAMPCore.WaveFormLEFT);
+                waveformPainter1.AddMax(YAMPVars.CORE.WaveFormLEFT);
             }
-            else if(YAMPCore.PlayerPaused)
+            else if(YAMPVars.CORE.PlayerPaused)
             {
                 PlayTimer.Stop();
             }
             else
             {
                 trackBar1.Value = 0;
-                YAMPCore.PlayerSource.Position = 0;
-                YAMPCore.Player.Stop();
+                YAMPVars.CORE.PlayerSource.Position = 0;
+                YAMPVars.CORE.Player.Stop();
             }
         }
 
         private void NewMain_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (YAMPCore != null)
+            if (YAMPVars.CORE != null)
             {
-                YAMPCore.Dispose();
+                YAMPVars.CORE.Dispose();
             }
         }
 
         private void button4_Click(object sender, EventArgs e)
         {
-            if (!YAMPCore.PlayerStopped)
+            if (!YAMPVars.CORE.PlayerStopped)
             {
                 trackBar1.Value = 0;
-                YAMPCore.PlayerSource.Position = 0;
-                YAMPCore.Player.Stop();
+                YAMPVars.CORE.PlayerSource.Position = 0;
+                YAMPVars.CORE.Player.Stop();
             }
         }
 
@@ -123,11 +123,11 @@ namespace YAMP_alpha
             {
                 if (OPD.ShowDialog() == DialogResult.OK)
                 {
-                    YAMPCore.ReleasePlayer();
-                    YAMPCore.InitializePlayer(OPD.FileName);
+                    YAMPVars.CORE.ReleasePlayer();
+                    YAMPVars.CORE.InitializePlayer(OPD.FileName);
 
-                    trackBar2.Value = YAMPCore.SoundOutVolume;
-                    trackBar1.Maximum = YAMPCore.PlayerLength;
+                    trackBar2.Value = YAMPVars.CORE.SoundOutVolume;
+                    trackBar1.Maximum = YAMPVars.CORE.PlayerLength;
                 }
             }
         }
@@ -151,22 +151,22 @@ namespace YAMP_alpha
 
         private void trackBar1_Scroll(object sender, EventArgs e)
         {
-            if (YAMPCore.PlayerInitialized)
+            if (YAMPVars.CORE.PlayerInitialized)
             {
                 TimeSpan ts = TimeSpan.FromSeconds(trackBar1.Value);
-                Extensions.SetPosition(YAMPCore.PlayerSource, ts);
+                Extensions.SetPosition(YAMPVars.CORE.PlayerSource, ts);
             }
         }
 
         private void pitchShifterToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            PitchShiftDialog PSD = new PitchShiftDialog(ref YAMPCore);
+            PitchShiftDialog PSD = new PitchShiftDialog();
             PSD.Show();
         }
 
         private void echoToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            EchoSignalDialog ESD = new EchoSignalDialog(ref YAMPCore);
+            EchoSignalDialog ESD = new EchoSignalDialog();
             ESD.Show();
 
         }
@@ -177,7 +177,7 @@ namespace YAMP_alpha
             //notificationSource.SingleBlockStreamAlmostFinished += NotificationSource_SingleBlockStreamAlmostFinished; ;
             //notificationSource.SingleBlockRead += NotificationSource_SingleBlockRead;
             //var PeakMeterSampleSource = notificationSource.ToWaveSource(8).ToSampleSource();
-            PeakMeterDialog PMD = new PeakMeterDialog(ref YAMPCore);
+            PeakMeterDialog PMD = new PeakMeterDialog();
             PMD.Show();
 
         }
@@ -194,43 +194,43 @@ namespace YAMP_alpha
 
         private void gargleEffectToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            GargleEffectDialog GED = new GargleEffectDialog(ref YAMPCore);
+            GargleEffectDialog GED = new GargleEffectDialog();
             GED.Show();
         }
 
         private void flangerToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            FlangerEffectDialog FED = new FlangerEffectDialog(ref YAMPCore);
+            FlangerEffectDialog FED = new FlangerEffectDialog();
             FED.Show();
         }
 
         private void chorusToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ChorusEffectDialog CED = new ChorusEffectDialog(ref YAMPCore);
+            ChorusEffectDialog CED = new ChorusEffectDialog();
             CED.Show();
         }
 
         private void compressorToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            CompressorEffectDialog CmpED = new CompressorEffectDialog(ref YAMPCore);
+            CompressorEffectDialog CmpED = new CompressorEffectDialog();
             CmpED.Show();
         }
 
         private void wavesReverbToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            WavesReverbEffectDialog WRED = new WavesReverbEffectDialog(ref YAMPCore);
+            WavesReverbEffectDialog WRED = new WavesReverbEffectDialog();
             WRED.Show();
         }
 
         private void changeSampleRateToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            SampleConverterDialog SCD = new SampleConverterDialog(YAMPCore.PlayerSource);
-            SCD.Show();
+            //SampleConverterDialog SCD = new SampleConverterDialog(YAMPCore.PlayerSource);
+            //SCD.Show();
         }
 
         private void waveformNAudioToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Waveform WF = new Waveform(ref YAMPCore);
+            Waveform WF = new Waveform();
             WF.Show();
         }
     }

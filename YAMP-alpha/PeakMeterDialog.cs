@@ -6,7 +6,7 @@ namespace YAMP_alpha
 {
     public partial class PeakMeterDialog : Form
     {
-        private CSCore.Streams.PeakMeter PeakMeter;
+        //private CSCore.Streams.PeakMeter PeakMeter;
         //public PeakMeter PeakMeter { get; set; }
         // private ISampleSource PeakMeterSampleSource;
         // bool AlmostEndOfStream;
@@ -43,22 +43,12 @@ namespace YAMP_alpha
             //Core = core;
         }
 
-        public PeakMeterDialog(ref YAMP_Core YampCore)
-        {
-            InitializeComponent();
-            if (YampCore!=null)
-            {
-                PeakMeter = YampCore.AudioPeakMeter;
-            }
-            else
-            {
-                throw new NullReferenceException("YampCore");
-            }
-        }
-
         private void PeakMeterDialog_Load(object sender, EventArgs e)
         {
-            PeakFetch.Start();
+            if (YAMPVars.CORE != null && YAMPVars.AudioPeakMeter != null)
+            {
+                PeakFetch.Start();
+            }
             //PeakMeter = Core.AudioPeakMeter;
             //PeakMeter.Interval = 25;
             //float[] PeakVals = YAMP_Vars.PeakVals;
@@ -89,7 +79,7 @@ namespace YAMP_alpha
 
         private void PeakFetch_Tick(object sender, EventArgs e)
         {
-            int[] PeakVals = PeakMeter.ChannelPeakValues.Select(x => (int)(x * 100F)).ToArray();
+            int[] PeakVals = YAMPVars.AudioPeakMeter.ChannelPeakValues.Select(x => (int)(x * 100F)).ToArray();
             int Left = PeakVals[0];
             int Right = PeakVals[1];
             int avgpeak = (int)((Left + Right) / 2F);

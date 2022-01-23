@@ -1,57 +1,37 @@
-﻿using CSCore.Streams.Effects;
-using System;
+﻿using System;
 using System.Windows.Forms;
 
 namespace YAMP_alpha
 {
     public partial class PitchShiftDialog : Form
-    {
-        PitchShifter pitchShift;
+    { 
         int ShiftJump;
         public PitchShiftDialog()
         {
             InitializeComponent();
         }
 
-        public PitchShiftDialog(ref PitchShifter pitchShifter)
-        {
-            InitializeComponent();
-            if (pitchShifter != null)
-            {
-                pitchShift = pitchShifter;
-            }
-            else
-            {
-                throw new NullReferenceException("pitchShifter");
-            }
-        }
-
-        public PitchShiftDialog(ref YAMP_Core YampCore)
-        {
-            InitializeComponent();
-            if (YampCore != null)
-            {
-                pitchShift = YampCore.PitchShift;
-            }
-            else
-            {
-                throw new NullReferenceException("YampCore");
-            }
-        }
-
         private void PitchShiftDialog_Load(object sender, EventArgs e)
         {
-            var value = Math.Log10(pitchShift.PitchShiftFactor) / Math.Log10(2) * 120;
-            Tb_PitchShiftingBar.Value = (int)value;
-            checkBox1.Checked = true;
-            textBox1.Text = "1";
+            if (YAMPVars.CORE.Player != null && YAMPVars.PitchShiftEffect != null)
+            {
+                var value = Math.Log10(YAMPVars.PitchShiftEffect.PitchShiftFactor) / Math.Log10(2) * 120;
+                Tb_PitchShiftingBar.Value = (int)value;
+                checkBox1.Checked = true;
+                textBox1.Text = "1";
+            }
+            else
+            {
+                MessageBox.Show("Effect not Initialized.. Load a file");
+                Close();
+            }
         }
 
         private void Tb_PitchShiftingBar_ValueChanged(object sender, EventArgs e)
         {
-            if (pitchShift != null)
+            if (YAMPVars.PitchShiftEffect != null)
             {
-                pitchShift.PitchShiftFactor = (float)Math.Pow(2, Tb_PitchShiftingBar.Value / 120.0);
+                YAMPVars.PitchShiftEffect.PitchShiftFactor = (float)Math.Pow(2, Tb_PitchShiftingBar.Value / 120.0);
             }
         }
 
