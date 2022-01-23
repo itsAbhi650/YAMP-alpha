@@ -193,6 +193,12 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Variables.cs" />
+    <Compile Include="VUMeterDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="VUMeterDialog.Designer.cs">
+      <DependentUpon>VUMeterDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="Waveform.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -246,6 +252,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="VUMeterDialog.resx">
+      <DependentUpon>VUMeterDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Waveform.resx">
       <DependentUpon>Waveform.cs</DependentUpon>
     </EmbeddedResource>

@@ -9,7 +9,7 @@ namespace YAMP_alpha
 {
     public partial class NewMain : Form
     {
-        //YAMP_Core YAMPCore;
+
         public NewMain()
         {
             InitializeComponent();
@@ -232,6 +232,12 @@ namespace YAMP_alpha
         {
             Waveform WF = new Waveform();
             WF.Show();
+        }
+
+        private void vUMeterToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            VUMeterDialog VUDialog = new VUMeterDialog();
+            VUDialog.Show();
         }
     }
 }

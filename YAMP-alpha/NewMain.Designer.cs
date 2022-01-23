@@ -67,6 +67,7 @@
             this.PlayTimer = new System.Windows.Forms.Timer(this.components);
             this.waveformPainter1 = new NAudio.Gui.WaveformPainter();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.vUMeterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
@@ -298,7 +299,8 @@
             // 
             this.viewToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.peakMtToolStripMenuItem,
-            this.waveformNAudioToolStripMenuItem});
+            this.waveformNAudioToolStripMenuItem,
+            this.vUMeterToolStripMenuItem});
             this.viewToolStripMenuItem.Name = "viewToolStripMenuItem";
             this.viewToolStripMenuItem.Size = new System.Drawing.Size(44, 19);
             this.viewToolStripMenuItem.Text = "View";
@@ -391,7 +393,7 @@
             // changeSampleRateToolStripMenuItem
             // 
             this.changeSampleRateToolStripMenuItem.Name = "changeSampleRateToolStripMenuItem";
-            this.changeSampleRateToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.changeSampleRateToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.changeSampleRateToolStripMenuItem.Text = "Change sample rate";
             this.changeSampleRateToolStripMenuItem.Click += new System.EventHandler(this.changeSampleRateToolStripMenuItem_Click);
             // 
@@ -437,6 +439,13 @@
             this.splitContainer1.Size = new System.Drawing.Size(384, 312);
             this.splitContainer1.SplitterDistance = 283;
             this.splitContainer1.TabIndex = 4;
+            // 
+            // vUMeterToolStripMenuItem
+            // 
+            this.vUMeterToolStripMenuItem.Name = "vUMeterToolStripMenuItem";
+            this.vUMeterToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
+            this.vUMeterToolStripMenuItem.Text = "VU Meter";
+            this.vUMeterToolStripMenuItem.Click += new System.EventHandler(this.vUMeterToolStripMenuItem_Click);
             // 
             // NewMain
             // 
@@ -504,5 +513,6 @@
         private System.Windows.Forms.ToolStripMenuItem waveformNAudioToolStripMenuItem;
         private NAudio.Gui.WaveformPainter waveformPainter1;
         private System.Windows.Forms.SplitContainer splitContainer1;
+        private System.Windows.Forms.ToolStripMenuItem vUMeterToolStripMenuItem;
     }
 }
