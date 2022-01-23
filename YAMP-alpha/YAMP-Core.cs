@@ -130,15 +130,16 @@ namespace YAMP_alpha
             LoadFile(filename);
             PlayerSource = PlayerSource
             .ToSampleSource()
-            .AppendSource(x => new PitchShifter(x), out YAMPVars.PitchShiftEffect)
             .AppendSource(x => new PeakMeter(x), out YAMPVars.AudioPeakMeter)
+            .AppendSource(x => new PitchShifter(x), out YAMPVars.PitchShiftEffect)
+            .AppendSource(x => Equalizer.Create10BandEqualizer(x), out YAMPVars.EqualizerEffect)
             .AppendSource(x => new SingleBlockNotificationStream(x), out YAMPVars.SingleBlockNotificationStream)
             .ToWaveSource()
-            .AppendSource(x => new DmoWavesReverbEffect(x) { IsEnabled = false }, out YAMPVars.WavesReverbEffect)
             .AppendSource(x => new DmoCompressorEffect(x) { IsEnabled = false, }, out YAMPVars.CompressorEffect)
-            .AppendSource(x => new DmoChorusEffect(x) { WetDryMix = 0, IsEnabled = false }, out YAMPVars.ChorusEffect)
+            .AppendSource(x => new DmoWavesReverbEffect(x) { IsEnabled = false }, out YAMPVars.WavesReverbEffect)
             .AppendSource(x => new DmoEchoEffect(x) { WetDryMix = 0, IsEnabled = false }, out YAMPVars.EchoEffect)
             .AppendSource(x => new DmoGargleEffect(x) { RateHz = 1, IsEnabled = false }, out YAMPVars.GargleEffect)
+            .AppendSource(x => new DmoChorusEffect(x) { WetDryMix = 0, IsEnabled = false }, out YAMPVars.ChorusEffect)
             .AppendSource(x => new DmoFlangerEffect(x) { IsEnabled = false, WetDryMix = 0 }, out YAMPVars.FlangerEffect);
 
             YAMPVars.SingleBlockNotificationStream.SingleBlockRead += NotificationStream_SingleBlockRead;
