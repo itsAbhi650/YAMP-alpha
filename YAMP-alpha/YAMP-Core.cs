@@ -134,6 +134,8 @@ namespace YAMP_alpha
             .AppendSource(x => new PitchShifter(x), out YAMPVars.PitchShiftEffect)
             .AppendSource(x => Equalizer.Create10BandEqualizer(x), out YAMPVars.EqualizerEffect)
             .AppendSource(x => new SingleBlockNotificationStream(x), out YAMPVars.SingleBlockNotificationStream)
+            .AppendSource(x=> new VolumeSource(x) {Volume = 1.0f }, out YAMPVars.VolumeSource)
+            .AppendSource(x=> new GainSource(x) { Volume = 1.0f }, out YAMPVars.GainSource)
             .ToWaveSource()
             .AppendSource(x => new DmoCompressorEffect(x) { IsEnabled = false, }, out YAMPVars.CompressorEffect)
             .AppendSource(x => new DmoWavesReverbEffect(x) { IsEnabled = false }, out YAMPVars.WavesReverbEffect)
@@ -186,20 +188,20 @@ namespace YAMP_alpha
             Task.Run(() => { Player.Initialize(WaveSource); });
         }
 
-        public float Remap(float from, float fromMin, float fromMax, float toMin, float toMax)
-        {
-            var fromAbs = from - fromMin;
-            var fromMaxAbs = fromMax - fromMin;
+        //public float Remap(float from, float fromMin, float fromMax, float toMin, float toMax)
+        //{
+        //    var fromAbs = from - fromMin;
+        //    var fromMaxAbs = fromMax - fromMin;
 
-            var normal = fromAbs / fromMaxAbs;
+        //    var normal = fromAbs / fromMaxAbs;
 
-            var toMaxAbs = toMax - toMin;
-            var toAbs = toMaxAbs * normal;
+        //    var toMaxAbs = toMax - toMin;
+        //    var toAbs = toMaxAbs * normal;
 
-            var to = toAbs + toMin;
+        //    var to = toAbs + toMin;
 
-            return to;
-        }
+        //    return to;
+        //}
 
         public void ReinitializePlayer()
         {
