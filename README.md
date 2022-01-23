@@ -9,6 +9,8 @@ My prime objective of creating this project is to learn about the libraries as i
 * [NAudio](https://github.com/naudio)
 * [TagLibSharp](https://github.com/mono/taglib-sharp)
 * [MediaInfo](https://github.com/yartat/MP-MediaInfo)
+* [FftSharp](https://github.com/swharden/FftSharp)
+* [ScottPlot](https://github.com/ScottPlot/ScottPlot)
 
 Note that both libraries **TagLibSharp** and **MediaInfo** (used for reading Tag data) are currently included in the project as of now but after some time I'm planning to keep only one which ever will be more suitable.
 
