@@ -68,6 +68,7 @@
             this.waveformPainter1 = new NAudio.Gui.WaveformPainter();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.vUMeterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.equalizerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
@@ -328,7 +329,8 @@
             this.flangerToolStripMenuItem,
             this.chorusToolStripMenuItem,
             this.compressorToolStripMenuItem,
-            this.wavesReverbToolStripMenuItem});
+            this.wavesReverbToolStripMenuItem,
+            this.equalizerToolStripMenuItem});
             this.effectsToolStripMenuItem.Name = "effectsToolStripMenuItem";
             this.effectsToolStripMenuItem.Size = new System.Drawing.Size(54, 19);
             this.effectsToolStripMenuItem.Text = "Effects";
@@ -447,6 +449,13 @@
             this.vUMeterToolStripMenuItem.Text = "VU Meter";
             this.vUMeterToolStripMenuItem.Click += new System.EventHandler(this.vUMeterToolStripMenuItem_Click);
             // 
+            // equalizerToolStripMenuItem
+            // 
+            this.equalizerToolStripMenuItem.Name = "equalizerToolStripMenuItem";
+            this.equalizerToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.equalizerToolStripMenuItem.Text = "Equalizer";
+            this.equalizerToolStripMenuItem.Click += new System.EventHandler(this.equalizerToolStripMenuItem_Click);
+            // 
             // NewMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -514,5 +523,6 @@
         private NAudio.Gui.WaveformPainter waveformPainter1;
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.ToolStripMenuItem vUMeterToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem equalizerToolStripMenuItem;
     }
 }

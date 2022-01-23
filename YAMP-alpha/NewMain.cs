@@ -239,5 +239,11 @@ namespace YAMP_alpha
             VUMeterDialog VUDialog = new VUMeterDialog();
             VUDialog.Show();
         }
+
+        private void equalizerToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            EqualizerDialog EQDialog = new EqualizerDialog();
+            EQDialog.Show();
+        }
     }
 }
