@@ -53,6 +53,7 @@
             this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.peakMtToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.waveformNAudioToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.vUMeterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.effectsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pitchShifterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.echoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -61,14 +62,14 @@
             this.chorusToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.compressorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.wavesReverbToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.equalizerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.changeSampleRateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.PlayTimer = new System.Windows.Forms.Timer(this.components);
             this.waveformPainter1 = new NAudio.Gui.WaveformPainter();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.vUMeterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.equalizerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.playlistToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
@@ -273,7 +274,7 @@
             this.LoadFileStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("LoadFileStripMenuItem.Image")));
             this.LoadFileStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.LoadFileStripMenuItem.Name = "LoadFileStripMenuItem";
-            this.LoadFileStripMenuItem.Size = new System.Drawing.Size(151, 22);
+            this.LoadFileStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.LoadFileStripMenuItem.Text = "Load File";
             this.LoadFileStripMenuItem.Click += new System.EventHandler(this.LoadFileStripMenuItem_Click);
             // 
@@ -282,23 +283,24 @@
             this.LoadDirStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("LoadDirStripMenuItem.Image")));
             this.LoadDirStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.LoadDirStripMenuItem.Name = "LoadDirStripMenuItem";
-            this.LoadDirStripMenuItem.Size = new System.Drawing.Size(151, 22);
+            this.LoadDirStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.LoadDirStripMenuItem.Text = "Load Directory";
             // 
             // toolStripSeparator
             // 
             this.toolStripSeparator.Name = "toolStripSeparator";
-            this.toolStripSeparator.Size = new System.Drawing.Size(148, 6);
+            this.toolStripSeparator.Size = new System.Drawing.Size(177, 6);
             // 
             // ExitStripMenuItem
             // 
             this.ExitStripMenuItem.Name = "ExitStripMenuItem";
-            this.ExitStripMenuItem.Size = new System.Drawing.Size(151, 22);
+            this.ExitStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.ExitStripMenuItem.Text = "E&xit";
             // 
             // viewToolStripMenuItem
             // 
             this.viewToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.playlistToolStripMenuItem,
             this.peakMtToolStripMenuItem,
             this.waveformNAudioToolStripMenuItem,
             this.vUMeterToolStripMenuItem});
@@ -320,6 +322,13 @@
             this.waveformNAudioToolStripMenuItem.Text = "Waveform (NAudio)";
             this.waveformNAudioToolStripMenuItem.Click += new System.EventHandler(this.waveformNAudioToolStripMenuItem_Click);
             // 
+            // vUMeterToolStripMenuItem
+            // 
+            this.vUMeterToolStripMenuItem.Name = "vUMeterToolStripMenuItem";
+            this.vUMeterToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
+            this.vUMeterToolStripMenuItem.Text = "VU Meter";
+            this.vUMeterToolStripMenuItem.Click += new System.EventHandler(this.vUMeterToolStripMenuItem_Click);
+            // 
             // effectsToolStripMenuItem
             // 
             this.effectsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -338,51 +347,58 @@
             // pitchShifterToolStripMenuItem
             // 
             this.pitchShifterToolStripMenuItem.Name = "pitchShifterToolStripMenuItem";
-            this.pitchShifterToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.pitchShifterToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.pitchShifterToolStripMenuItem.Text = "Pitch Shifter";
             this.pitchShifterToolStripMenuItem.Click += new System.EventHandler(this.pitchShifterToolStripMenuItem_Click);
             // 
             // echoToolStripMenuItem
             // 
             this.echoToolStripMenuItem.Name = "echoToolStripMenuItem";
-            this.echoToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.echoToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.echoToolStripMenuItem.Text = "Echo";
             this.echoToolStripMenuItem.Click += new System.EventHandler(this.echoToolStripMenuItem_Click);
             // 
             // gargleEffectToolStripMenuItem
             // 
             this.gargleEffectToolStripMenuItem.Name = "gargleEffectToolStripMenuItem";
-            this.gargleEffectToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.gargleEffectToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.gargleEffectToolStripMenuItem.Text = "Gargle";
             this.gargleEffectToolStripMenuItem.Click += new System.EventHandler(this.gargleEffectToolStripMenuItem_Click);
             // 
             // flangerToolStripMenuItem
             // 
             this.flangerToolStripMenuItem.Name = "flangerToolStripMenuItem";
-            this.flangerToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.flangerToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.flangerToolStripMenuItem.Text = "Flanger";
             this.flangerToolStripMenuItem.Click += new System.EventHandler(this.flangerToolStripMenuItem_Click);
             // 
             // chorusToolStripMenuItem
             // 
             this.chorusToolStripMenuItem.Name = "chorusToolStripMenuItem";
-            this.chorusToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.chorusToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.chorusToolStripMenuItem.Text = "Chorus";
             this.chorusToolStripMenuItem.Click += new System.EventHandler(this.chorusToolStripMenuItem_Click);
             // 
             // compressorToolStripMenuItem
             // 
             this.compressorToolStripMenuItem.Name = "compressorToolStripMenuItem";
-            this.compressorToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.compressorToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.compressorToolStripMenuItem.Text = "Compressor";
             this.compressorToolStripMenuItem.Click += new System.EventHandler(this.compressorToolStripMenuItem_Click);
             // 
             // wavesReverbToolStripMenuItem
             // 
             this.wavesReverbToolStripMenuItem.Name = "wavesReverbToolStripMenuItem";
-            this.wavesReverbToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.wavesReverbToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.wavesReverbToolStripMenuItem.Text = "Waves Reverb";
             this.wavesReverbToolStripMenuItem.Click += new System.EventHandler(this.wavesReverbToolStripMenuItem_Click);
+            // 
+            // equalizerToolStripMenuItem
+            // 
+            this.equalizerToolStripMenuItem.Name = "equalizerToolStripMenuItem";
+            this.equalizerToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
+            this.equalizerToolStripMenuItem.Text = "Equalizer";
+            this.equalizerToolStripMenuItem.Click += new System.EventHandler(this.equalizerToolStripMenuItem_Click);
             // 
             // toolsToolStripMenuItem
             // 
@@ -442,19 +458,12 @@
             this.splitContainer1.SplitterDistance = 283;
             this.splitContainer1.TabIndex = 4;
             // 
-            // vUMeterToolStripMenuItem
+            // playlistToolStripMenuItem
             // 
-            this.vUMeterToolStripMenuItem.Name = "vUMeterToolStripMenuItem";
-            this.vUMeterToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
-            this.vUMeterToolStripMenuItem.Text = "VU Meter";
-            this.vUMeterToolStripMenuItem.Click += new System.EventHandler(this.vUMeterToolStripMenuItem_Click);
-            // 
-            // equalizerToolStripMenuItem
-            // 
-            this.equalizerToolStripMenuItem.Name = "equalizerToolStripMenuItem";
-            this.equalizerToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.equalizerToolStripMenuItem.Text = "Equalizer";
-            this.equalizerToolStripMenuItem.Click += new System.EventHandler(this.equalizerToolStripMenuItem_Click);
+            this.playlistToolStripMenuItem.Name = "playlistToolStripMenuItem";
+            this.playlistToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
+            this.playlistToolStripMenuItem.Text = "Playlist";
+            this.playlistToolStripMenuItem.Click += new System.EventHandler(this.playlistToolStripMenuItem_Click);
             // 
             // NewMain
             // 
@@ -524,5 +533,6 @@
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.ToolStripMenuItem vUMeterToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem equalizerToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem playlistToolStripMenuItem;
     }
 }

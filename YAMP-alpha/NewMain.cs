@@ -245,5 +245,11 @@ namespace YAMP_alpha
             EqualizerDialog EQDialog = new EqualizerDialog();
             EQDialog.Show();
         }
+
+        private void playlistToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            YAMPlaylistDialog playlist = new YAMPlaylistDialog();
+            playlist.Show();
+        }
     }
 }
