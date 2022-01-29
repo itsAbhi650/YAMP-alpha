@@ -132,6 +132,7 @@ namespace YAMP_alpha
         {
             using (Graphics g = Graphics.FromImage(SpectroBitmap))
             {
+                //CachedSoundSource
                 pictureBox1.Image = null;
                 bool flag = Spectrum.CreateVoicePrint3D(g, new RectangleF(0f, 0f, SpectroBitmap.Width, SpectroBitmap.Height), _xpos, Color.Black, 3f);
                 if (flag)

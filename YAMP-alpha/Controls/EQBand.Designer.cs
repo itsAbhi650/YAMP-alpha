@@ -42,7 +42,7 @@
             this.EQBox.Controls.Add(this.EQSideMargin);
             this.EQBox.Controls.Add(this.EQFooter);
             this.EQBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.EQBox.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.EQBox.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.EQBox.Location = new System.Drawing.Point(0, 0);
             this.EQBox.Name = "EQBox";
             this.EQBox.Padding = new System.Windows.Forms.Padding(1);
@@ -52,6 +52,8 @@
             // 
             // EQBandBar
             // 
+            this.EQBandBar.AutoSize = false;
+            this.EQBandBar.CausesValidation = false;
             this.EQBandBar.Dock = System.Windows.Forms.DockStyle.Fill;
             this.EQBandBar.Location = new System.Drawing.Point(17, 14);
             this.EQBandBar.Name = "EQBandBar";
@@ -94,7 +96,6 @@
             this.Enter += new System.EventHandler(this.EQBand_FocusChanged);
             this.Leave += new System.EventHandler(this.EQBand_FocusChanged);
             this.EQBox.ResumeLayout(false);
-            this.EQBox.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.EQBandBar)).EndInit();
             this.ResumeLayout(false);
 

@@ -147,6 +147,8 @@ namespace YAMP_alpha
             YAMPVars.SingleBlockNotificationStream.SingleBlockRead += NotificationStream_SingleBlockRead;
             YAMPVars.SingleBlockNotificationStream.SingleBlockStreamAlmostFinished += NotificationStream_SingleBlockStreamAlmostFinished;
             YAMPVars.SingleBlockNotificationStream.SingleBlockStreamFinished += NotificationStream_SingleBlockStreamFinished;
+
+            
             Player.Initialize(PlayerSource);
             YAMPVars.AudioPeakMeter.Interval = 25;
             TagInfo = GetID3Info();
