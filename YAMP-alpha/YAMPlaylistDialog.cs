@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace YAMP_alpha
@@ -19,6 +15,7 @@ namespace YAMP_alpha
         {
             InitializeComponent();
             DataGridViewTextBoxCell DTCell = new DataGridViewTextBoxCell();
+            
             DataGridViewColumn DGVTC = new DataGridViewColumn()
             {
                 HeaderText = "Title",
@@ -31,29 +28,60 @@ namespace YAMP_alpha
             {
                 HeaderText = "Duration",
                 Name = "clm_Duration",
-                AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.NotSet,
                 ValueType = typeof(TimeSpan),
                 CellTemplate = DTCell
             };
+
+            DataGridViewColumn DGVFPC = new DataGridViewColumn()
+            {
+                Name = "clm_FilePath",
+                HeaderText = "Path",
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.NotSet,
+                Visible = false,
+                CellTemplate = DTCell,
+                ValueType = typeof(string)
+            };
+
+            DataGridViewButtonColumn DGVBC = new DataGridViewButtonColumn()
+            {
+                HeaderText = "Info",
+                Text = "i",
+                UseColumnTextForButtonValue = true,
+                Name = "clm_MediaInfo",
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.ColumnHeader,            
+            };
+
+
+            DGVBC.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
             dataGridView1.Columns.Add(DGVTC);
             dataGridView1.Columns.Add(DGVDC);
-            if (YAMPVars.CORE.PlayerSource != null)
-            {
-                TrackInfo tinfo = new TrackInfo(YAMPVars.CORE.PlayingFile);
-                dataGridView1.Rows.Add(tinfo._title, tinfo._length);
-            }
-           
+            dataGridView1.Columns.Add(DGVFPC);
+            dataGridView1.Columns.Add(DGVBC);
+        }
+
+        private void Btn_info_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Clicked");
         }
 
         private void YAMPlaylistDialog_Load(object sender, EventArgs e)
         {
-            MediaInfo.MediaInfoWrapper minfo = new MediaInfo.MediaInfoWrapper(YAMPVars.CORE.PlayingFile);
-            var bestStream = minfo.BestAudioStream;
-            var CovArr = minfo.Tags.Covers.ToArray();
-            var CoverArt = CovArr[0].Data;
-            Image img = Image.FromStream(new MemoryStream(CoverArt));
-            pictureBox1.Image = img;
+            //MediaInfo.MediaInfoWrapper minfo = new MediaInfo.MediaInfoWrapper(YAMPVars.CORE.PlayingFile);
+            //var bestStream = minfo.BestAudioStream;
+            //var CovArr = minfo.Tags.Covers.ToArray();
+            //var CoverArt = CovArr[0].Data;
+
+
+            //Image img = Image.FromStream(new MemoryStream(CoverArt));
+            //pictureBox1.Image = img;
             //dataGridView1.ClearSelection();
+
+            if (YAMPVars.CORE.PlayerSource != null)
+            {
+                TrackInfo tinfo = new TrackInfo(YAMPVars.CORE.PlayingFile);
+                dataGridView1.Rows.Add(tinfo._title, tinfo._length, tinfo.Info.FullName);
+            }
         }
 
         private void dataGridView1_RowEnter(object sender, DataGridViewCellEventArgs e)
@@ -64,7 +92,22 @@ namespace YAMP_alpha
 
         private void dataGridView1_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
         {
-            
+
+        }
+
+        private void fileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void dataGridView1_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.ColumnIndex == 3)
+            {
+                MediaInfoDialog MediaInfo = new MediaInfoDialog((string)dataGridView1[2, e.RowIndex].Value);
+                MediaInfo.ShowDialog();
+            }
+            //var btnObj = dataGridView1[e.ColumnIndex, e.RowIndex].Value;
         }
     }
 }
