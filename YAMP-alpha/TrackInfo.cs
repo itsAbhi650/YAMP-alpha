@@ -6,9 +6,9 @@ using System.IO;
 
 namespace YAMP_alpha
 {
-    class TrackInfo
+    public class TrackInfo
     {
-        private FileInfo Info = null;
+        public FileInfo Info { get; }
         public string _title = null;
         public string _album = null;
         public string _artist = null;
@@ -25,12 +25,19 @@ namespace YAMP_alpha
         public string _year = null;
         private List<Image> _pictures = new List<Image>();
 
+
         public TrackInfo(string Filename)
         {
             Info = new FileInfo(Filename);
             MediaInfo.MediaInfoWrapper minfo = new MediaInfo.MediaInfoWrapper(Filename);
             _title = minfo.AudioStreams[0].Tags.Title;
             _length = minfo.AudioStreams[0].Duration.ToString(@"mm\:ss");
+            _album = minfo.AudioStreams[0].Tags.Album;
+            _albumArtist = minfo.AudioStreams[0].Tags.AlbumArtist;
+            _genre = minfo.AudioStreams[0].Tags.Genre;
+            _bitRate = minfo.AudioStreams[0].Bitrate.ToString();
+            _sampleRate = minfo.AudioStreams[0].SamplingRate.ToString();
+            _trackNum = minfo.AudioStreams[0].Tags.TrackPosition?.ToString();
         }
         public TrackInfo()
         {

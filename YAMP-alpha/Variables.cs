@@ -2,6 +2,7 @@
 using CSCore;
 using CSCore.CoreAudioAPI;
 using CSCore.Streams.Effects;
+using System.Collections.Generic;
 
 namespace YAMP_alpha
 {
@@ -16,7 +17,6 @@ namespace YAMP_alpha
         public static DmoEchoEffect EchoEffect;
         public static DmoChorusEffect ChorusEffect;
         public static Equalizer EqualizerEffect;
-        //public static DmoEchoEffect DCE { get { return EchoEffect; } private set { EchoEffect = value; } }
         public static DmoGargleEffect GargleEffect;
         public static PitchShifter PitchShiftEffect;
         public static GainSource GainSource;
@@ -24,7 +24,6 @@ namespace YAMP_alpha
         public static AudioMeterInformation MeterInformation;
         public static AudioSessionManager2 AudioSessionManager;
         public static AudioSessionEnumerator SessionEnumerator;
-
         public static SingleBlockNotificationStream SingleBlockNotificationStream;
         public static SimpleNotificationSource SimpleNotificationSource;
         public static NotificationSource NotificationSource;
