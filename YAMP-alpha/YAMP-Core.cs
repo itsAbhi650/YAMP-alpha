@@ -18,7 +18,7 @@ namespace YAMP_alpha
         public string PlayingFile { get; private set; }
         public bool PlayerStopped = false;
         public IWaveSource PlayerSource { get; private set; }
-
+        public TrackInfo CurrentTrack = null;
         public int SoundOutVolume
         {
             get { return (int)(Player.Volume * 100F); }
