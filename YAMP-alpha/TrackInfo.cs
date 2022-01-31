@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 
@@ -8,40 +7,88 @@ namespace YAMP_alpha
 {
     public class TrackInfo
     {
-        public FileInfo Info { get; }
-        public string _title = null;
-        public string _album = null;
-        public string _artist = null;
-        public string _albumArtist = null;
-        public string _composer = null;
-        public string _comment = null;
-        public string _diskNumber = null;
-        public string _genre = null;
-        public string _trackNum = null;
-        public string _length = null;
-        public string _bitRate = null;
-        public string _sampleRate = null;
-        public string _conductor = null;
-        public string _year = null;
-        private List<Image> _pictures = new List<Image>();
+        public FileInfo File { get; }
+        public string Title { get; }
+        public string TrackNum { get; }
+        public string Album { get; }
+        public string Year { get; }
+        public string Artist { get; }
+        public string AlbumArtist { get; }
+        public string Composer { get; }
+        public string Genre { get; }
+        public string DiskNumber { get; }
+        public string Comment { get; }
+        public string Path { get { return File.FullName; } }
+        public string Length { get; }
+        public string BitRate { get; }
+        public string SampleRate { get; }
+        public List<Image> Covers { get; private set; } = null;
 
 
         public TrackInfo(string Filename)
         {
-            Info = new FileInfo(Filename);
+            File = new FileInfo(Filename);
             MediaInfo.MediaInfoWrapper minfo = new MediaInfo.MediaInfoWrapper(Filename);
-            _title = minfo.AudioStreams[0].Tags.Title;
-            _length = minfo.AudioStreams[0].Duration.ToString(@"mm\:ss");
-            _album = minfo.AudioStreams[0].Tags.Album;
-            _albumArtist = minfo.AudioStreams[0].Tags.AlbumArtist;
-            _genre = minfo.AudioStreams[0].Tags.Genre;
-            _bitRate = minfo.AudioStreams[0].Bitrate.ToString();
-            _sampleRate = minfo.AudioStreams[0].SamplingRate.ToString();
-            _trackNum = minfo.AudioStreams[0].Tags.TrackPosition?.ToString();
+            Title = minfo.AudioStreams[0].Tags.Title;
+            Length = minfo.AudioStreams[0].Duration.ToString(@"mm\:ss");
+            Album = minfo.AudioStreams[0].Tags.Album;
+            AlbumArtist = minfo.AudioStreams[0].Tags.AlbumArtist;
+            Genre = minfo.AudioStreams[0].Tags.Genre;
+            BitRate = minfo.AudioStreams[0].Bitrate.ToString();
+            SampleRate = minfo.AudioStreams[0].SamplingRate.ToString();
+            TrackNum = minfo.AudioStreams[0].Tags.TrackPosition?.ToString();
+            GetCoverArts(minfo);
+        }
+
+        private void GetCoverArts(MediaInfo.MediaInfoWrapper MINFO)
+        {
+            Covers = new List<Image>();
+            foreach (var item in MINFO.BestAudioStream.Tags.Covers)
+            {
+                byte[] ImgData = item.Data;
+                Image CoverImage = BufferToImage(ImgData);
+                if (CoverImage != null)
+                {
+                    Covers.Add(CoverImage);
+                }
+            }
+            bool filled = Covers.Count > 0;
+            if (!filled)
+            {
+                var tg = TagLib.File.Create(File.FullName, TagLib.ReadStyle.PictureLazy);
+                foreach (var item in tg.Tag.Pictures)
+                {
+                    byte[] ImgData = item.Data.Data;
+                    Image CoverImage = BufferToImage(ImgData);
+                    if (CoverImage != null)
+                    {
+                        Covers.Add(CoverImage);
+                        break;
+                    }
+                }
+                tg.Mode = TagLib.File.AccessMode.Closed;
+                tg.Dispose();
+            }
+        }
+
+        private Image BufferToImage(byte[] ImageBuffer)
+        {
+            if (ImageBuffer != null)
+            {
+                using (MemoryStream Ms = new MemoryStream(ImageBuffer))
+                {
+                    Image img = Image.FromStream(Ms);
+                    return img;
+                }
+            }
+            else
+            {
+                return null;
+            }
         }
         public TrackInfo()
         {
-                
+
         }
     }
 }
