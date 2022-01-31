@@ -3,6 +3,7 @@ using CSCore;
 using CSCore.CoreAudioAPI;
 using CSCore.Streams.Effects;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace YAMP_alpha
 {
@@ -27,6 +28,7 @@ namespace YAMP_alpha
         public static SingleBlockNotificationStream SingleBlockNotificationStream;
         public static SimpleNotificationSource SimpleNotificationSource;
         public static NotificationSource NotificationSource;
+        public static List<TrackInfo> TrackList = new List<TrackInfo>();
         public static string[] ValidBitrates;
         public static CSCore.DSP.FftProvider FftProvider;
     }
