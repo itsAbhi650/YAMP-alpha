@@ -42,6 +42,7 @@
             this.textBox1.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this.textBox1.Size = new System.Drawing.Size(467, 478);
             this.textBox1.TabIndex = 0;
+            this.textBox1.TabStop = false;
             this.textBox1.WordWrap = false;
             // 
             // MediaInfoDialog
