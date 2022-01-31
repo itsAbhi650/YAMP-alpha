@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace YAMP_alpha
@@ -19,6 +13,7 @@ namespace YAMP_alpha
         public BigArt()
         {
             InitializeComponent();
+            pictureBox1.ContextMenuStrip = contextMenuStrip1;
         }
 
         private void BigArt_Load(object sender, EventArgs e)
@@ -44,8 +39,11 @@ namespace YAMP_alpha
 
         private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
         {
-            dragging = true;
-            StartPoint = e.Location;
+            if (e.Button == MouseButtons.Left)
+            {
+                dragging = true;
+                StartPoint = e.Location;
+            }
         }
 
         private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
@@ -59,6 +57,17 @@ namespace YAMP_alpha
             {
                 Point p = PointToScreen(e.Location);
                 Location = new Point(p.X - StartPoint.X, p.Y - StartPoint.Y);
+            }
+        }
+
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (SaveFileDialog SFD = new SaveFileDialog())
+            {
+                if (SFD.ShowDialog() == DialogResult.OK)
+                {
+                    pictureBox1.Image.Save(SFD.FileName);
+                }
             }
         }
     }
