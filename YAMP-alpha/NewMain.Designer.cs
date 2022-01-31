@@ -51,6 +51,7 @@
             this.toolStripSeparator = new System.Windows.Forms.ToolStripSeparator();
             this.ExitStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.playlistToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.peakMtToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.waveformNAudioToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.vUMeterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -69,10 +70,11 @@
             this.PlayTimer = new System.Windows.Forms.Timer(this.components);
             this.waveformPainter1 = new NAudio.Gui.WaveformPainter();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.playlistToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.Lbl_PlayerLabel = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
+            this.panel2.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -235,10 +237,12 @@
             // panel2
             // 
             this.panel2.BackColor = System.Drawing.Color.Black;
+            this.panel2.Controls.Add(this.Lbl_PlayerLabel);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.panel2.Location = new System.Drawing.Point(0, 67);
             this.panel2.Margin = new System.Windows.Forms.Padding(0);
             this.panel2.Name = "panel2";
+            this.panel2.Padding = new System.Windows.Forms.Padding(3);
             this.panel2.Size = new System.Drawing.Size(384, 28);
             this.panel2.TabIndex = 1;
             // 
@@ -274,7 +278,7 @@
             this.LoadFileStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("LoadFileStripMenuItem.Image")));
             this.LoadFileStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.LoadFileStripMenuItem.Name = "LoadFileStripMenuItem";
-            this.LoadFileStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.LoadFileStripMenuItem.Size = new System.Drawing.Size(151, 22);
             this.LoadFileStripMenuItem.Text = "Load File";
             this.LoadFileStripMenuItem.Click += new System.EventHandler(this.LoadFileStripMenuItem_Click);
             // 
@@ -283,18 +287,18 @@
             this.LoadDirStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("LoadDirStripMenuItem.Image")));
             this.LoadDirStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.LoadDirStripMenuItem.Name = "LoadDirStripMenuItem";
-            this.LoadDirStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.LoadDirStripMenuItem.Size = new System.Drawing.Size(151, 22);
             this.LoadDirStripMenuItem.Text = "Load Directory";
             // 
             // toolStripSeparator
             // 
             this.toolStripSeparator.Name = "toolStripSeparator";
-            this.toolStripSeparator.Size = new System.Drawing.Size(177, 6);
+            this.toolStripSeparator.Size = new System.Drawing.Size(148, 6);
             // 
             // ExitStripMenuItem
             // 
             this.ExitStripMenuItem.Name = "ExitStripMenuItem";
-            this.ExitStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.ExitStripMenuItem.Size = new System.Drawing.Size(151, 22);
             this.ExitStripMenuItem.Text = "E&xit";
             // 
             // viewToolStripMenuItem
@@ -307,6 +311,13 @@
             this.viewToolStripMenuItem.Name = "viewToolStripMenuItem";
             this.viewToolStripMenuItem.Size = new System.Drawing.Size(44, 19);
             this.viewToolStripMenuItem.Text = "View";
+            // 
+            // playlistToolStripMenuItem
+            // 
+            this.playlistToolStripMenuItem.Name = "playlistToolStripMenuItem";
+            this.playlistToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
+            this.playlistToolStripMenuItem.Text = "Playlist";
+            this.playlistToolStripMenuItem.Click += new System.EventHandler(this.playlistToolStripMenuItem_Click);
             // 
             // peakMtToolStripMenuItem
             // 
@@ -458,12 +469,15 @@
             this.splitContainer1.SplitterDistance = 283;
             this.splitContainer1.TabIndex = 4;
             // 
-            // playlistToolStripMenuItem
+            // Lbl_PlayerLabel
             // 
-            this.playlistToolStripMenuItem.Name = "playlistToolStripMenuItem";
-            this.playlistToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
-            this.playlistToolStripMenuItem.Text = "Playlist";
-            this.playlistToolStripMenuItem.Click += new System.EventHandler(this.playlistToolStripMenuItem_Click);
+            this.Lbl_PlayerLabel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.Lbl_PlayerLabel.ForeColor = System.Drawing.SystemColors.ButtonFace;
+            this.Lbl_PlayerLabel.Location = new System.Drawing.Point(3, 3);
+            this.Lbl_PlayerLabel.Name = "Lbl_PlayerLabel";
+            this.Lbl_PlayerLabel.Size = new System.Drawing.Size(378, 22);
+            this.Lbl_PlayerLabel.TabIndex = 0;
+            this.Lbl_PlayerLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // NewMain
             // 
@@ -481,6 +495,7 @@
             this.panel1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.trackBar2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
+            this.panel2.ResumeLayout(false);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
@@ -534,5 +549,6 @@
         private System.Windows.Forms.ToolStripMenuItem vUMeterToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem equalizerToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem playlistToolStripMenuItem;
+        private System.Windows.Forms.Label Lbl_PlayerLabel;
     }
 }

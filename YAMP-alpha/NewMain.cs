@@ -43,12 +43,16 @@ namespace YAMP_alpha
                 {
                     if (OPD.ShowDialog() == DialogResult.OK)
                     {
-                        YAMPVars.CORE.InitializePlayer(OPD.FileName);
+                        TrackInfo track = new TrackInfo(OPD.FileName);
+                        YAMPVars.CORE.CurrentTrack = track;
+                        YAMPVars.CORE.InitializePlayer(YAMPVars.CORE.CurrentTrack.File.FullName);
+                        YAMPVars.TrackList.Add(track);
                         var Dur = Extensions.GetLength(YAMPVars.CORE.PlayerSource).TotalSeconds;
                         int durationS = (int)Dur + 1;
                         trackBar2.Value = YAMPVars.CORE.SoundOutVolume;
                         trackBar1.Maximum = durationS;
                         pictureBox1.BackgroundImage = YAMPVars.CORE.TagInfo.Cover;
+                        PlayTimer.Start();
                     }
                 }
             }
