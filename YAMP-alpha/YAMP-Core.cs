@@ -117,6 +117,16 @@ namespace YAMP_alpha
             }
         }
 
+        public bool GetTrackfromPlaylist()
+        {
+            if (YAMPVars.TrackList != null && YAMPVars.TrackList.Count > 0)
+            {
+                YAMPVars.CORE.InitializePlayer(YAMPVars.TrackList[0].File.FullName);
+                return true;
+            }
+            else { return false; }
+        }
+
         public void InitializePlayer()
         {
             Task.Run(() =>
@@ -134,8 +144,8 @@ namespace YAMP_alpha
             .AppendSource(x => new PitchShifter(x), out YAMPVars.PitchShiftEffect)
             .AppendSource(x => Equalizer.Create10BandEqualizer(x), out YAMPVars.EqualizerEffect)
             .AppendSource(x => new SingleBlockNotificationStream(x), out YAMPVars.SingleBlockNotificationStream)
-            .AppendSource(x=> new VolumeSource(x) {Volume = 1.0f }, out YAMPVars.VolumeSource)
-            .AppendSource(x=> new GainSource(x) { Volume = 1.0f }, out YAMPVars.GainSource)
+            .AppendSource(x => new VolumeSource(x) { Volume = 1.0f }, out YAMPVars.VolumeSource)
+            .AppendSource(x => new GainSource(x) { Volume = 1.0f }, out YAMPVars.GainSource)
             .ToWaveSource()
             .AppendSource(x => new DmoCompressorEffect(x) { IsEnabled = false, }, out YAMPVars.CompressorEffect)
             .AppendSource(x => new DmoWavesReverbEffect(x) { IsEnabled = false }, out YAMPVars.WavesReverbEffect)
@@ -148,7 +158,7 @@ namespace YAMP_alpha
             YAMPVars.SingleBlockNotificationStream.SingleBlockStreamAlmostFinished += NotificationStream_SingleBlockStreamAlmostFinished;
             YAMPVars.SingleBlockNotificationStream.SingleBlockStreamFinished += NotificationStream_SingleBlockStreamFinished;
 
-            
+            CurrentTrack = new TrackInfo(filename);
             Player.Initialize(PlayerSource);
             YAMPVars.AudioPeakMeter.Interval = 25;
             TagInfo = GetID3Info();
