@@ -45,8 +45,8 @@ namespace YAMP_alpha
                     {
                         TrackInfo track = new TrackInfo(OPD.FileName);
                         YAMPVars.CORE.CurrentTrack = track;
-                        YAMPVars.CORE.InitializePlayer(YAMPVars.CORE.CurrentTrack.File.FullName);
                         YAMPVars.TrackList.Add(track);
+                        YAMPVars.CORE.InitializePlayer(YAMPVars.CORE.CurrentTrack.File.FullName);
                         var Dur = Extensions.GetLength(YAMPVars.CORE.PlayerSource).TotalSeconds;
                         int durationS = (int)Dur + 1;
                         trackBar2.Value = YAMPVars.CORE.SoundOutVolume;
