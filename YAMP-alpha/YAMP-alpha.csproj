@@ -184,6 +184,7 @@
     <Compile Include="EchoSignalDialog.Designer.cs">
       <DependentUpon>EchoSignalDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="EffectManager.cs" />
     <Compile Include="EqualizerDialog.cs">
       <SubType>Form</SubType>
     </Compile>
