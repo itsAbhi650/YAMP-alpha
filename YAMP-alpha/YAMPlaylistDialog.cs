@@ -1,14 +1,15 @@
 ﻿using System;
-using System.Collections.ObjectModel;
-using System.Data;
+using System.IO;
 using System.Windows.Forms;
+using System.Linq;
+using System.Drawing;
 
 namespace YAMP_alpha
 {
     public partial class YAMPlaylistDialog : Form
     {
         //ObservableCollection<TrackInfo> trackInfo = YAMPVars.TrackList;
-
+        BindingSource PlaylistSource;
         public YAMPlaylistDialog()
         {
             InitializeComponent();
@@ -40,16 +41,16 @@ namespace YAMP_alpha
             //    CellTemplate = DTCell,
             //    ValueType = typeof(string)
             //};
-            if (YAMPVars.CORE.PlayerSource != null)
+            //dataGridView1.columns
+            //if (YAMPVars.CORE.PlayerSource != null)
+            //{
+            PlaylistSource = new BindingSource
             {
-                var source = new BindingSource
-                {
-                    DataSource = YAMPVars.TrackList
-                };
-                
-                dataGridView1.DataSource = source;
-                //TrackInfo tinfo = new TrackInfo(YAMPVars.CORE.PlayingFile);
-            }
+                DataSource = YAMPVars.TrackList
+            };
+            dataGridView1.DataSource = PlaylistSource;
+            dataGridView1.Columns["Duration"].AutoSizeMode = DataGridViewAutoSizeColumnMode.ColumnHeader;
+            
             DataGridViewButtonColumn DGVBC = new DataGridViewButtonColumn()
             {
                 HeaderText = "Info",
@@ -61,7 +62,7 @@ namespace YAMP_alpha
 
             foreach (DataGridViewColumn item in dataGridView1.Columns)
             {
-                if (item.HeaderText != "Title" && item.HeaderText != "Length" && item.HeaderText != "Info")
+                if (item.HeaderText != "Title" && item.HeaderText != "Duration" && item.HeaderText != "Info")
                 {
                     item.Visible = false;
                 }
@@ -107,19 +108,21 @@ namespace YAMP_alpha
 
         private void fileToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            using (OpenFileDialog OFD = new OpenFileDialog() { Filter = "mp3 files (*.mp3)|*.mp3" })
+            using (OpenFileDialog OFD = new OpenFileDialog() { Filter = "mp3 files (*.mp3)|*.mp3", Multiselect = true })
             {
                 if (OFD.ShowDialog() == DialogResult.OK)
                 {
-                    TrackInfo track = new TrackInfo(OFD.FileName);
-                    if (!TrackExist(track))
+                    foreach (string TrackName in OFD.FileNames)
                     {
-                        ((BindingSource)dataGridView1.DataSource).Add(track);
-                        
-                    }
-                    else
-                    {
-                        MessageBox.Show("Already Exist!");
+                        TrackInfo track = new TrackInfo(TrackName);
+                        if (!TrackExist(track))
+                        {
+                            PlaylistSource.Add(track);
+                        }
+                        else
+                        {
+                            MessageBox.Show(string.Format("{0} Already Exist!",track.Title));
+                        }
                     }
 
                 }
@@ -166,20 +169,101 @@ namespace YAMP_alpha
             bigart.ShowDialog();
         }
 
-        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-
-        }
-
-        private void dataGridView1_NewRowNeeded(object sender, DataGridViewRowEventArgs e)
-        {
-
-        }
-
         private void dataGridView1_DoubleClick(object sender, EventArgs e)
         {
             dataGridView1.Refresh();
             dataGridView1.Invalidate();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            int SelectedRowIndex = dataGridView1.CurrentRow.Index;
+            int TotalTrackZ = PlaylistSource.Count - 1;
+            int NewTrackIndex = dataGridView1.CurrentRow.Index + int.Parse(((Button)sender).Tag.ToString());
+            if (NewTrackIndex <= TotalTrackZ && NewTrackIndex >= 0)
+            {
+                TrackInfo temptrack = PlaylistSource[NewTrackIndex] as TrackInfo;
+                PlaylistSource[NewTrackIndex] = PlaylistSource[SelectedRowIndex];
+                PlaylistSource[SelectedRowIndex] = temptrack;
+                dataGridView1.CurrentCell = dataGridView1[0, NewTrackIndex];
+            }
+        }
+
+        private void listView1_Click(object sender, EventArgs e)
+        {
+            folderBrowserDialog1.ShowDialog();
+        }
+
+        private void directoryToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (folderBrowserDialog1.ShowDialog()== DialogResult.OK)
+            {
+                DirectoryInfo dir = new DirectoryInfo(folderBrowserDialog1.SelectedPath);
+                FileInfo[] Files = dir.GetFiles();
+                foreach (FileInfo item in Files)
+                {
+                    PlaylistSource.Add(new TrackInfo(item.FullName));
+                }
+            }
+            
+        }
+
+        private void dataGridView1_DragOver(object sender, DragEventArgs e)
+        {
+            //if (e.Data.GetDataPresent(DataFormats.FileDrop) & e.Effect == DragDropEffects.Move)
+            //{
+            //    e.Effect = DragDropEffects.Link;
+            //}
+        }
+
+        private void dataGridView1_GiveFeedback(object sender, GiveFeedbackEventArgs e)
+        {
+            //if (e.Effect == DragDropEffects.Move)
+            //{
+
+            //}
+        }
+
+        private void dataGridView1_DragDrop(object sender, DragEventArgs e)
+        {
+            //FileInfo[] DroppedFiles = ((string[])e.Data.GetData(DataFormats.FileDrop)).Select(x => new FileInfo(x)).ToArray();
+            //foreach (FileInfo File in DroppedFiles)
+            //{
+            //    TrackInfo Track = new TrackInfo(File.FullName);
+            //    PlaylistSource.Add(Track);
+            //}
+        }
+
+        private void dataGridView1_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            
+        }
+
+        private void label1_DragOver(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effect = DragDropEffects.Link;
+                label1.BackColor = Color.Green;
+                label1.ForeColor = Color.White;
+            }
+        }
+
+        private void label1_DragLeave(object sender, EventArgs e)
+        {
+            label1.BackColor = SystemColors.Control;
+            label1.ForeColor = Color.Black;
+        }
+
+        private void label1_DragDrop(object sender, DragEventArgs e)
+        {
+            FileInfo[] DroppedFiles = ((string[])e.Data.GetData(DataFormats.FileDrop)).Select(x => new FileInfo(x)).ToArray();
+            foreach (FileInfo File in DroppedFiles)
+            {
+                TrackInfo Track = new TrackInfo(File.FullName);
+                PlaylistSource.Add(Track);
+                label1_DragLeave(sender, e);
+            }
         }
     }
 }
