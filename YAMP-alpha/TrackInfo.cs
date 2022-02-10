@@ -19,7 +19,7 @@ namespace YAMP_alpha
         public string DiskNumber { get; }
         public string Comment { get; }
         public string Path { get { return File.FullName; } }
-        public string Length { get; }
+        public string Duration { get; }
         public string BitRate { get; }
         public string SampleRate { get; }
         public List<Image> Covers { get; private set; } = null;
@@ -30,7 +30,7 @@ namespace YAMP_alpha
             File = new FileInfo(Filename);
             MediaInfo.MediaInfoWrapper minfo = new MediaInfo.MediaInfoWrapper(Filename);
             Title = minfo.AudioStreams[0].Tags.Title;
-            Length = minfo.AudioStreams[0].Duration.ToString(@"mm\:ss");
+            Duration = minfo.AudioStreams[0].Duration.ToString(@"mm\:ss");
             Album = minfo.AudioStreams[0].Tags.Album;
             AlbumArtist = minfo.AudioStreams[0].Tags.AlbumArtist;
             Genre = minfo.AudioStreams[0].Tags.Genre;
