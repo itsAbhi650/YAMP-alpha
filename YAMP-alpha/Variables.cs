@@ -1,9 +1,7 @@
-﻿using CSCore.Streams;
-using CSCore;
-using CSCore.CoreAudioAPI;
+﻿using CSCore.CoreAudioAPI;
+using CSCore.Streams;
 using CSCore.Streams.Effects;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 
 namespace YAMP_alpha
 {
@@ -15,6 +13,7 @@ namespace YAMP_alpha
         public static DmoWavesReverbEffect WavesReverbEffect;
         public static PeakMeter AudioPeakMeter = null;
         public static DmoFlangerEffect FlangerEffect;
+        public static DmoDistortionEffect DistortionEffect;
         public static DmoEchoEffect EchoEffect;
         public static DmoChorusEffect ChorusEffect;
         public static Equalizer EqualizerEffect;
@@ -31,5 +30,27 @@ namespace YAMP_alpha
         public static List<TrackInfo> TrackList = new List<TrackInfo>();
         public static string[] ValidBitrates;
         public static CSCore.DSP.FftProvider FftProvider;
+
+        public static void ResetEffectVars()
+        {
+            //EffectManager.AllEffects[0]
+            CompressorEffect = null;
+            WavesReverbEffect = null;
+            FlangerEffect = null;
+            EchoEffect = null;
+            ChorusEffect = null;
+            EqualizerEffect = null;
+            GargleEffect = null;
+            PitchShiftEffect = null;
+        }
+
+        public static void ResetStreamNotifications()
+        {
+            SimpleNotificationSource = null;
+            SingleBlockNotificationStream = null;
+            NotificationSource = null;
+        }
     }
 }
+
+
