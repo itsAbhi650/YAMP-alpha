@@ -17,7 +17,6 @@ namespace YAMP_alpha
             {
                 var value = Math.Log10(YAMPVars.PitchShiftEffect.PitchShiftFactor) / Math.Log10(2) * 120;
                 Tb_PitchShiftingBar.Value = (int)value;
-                checkBox1.Checked = true;
                 textBox1.Text = "1";
             }
             else
