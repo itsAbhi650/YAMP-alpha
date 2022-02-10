@@ -9,6 +9,9 @@ namespace YAMP_alpha
 {
     public partial class NewMain : Form
     {
+        private bool PlayNext;
+        int playdirection;
+        private int PlayNextDirection;
 
         public NewMain()
         {
@@ -16,6 +19,22 @@ namespace YAMP_alpha
             int ClientTop = RectangleToScreen(ClientRectangle).Top;
             int height = Height - pictureBox1.Height;
             MinimumSize = new Size(387, height);
+        }
+
+        private void SetTrackBar()
+        {
+            DurationTracker.Value = 0;
+            var Dur = Extensions.GetLength(YAMPVars.CORE.PlayerSource).TotalSeconds;
+            int durationS = (int)Dur + 1;
+            DurationTracker.Maximum = durationS;
+        }
+
+        private void PlayFromStart()
+        {
+            DurationTracker.Value = 0;
+            pictureBox1.BackgroundImage = YAMPVars.CORE.GetTrackCover();
+            YAMPVars.CORE.Play();
+            PlayTimer.Start();
         }
 
         private void ThreadSafeCall(MethodInvoker method)
@@ -33,27 +52,57 @@ namespace YAMP_alpha
         private void NewMain_Load(object sender, EventArgs e)
         {
             YAMPVars.CORE = new YAMP_Core();
+            YAMPVars.CORE.TrackChanged += CORE_TrackChanged;
+            YAMPVars.CORE.Player.Stopped += Player_Stopped;
+        }
+
+        private void Player_Stopped(object sender, CSCore.SoundOut.PlaybackStoppedEventArgs e)
+        {
+            YAMPVars.CORE.PlayerStopped = true;
+            //if(PlayNext)
+            //{
+            //    if (YAMPVars.CORE.PlayNextTrackDirected(PlayNextDirection))
+            //    {
+            //        PlayFromStart();
+            //    }
+            //    PlayNext = false;
+            //}
+        }
+
+        private void CORE_TrackChanged(object sender, EventArgs e)
+        {
+            if (YAMPVars.CORE.CurrentTrack != null)
+            {
+                SetTrackBar();
+                Lbl_PlayerLabel.Text = string.Format(">  {0}", YAMPVars.CORE.CurrentTrack.Title);
+            }
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
             if (YAMPVars.CORE.PlayerSource == null)
             {
-                using (OpenFileDialog OPD = new OpenFileDialog())
+                bool TrackLoaded = YAMPVars.CORE.GetFirstTrack();
+                if (!TrackLoaded)
                 {
-                    if (OPD.ShowDialog() == DialogResult.OK)
+                    using (OpenFileDialog OPD = new OpenFileDialog())
                     {
-                        TrackInfo track = new TrackInfo(OPD.FileName);
-                        YAMPVars.CORE.CurrentTrack = track;
-                        YAMPVars.TrackList.Add(track);
-                        YAMPVars.CORE.InitializePlayer(YAMPVars.CORE.CurrentTrack.File.FullName);
-                        var Dur = Extensions.GetLength(YAMPVars.CORE.PlayerSource).TotalSeconds;
-                        int durationS = (int)Dur + 1;
-                        trackBar2.Value = YAMPVars.CORE.SoundOutVolume;
-                        trackBar1.Maximum = durationS;
-                        pictureBox1.BackgroundImage = YAMPVars.CORE.TagInfo.Cover;
-                        PlayTimer.Start();
+                        if (OPD.ShowDialog() == DialogResult.OK)
+                        {
+                            TrackInfo track = new TrackInfo(OPD.FileName);
+                            YAMPVars.TrackList.Add(track);
+                            TrackLoaded = YAMPVars.CORE.GetFirstTrack();
+
+                        }
                     }
+                }
+
+                if (TrackLoaded)
+                {
+                    pictureBox1.BackgroundImage = YAMPVars.CORE.CurrentTrack.Covers[0];
+                    VolumeTracker.Value = YAMPVars.CORE.SoundOutVolume;
+                    YAMPVars.CORE.Play();
+                    PlayTimer.Start();
                 }
             }
             else
@@ -70,7 +119,7 @@ namespace YAMP_alpha
 
         private void trackBar2_Scroll(object sender, EventArgs e)
         {
-            YAMPVars.CORE.SoundOutVolume = trackBar2.Value;
+            YAMPVars.CORE.SoundOutVolume = VolumeTracker.Value;
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -88,18 +137,22 @@ namespace YAMP_alpha
             if (!YAMPVars.CORE.PlayerStopped)
             {
                 TimeSpan Duration = Extensions.GetPosition(YAMPVars.CORE.PlayerSource);
-                trackBar1.Value = (Duration.Minutes * 60) + Duration.Seconds;
+                DurationTracker.Value = (Duration.Minutes * 60) + Duration.Seconds;
+                Lbl_Duration.Text = string.Format("{0}\\{1}", Duration.ToString(@"mm\:ss"), YAMPVars.CORE.CurrentTrack.Duration);
                 waveformPainter1.AddMax(YAMPVars.CORE.WaveFormLEFT);
             }
-            else if(YAMPVars.CORE.PlayerPaused)
+            else if (YAMPVars.CORE.PlayerPaused)
             {
                 PlayTimer.Stop();
             }
             else
             {
-                trackBar1.Value = 0;
-                YAMPVars.CORE.PlayerSource.Position = 0;
-                YAMPVars.CORE.Player.Stop();
+                PlayTimer.Stop();
+                YAMPVars.CORE.Stop();
+                if (YAMPVars.CORE.PlayNextTrackDirected(YAMPVars.CORE.NextTrackDirection))
+                {
+                    PlayFromStart();
+                }
             }
         }
 
@@ -115,7 +168,8 @@ namespace YAMP_alpha
         {
             if (!YAMPVars.CORE.PlayerStopped)
             {
-                trackBar1.Value = 0;
+                YAMPVars.CORE.StopRequested = true;
+                DurationTracker.Value = 0;
                 YAMPVars.CORE.PlayerSource.Position = 0;
                 YAMPVars.CORE.Player.Stop();
             }
@@ -130,36 +184,31 @@ namespace YAMP_alpha
                     YAMPVars.CORE.ReleasePlayer();
                     YAMPVars.CORE.InitializePlayer(OPD.FileName);
 
-                    trackBar2.Value = YAMPVars.CORE.SoundOutVolume;
-                    trackBar1.Maximum = YAMPVars.CORE.PlayerLength;
+                    VolumeTracker.Value = YAMPVars.CORE.SoundOutVolume;
+                    DurationTracker.Maximum = YAMPVars.CORE.PlayerLength;
                 }
             }
         }
 
-
         private void button7_Click(object sender, EventArgs e)
         {
-            if (trackBar1.Value + 5000 <= trackBar1.Maximum)
+            if (DurationTracker.Value + 5000 <= DurationTracker.Maximum)
             {
-                trackBar1.Value = trackBar1.Value + 5000;
+                DurationTracker.Value = DurationTracker.Value + 5000;
             }
         }
 
         private void button6_Click(object sender, EventArgs e)
         {
-            if (trackBar1.Value - 5000 >= 0)
+            if (DurationTracker.Value - 5000 >= 0)
             {
-                trackBar1.Value = trackBar1.Value - 5000;
+                DurationTracker.Value = DurationTracker.Value - 5000;
             }
         }
 
         private void trackBar1_Scroll(object sender, EventArgs e)
         {
-            if (YAMPVars.CORE.PlayerInitialized)
-            {
-                TimeSpan ts = TimeSpan.FromSeconds(trackBar1.Value);
-                Extensions.SetPosition(YAMPVars.CORE.PlayerSource, ts);
-            }
+            YAMPVars.CORE.AdjustPlayerPosition(DurationTracker.Value);
         }
 
         private void pitchShifterToolStripMenuItem_Click(object sender, EventArgs e)
@@ -254,6 +303,36 @@ namespace YAMP_alpha
         {
             YAMPlaylistDialog playlist = new YAMPlaylistDialog();
             playlist.Show();
+        }
+
+        private void Btns_TrackShift_Click(object sender, EventArgs e)
+        {
+            if (!YAMPVars.CORE.PlayerStopped)
+            {
+                YAMPVars.CORE.NextTrackDirection = int.Parse(((Button)sender).Tag.ToString());
+                if (YAMPVars.CORE.isValidMove(YAMPVars.CORE.NextTrackDirection, out int DestIndex))
+                {
+                    DurationTracker.Value = 0;
+                    YAMPVars.CORE.PlayerSource.Position = 0;
+                    YAMPVars.CORE.Player.Stop();
+                    PlayNext = true;
+                }
+            }
+        }
+
+        private void BtnSkipSec_Click(object sender, EventArgs e)
+        {
+            int SecToSkip = int.Parse(((Button)sender).Tag.ToString());
+            if (DurationTracker.Value + SecToSkip < 0)
+            {
+                DurationTracker.Value = 0;
+            }
+            else if ((DurationTracker.Value + SecToSkip > DurationTracker.Maximum) == false)
+            {
+                //DurationTracker.Value = DurationTracker.Maximum;
+                DurationTracker.Value += SecToSkip;
+            }
+            YAMPVars.CORE.AdjustPlayerPosition(DurationTracker.Value);
         }
     }
 }

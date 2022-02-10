@@ -33,17 +33,19 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
-            this.button8 = new System.Windows.Forms.Button();
-            this.button7 = new System.Windows.Forms.Button();
-            this.button6 = new System.Windows.Forms.Button();
-            this.button5 = new System.Windows.Forms.Button();
+            this.Btn_PlayNext = new System.Windows.Forms.Button();
+            this.Btn_SkipSecFwrd = new System.Windows.Forms.Button();
+            this.Btn_SkipSecBack = new System.Windows.Forms.Button();
+            this.Btn_PlayPrev = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
-            this.trackBar2 = new System.Windows.Forms.TrackBar();
-            this.trackBar1 = new System.Windows.Forms.TrackBar();
+            this.VolumeTracker = new System.Windows.Forms.TrackBar();
+            this.DurationTracker = new System.Windows.Forms.TrackBar();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.Lbl_PlayerLabel = new System.Windows.Forms.Label();
+            this.Lbl_Duration = new System.Windows.Forms.Label();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.LoadFileStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -70,10 +72,9 @@
             this.PlayTimer = new System.Windows.Forms.Timer(this.components);
             this.waveformPainter1 = new NAudio.Gui.WaveformPainter();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.Lbl_PlayerLabel = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar2)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.VolumeTracker)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.DurationTracker)).BeginInit();
             this.panel2.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -88,16 +89,16 @@
             this.panel1.BackColor = System.Drawing.SystemColors.Control;
             this.panel1.Controls.Add(this.label2);
             this.panel1.Controls.Add(this.label1);
-            this.panel1.Controls.Add(this.button8);
-            this.panel1.Controls.Add(this.button7);
-            this.panel1.Controls.Add(this.button6);
-            this.panel1.Controls.Add(this.button5);
+            this.panel1.Controls.Add(this.Btn_PlayNext);
+            this.panel1.Controls.Add(this.Btn_SkipSecFwrd);
+            this.panel1.Controls.Add(this.Btn_SkipSecBack);
+            this.panel1.Controls.Add(this.Btn_PlayPrev);
             this.panel1.Controls.Add(this.button4);
             this.panel1.Controls.Add(this.button3);
             this.panel1.Controls.Add(this.button2);
             this.panel1.Controls.Add(this.button1);
-            this.panel1.Controls.Add(this.trackBar2);
-            this.panel1.Controls.Add(this.trackBar1);
+            this.panel1.Controls.Add(this.VolumeTracker);
+            this.panel1.Controls.Add(this.DurationTracker);
             this.panel1.Controls.Add(this.panel2);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.panel1.Location = new System.Drawing.Point(0, 331);
@@ -124,47 +125,53 @@
             this.label1.Size = new System.Drawing.Size(2, 29);
             this.label1.TabIndex = 11;
             // 
-            // button8
+            // Btn_PlayNext
             // 
-            this.button8.Location = new System.Drawing.Point(194, 34);
-            this.button8.Margin = new System.Windows.Forms.Padding(0);
-            this.button8.Name = "button8";
-            this.button8.Size = new System.Drawing.Size(30, 30);
-            this.button8.TabIndex = 10;
-            this.button8.Text = ">>";
-            this.button8.UseVisualStyleBackColor = true;
+            this.Btn_PlayNext.Location = new System.Drawing.Point(194, 34);
+            this.Btn_PlayNext.Margin = new System.Windows.Forms.Padding(0);
+            this.Btn_PlayNext.Name = "Btn_PlayNext";
+            this.Btn_PlayNext.Size = new System.Drawing.Size(30, 30);
+            this.Btn_PlayNext.TabIndex = 10;
+            this.Btn_PlayNext.Tag = "1";
+            this.Btn_PlayNext.Text = ">>";
+            this.Btn_PlayNext.UseVisualStyleBackColor = true;
+            this.Btn_PlayNext.Click += new System.EventHandler(this.Btns_TrackShift_Click);
             // 
-            // button7
+            // Btn_SkipSecFwrd
             // 
-            this.button7.Location = new System.Drawing.Point(164, 34);
-            this.button7.Margin = new System.Windows.Forms.Padding(0);
-            this.button7.Name = "button7";
-            this.button7.Size = new System.Drawing.Size(30, 30);
-            this.button7.TabIndex = 9;
-            this.button7.Text = "->";
-            this.button7.UseVisualStyleBackColor = true;
-            this.button7.Click += new System.EventHandler(this.button7_Click);
+            this.Btn_SkipSecFwrd.Location = new System.Drawing.Point(164, 34);
+            this.Btn_SkipSecFwrd.Margin = new System.Windows.Forms.Padding(0);
+            this.Btn_SkipSecFwrd.Name = "Btn_SkipSecFwrd";
+            this.Btn_SkipSecFwrd.Size = new System.Drawing.Size(30, 30);
+            this.Btn_SkipSecFwrd.TabIndex = 9;
+            this.Btn_SkipSecFwrd.Tag = "5";
+            this.Btn_SkipSecFwrd.Text = "->";
+            this.Btn_SkipSecFwrd.UseVisualStyleBackColor = true;
+            this.Btn_SkipSecFwrd.Click += new System.EventHandler(this.BtnSkipSec_Click);
             // 
-            // button6
+            // Btn_SkipSecBack
             // 
-            this.button6.Location = new System.Drawing.Point(134, 34);
-            this.button6.Margin = new System.Windows.Forms.Padding(0);
-            this.button6.Name = "button6";
-            this.button6.Size = new System.Drawing.Size(30, 30);
-            this.button6.TabIndex = 8;
-            this.button6.Text = "<-";
-            this.button6.UseVisualStyleBackColor = true;
-            this.button6.Click += new System.EventHandler(this.button6_Click);
+            this.Btn_SkipSecBack.Location = new System.Drawing.Point(134, 34);
+            this.Btn_SkipSecBack.Margin = new System.Windows.Forms.Padding(0);
+            this.Btn_SkipSecBack.Name = "Btn_SkipSecBack";
+            this.Btn_SkipSecBack.Size = new System.Drawing.Size(30, 30);
+            this.Btn_SkipSecBack.TabIndex = 8;
+            this.Btn_SkipSecBack.Tag = "-5";
+            this.Btn_SkipSecBack.Text = "<-";
+            this.Btn_SkipSecBack.UseVisualStyleBackColor = true;
+            this.Btn_SkipSecBack.Click += new System.EventHandler(this.BtnSkipSec_Click);
             // 
-            // button5
+            // Btn_PlayPrev
             // 
-            this.button5.Location = new System.Drawing.Point(104, 34);
-            this.button5.Margin = new System.Windows.Forms.Padding(0);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(30, 30);
-            this.button5.TabIndex = 7;
-            this.button5.Text = "<<";
-            this.button5.UseVisualStyleBackColor = true;
+            this.Btn_PlayPrev.Location = new System.Drawing.Point(104, 34);
+            this.Btn_PlayPrev.Margin = new System.Windows.Forms.Padding(0);
+            this.Btn_PlayPrev.Name = "Btn_PlayPrev";
+            this.Btn_PlayPrev.Size = new System.Drawing.Size(30, 30);
+            this.Btn_PlayPrev.TabIndex = 7;
+            this.Btn_PlayPrev.Tag = "-1";
+            this.Btn_PlayPrev.Text = "<<";
+            this.Btn_PlayPrev.UseVisualStyleBackColor = true;
+            this.Btn_PlayPrev.Click += new System.EventHandler(this.Btns_TrackShift_Click);
             // 
             // button4
             // 
@@ -210,34 +217,35 @@
             this.button1.Text = "Mute";
             this.button1.UseVisualStyleBackColor = true;
             // 
-            // trackBar2
+            // VolumeTracker
             // 
-            this.trackBar2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.trackBar2.AutoSize = false;
-            this.trackBar2.LargeChange = 0;
-            this.trackBar2.Location = new System.Drawing.Point(305, 38);
-            this.trackBar2.Maximum = 100;
-            this.trackBar2.Name = "trackBar2";
-            this.trackBar2.Size = new System.Drawing.Size(76, 22);
-            this.trackBar2.TabIndex = 3;
-            this.trackBar2.TickFrequency = 0;
-            this.trackBar2.Scroll += new System.EventHandler(this.trackBar2_Scroll);
+            this.VolumeTracker.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.VolumeTracker.AutoSize = false;
+            this.VolumeTracker.LargeChange = 0;
+            this.VolumeTracker.Location = new System.Drawing.Point(305, 38);
+            this.VolumeTracker.Maximum = 100;
+            this.VolumeTracker.Name = "VolumeTracker";
+            this.VolumeTracker.Size = new System.Drawing.Size(76, 22);
+            this.VolumeTracker.TabIndex = 3;
+            this.VolumeTracker.TickFrequency = 0;
+            this.VolumeTracker.Scroll += new System.EventHandler(this.trackBar2_Scroll);
             // 
-            // trackBar1
+            // DurationTracker
             // 
-            this.trackBar1.AutoSize = false;
-            this.trackBar1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.trackBar1.Location = new System.Drawing.Point(0, 0);
-            this.trackBar1.Name = "trackBar1";
-            this.trackBar1.Size = new System.Drawing.Size(384, 27);
-            this.trackBar1.TabIndex = 2;
-            this.trackBar1.TickFrequency = 0;
-            this.trackBar1.Scroll += new System.EventHandler(this.trackBar1_Scroll);
+            this.DurationTracker.AutoSize = false;
+            this.DurationTracker.Dock = System.Windows.Forms.DockStyle.Top;
+            this.DurationTracker.Location = new System.Drawing.Point(0, 0);
+            this.DurationTracker.Name = "DurationTracker";
+            this.DurationTracker.Size = new System.Drawing.Size(384, 27);
+            this.DurationTracker.TabIndex = 2;
+            this.DurationTracker.TickFrequency = 0;
+            this.DurationTracker.Scroll += new System.EventHandler(this.trackBar1_Scroll);
             // 
             // panel2
             // 
             this.panel2.BackColor = System.Drawing.Color.Black;
             this.panel2.Controls.Add(this.Lbl_PlayerLabel);
+            this.panel2.Controls.Add(this.Lbl_Duration);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.panel2.Location = new System.Drawing.Point(0, 67);
             this.panel2.Margin = new System.Windows.Forms.Padding(0);
@@ -245,6 +253,26 @@
             this.panel2.Padding = new System.Windows.Forms.Padding(3);
             this.panel2.Size = new System.Drawing.Size(384, 28);
             this.panel2.TabIndex = 1;
+            // 
+            // Lbl_PlayerLabel
+            // 
+            this.Lbl_PlayerLabel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.Lbl_PlayerLabel.ForeColor = System.Drawing.SystemColors.ButtonFace;
+            this.Lbl_PlayerLabel.Location = new System.Drawing.Point(3, 3);
+            this.Lbl_PlayerLabel.Name = "Lbl_PlayerLabel";
+            this.Lbl_PlayerLabel.Size = new System.Drawing.Size(288, 22);
+            this.Lbl_PlayerLabel.TabIndex = 0;
+            this.Lbl_PlayerLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // Lbl_Duration
+            // 
+            this.Lbl_Duration.Dock = System.Windows.Forms.DockStyle.Right;
+            this.Lbl_Duration.ForeColor = System.Drawing.SystemColors.ButtonFace;
+            this.Lbl_Duration.Location = new System.Drawing.Point(291, 3);
+            this.Lbl_Duration.Name = "Lbl_Duration";
+            this.Lbl_Duration.Size = new System.Drawing.Size(90, 22);
+            this.Lbl_Duration.TabIndex = 1;
+            this.Lbl_Duration.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // menuStrip1
             // 
@@ -434,6 +462,7 @@
             this.pictureBox1.Location = new System.Drawing.Point(0, 0);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(384, 283);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
             this.pictureBox1.TabIndex = 2;
             this.pictureBox1.TabStop = false;
             // 
@@ -469,16 +498,6 @@
             this.splitContainer1.SplitterDistance = 283;
             this.splitContainer1.TabIndex = 4;
             // 
-            // Lbl_PlayerLabel
-            // 
-            this.Lbl_PlayerLabel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.Lbl_PlayerLabel.ForeColor = System.Drawing.SystemColors.ButtonFace;
-            this.Lbl_PlayerLabel.Location = new System.Drawing.Point(3, 3);
-            this.Lbl_PlayerLabel.Name = "Lbl_PlayerLabel";
-            this.Lbl_PlayerLabel.Size = new System.Drawing.Size(378, 22);
-            this.Lbl_PlayerLabel.TabIndex = 0;
-            this.Lbl_PlayerLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
             // NewMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -493,13 +512,14 @@
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.NewMain_FormClosing);
             this.Load += new System.EventHandler(this.NewMain_Load);
             this.panel1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar2)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.VolumeTracker)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.DurationTracker)).EndInit();
             this.panel2.ResumeLayout(false);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.splitContainer1.Panel1.ResumeLayout(false);
+            this.splitContainer1.Panel1.PerformLayout();
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
@@ -519,16 +539,16 @@
         private System.Windows.Forms.ToolStripMenuItem ExitStripMenuItem;
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Button button8;
-        private System.Windows.Forms.Button button7;
-        private System.Windows.Forms.Button button6;
-        private System.Windows.Forms.Button button5;
+        private System.Windows.Forms.Button Btn_PlayNext;
+        private System.Windows.Forms.Button Btn_SkipSecFwrd;
+        private System.Windows.Forms.Button Btn_SkipSecBack;
+        private System.Windows.Forms.Button Btn_PlayPrev;
         private System.Windows.Forms.Button button4;
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.TrackBar trackBar2;
-        private System.Windows.Forms.TrackBar trackBar1;
+        private System.Windows.Forms.TrackBar VolumeTracker;
+        private System.Windows.Forms.TrackBar DurationTracker;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Timer PlayTimer;
         private System.Windows.Forms.ToolStripMenuItem effectsToolStripMenuItem;
@@ -550,5 +570,6 @@
         private System.Windows.Forms.ToolStripMenuItem equalizerToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem playlistToolStripMenuItem;
         private System.Windows.Forms.Label Lbl_PlayerLabel;
+        private System.Windows.Forms.Label Lbl_Duration;
     }
 }
