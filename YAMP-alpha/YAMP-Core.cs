@@ -12,17 +12,33 @@ namespace YAMP_alpha
 {
     public class YAMP_Core : IDisposable
     {
-
+        private TrackInfo _curtrack;
         public ID3Info TagInfo { get; set; }
         public CSCore.SoundOut.ISoundOut Player { get; private set; }
         public string PlayingFile { get; private set; }
-        public bool PlayerStopped = false;
+        public bool StopRequested { get; set; } = false;
+        public bool PlayerStopped { get; set; } = false;
+        public int NextTrackDirection { get; set; } = 1;
         public IWaveSource PlayerSource { get; private set; }
-        public TrackInfo CurrentTrack = null;
+        public TrackInfo CurrentTrack
+        {
+            get { return _curtrack; }
+            set { _curtrack = value; OnTrackChanged(); }
+        }
+        public TrackInfo NextTrack = null;
+        private bool MoveValidated;
+
         public int SoundOutVolume
         {
             get { return (int)(Player.Volume * 100F); }
             set { Player.Volume = value / 100F; }
+        }
+
+        public event EventHandler TrackChanged;
+
+        private void OnTrackChanged()
+        {
+            TrackChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public CSCore.SoundOut.PlaybackState PlayerPlaybackState { get { return Player.PlaybackState; } }
@@ -33,8 +49,11 @@ namespace YAMP_alpha
 
         public YAMP_Core()
         {
+
+            //ChorusParameters chor = new ChorusParameters();
+            //TrackChanged += YAMP_Core_TrackChanged;
             Player = new CSCore.SoundOut.DirectSoundOut();
-            Player.Stopped += Player_Stopped;
+            //Player.Stopped += Player_Stopped;
             YAMPVars.MediaDevice = new MMDeviceEnumerator().GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
             Task.Run(() =>
             {
@@ -46,6 +65,43 @@ namespace YAMP_alpha
         private void Player_Stopped(object sender, CSCore.SoundOut.PlaybackStoppedEventArgs e)
         {
             PlayerStopped = true;
+        }
+
+        public bool isValidMove(int direction, out int DestIndex)
+        {
+            int CurrTrackIndex = GetCurrentTrackIndex();
+            DestIndex = CurrTrackIndex + direction;
+            if (DestIndex >= 0 && DestIndex < YAMPVars.TrackList.Count)
+            {
+                MoveValidated = true;
+                
+            }
+            else
+            {
+                MoveValidated = false;
+            }
+            return MoveValidated;
+        }
+
+        public Image GetTrackCover(int index = 0)
+        {
+            if (CurrentTrack != null)
+            {
+                return CurrentTrack.Covers[index];
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public void AdjustPlayerPosition(int Value)
+        {
+            if (YAMPVars.CORE.PlayerInitialized)
+            {
+                TimeSpan ts = TimeSpan.FromSeconds(Value);
+                Extensions.SetPosition(YAMPVars.CORE.PlayerSource, ts);
+            }
         }
 
         public void LoadFile(string Filename)
@@ -117,15 +173,48 @@ namespace YAMP_alpha
             }
         }
 
-        public bool GetTrackfromPlaylist()
+        public bool GetFirstTrack()
         {
             if (YAMPVars.TrackList != null && YAMPVars.TrackList.Count > 0)
             {
-                YAMPVars.CORE.InitializePlayer(YAMPVars.TrackList[0].File.FullName);
+                TrackInfo FirstTrack = YAMPVars.TrackList[0];
+                YAMPVars.CORE.InitializePlayer(FirstTrack.Path);
+                CurrentTrack = FirstTrack;
                 return true;
             }
             else { return false; }
         }
+
+        public bool PlayNextTrackDirected(int direction)
+        {
+            if (FetchTrackDirected(direction))
+            {
+                Player.Stop();
+                InitializePlayer(NextTrack.Path);
+                CurrentTrack = NextTrack;
+                PlayerStopped = false;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public bool FetchTrackDirected(int direction)
+        {
+            if (isValidMove(direction, out int DestIndex))
+            {
+                YAMPVars.CORE.NextTrack = YAMPVars.TrackList.ElementAtOrDefault(DestIndex);
+            }
+            else
+            {
+                YAMPVars.CORE.NextTrack = null;
+            }
+            return YAMPVars.CORE.NextTrack != null;
+        }
+
+        public int GetCurrentTrackIndex() => YAMPVars.TrackList.Select((t, i) => new { track = t, index = i }).First(x => x.track.Title == YAMPVars.CORE.CurrentTrack.Title).index;
 
         public void InitializePlayer()
         {
@@ -138,46 +227,45 @@ namespace YAMP_alpha
         public void InitializePlayer(string filename)
         {
             LoadFile(filename);
+            YAMPVars.ResetEffectVars();
+            YAMPVars.ResetStreamNotifications();
             PlayerSource = PlayerSource
             .ToSampleSource()
             .AppendSource(x => new PeakMeter(x), out YAMPVars.AudioPeakMeter)
             .AppendSource(x => new PitchShifter(x), out YAMPVars.PitchShiftEffect)
             .AppendSource(x => Equalizer.Create10BandEqualizer(x), out YAMPVars.EqualizerEffect)
             .AppendSource(x => new SingleBlockNotificationStream(x), out YAMPVars.SingleBlockNotificationStream)
-            .AppendSource(x => new VolumeSource(x) { Volume = 1.0f }, out YAMPVars.VolumeSource)
-            .AppendSource(x => new GainSource(x) { Volume = 1.0f }, out YAMPVars.GainSource)
-            .ToWaveSource()
-            .AppendSource(x => new DmoCompressorEffect(x) { IsEnabled = false, }, out YAMPVars.CompressorEffect)
-            .AppendSource(x => new DmoWavesReverbEffect(x) { IsEnabled = false }, out YAMPVars.WavesReverbEffect)
-            .AppendSource(x => new DmoEchoEffect(x) { WetDryMix = 0, IsEnabled = false }, out YAMPVars.EchoEffect)
-            .AppendSource(x => new DmoGargleEffect(x) { RateHz = 1, IsEnabled = false }, out YAMPVars.GargleEffect)
-            .AppendSource(x => new DmoChorusEffect(x) { WetDryMix = 0, IsEnabled = false }, out YAMPVars.ChorusEffect)
-            .AppendSource(x => new DmoFlangerEffect(x) { IsEnabled = false, WetDryMix = 0 }, out YAMPVars.FlangerEffect);
+            .ToWaveSource();
+            //
 
-            YAMPVars.SingleBlockNotificationStream.SingleBlockRead += NotificationStream_SingleBlockRead;
-            YAMPVars.SingleBlockNotificationStream.SingleBlockStreamAlmostFinished += NotificationStream_SingleBlockStreamAlmostFinished;
-            YAMPVars.SingleBlockNotificationStream.SingleBlockStreamFinished += NotificationStream_SingleBlockStreamFinished;
+            CreateNotificationEvents();
 
-            CurrentTrack = new TrackInfo(filename);
             Player.Initialize(PlayerSource);
             YAMPVars.AudioPeakMeter.Interval = 25;
             TagInfo = GetID3Info();
         }
 
-        private void NotificationStream_SingleBlockStreamFinished(object sender, SingleBlockStreamFinishedEventArgs e)
+        public void CreateNotificationEvents()
         {
-            PlayerStopped = true;
-        }
-
-        private void NotificationStream_SingleBlockStreamAlmostFinished(object sender, SingleBlockStreamAlmostFinishedEventArgs e)
-        {
-
+            YAMPVars.SingleBlockNotificationStream.SingleBlockRead += NotificationStream_SingleBlockRead;
+            YAMPVars.SingleBlockNotificationStream.SingleBlockStreamAlmostFinished += NotificationStream_SingleBlockStreamAlmostFinished;
+            YAMPVars.SingleBlockNotificationStream.SingleBlockStreamFinished += NotificationStream_SingleBlockStreamFinished;
         }
 
         private void NotificationStream_SingleBlockRead(object sender, SingleBlockReadEventArgs e)
         {
             WaveFormLEFT = e.Left;
             WaveFormRIGHT = e.Right;
+        }
+
+        private void NotificationStream_SingleBlockStreamAlmostFinished(object sender, SingleBlockStreamAlmostFinishedEventArgs e)
+        {
+            FetchTrackDirected(1);
+        }
+
+        private void NotificationStream_SingleBlockStreamFinished(object sender, SingleBlockStreamFinishedEventArgs e)
+        {
+            PlayerStopped = true;
         }
 
         public void ReleasePlayer()
@@ -232,6 +320,12 @@ namespace YAMP_alpha
         public void Play()
         {
             Player.Play();
+        }
+
+        public void Stop()
+        {
+            AdjustPlayerPosition(0);
+            Player.Stop();
         }
 
         public void Pause()
