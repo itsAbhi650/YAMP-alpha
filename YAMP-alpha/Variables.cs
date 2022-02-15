@@ -30,6 +30,7 @@ namespace YAMP_alpha
         public static List<TrackInfo> TrackList = new List<TrackInfo>();
         public static string[] ValidBitrates;
         public static CSCore.DSP.FftProvider FftProvider;
+        internal static bool PLTRACKFLAG;
 
         public static void ResetEffectVars()
         {

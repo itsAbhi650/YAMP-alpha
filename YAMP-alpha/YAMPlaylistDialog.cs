@@ -87,12 +87,9 @@ namespace YAMP_alpha
             //var CovArr = minfo.Tags.Covers.ToArray();
             //var CoverArt = CovArr[0].Data;
 
-
             //Image img = Image.FromStream(new MemoryStream(CoverArt));
             //pictureBox1.Image = img;
             //dataGridView1.ClearSelection();
-
-
         }
 
         private void dataGridView1_RowEnter(object sender, DataGridViewCellEventArgs e)
@@ -236,7 +233,7 @@ namespace YAMP_alpha
 
         private void dataGridView1_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
-            
+            YAMPVars.CORE.UIRef.PlayfromPlaylist(YAMPVars.TrackList[e.RowIndex]);
         }
 
         private void label1_DragOver(object sender, DragEventArgs e)

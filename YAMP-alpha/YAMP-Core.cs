@@ -12,6 +12,7 @@ namespace YAMP_alpha
 {
     public class YAMP_Core : IDisposable
     {
+        internal NewMain UIRef;
         private TrackInfo _curtrack;
         public ID3Info TagInfo { get; set; }
         public CSCore.SoundOut.ISoundOut Player { get; private set; }
@@ -201,6 +202,21 @@ namespace YAMP_alpha
             }
         }
 
+        public bool LoadTrackInfo(TrackInfo trackInfo)
+        {
+            if (trackInfo!=null)
+            {
+                Stop();
+                InitializePlayer(trackInfo.Path);
+                CurrentTrack = trackInfo;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         public bool FetchTrackDirected(int direction)
         {
             if (isValidMove(direction, out int DestIndex))
@@ -324,8 +340,9 @@ namespace YAMP_alpha
 
         public void Stop()
         {
-            AdjustPlayerPosition(0);
             Player.Stop();
+            AdjustPlayerPosition(0);
+            //PlayerStopped = true;
         }
 
         public void Pause()

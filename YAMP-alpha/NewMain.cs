@@ -51,7 +51,10 @@ namespace YAMP_alpha
 
         private void NewMain_Load(object sender, EventArgs e)
         {
-            YAMPVars.CORE = new YAMP_Core();
+            YAMPVars.CORE = new YAMP_Core
+            {
+                UIRef = this
+            };
             YAMPVars.CORE.TrackChanged += CORE_TrackChanged;
             YAMPVars.CORE.Player.Stopped += Player_Stopped;
         }
@@ -59,14 +62,23 @@ namespace YAMP_alpha
         private void Player_Stopped(object sender, CSCore.SoundOut.PlaybackStoppedEventArgs e)
         {
             YAMPVars.CORE.PlayerStopped = true;
-            //if(PlayNext)
-            //{
-            //    if (YAMPVars.CORE.PlayNextTrackDirected(PlayNextDirection))
-            //    {
-            //        PlayFromStart();
-            //    }
-            //    PlayNext = false;
-            //}
+            if (YAMPVars.PLTRACKFLAG)
+            {
+                YAMPVars.PLTRACKFLAG = false; //Resetting flag to prevent unwamted call to play.
+                YAMPVars.CORE.PlayerStopped = false;
+                PlayFromStart();
+            }
+        }
+
+        internal void PlayfromPlaylist(TrackInfo Track)
+        {
+            if (PlayTimer.Enabled)
+            {
+                PlayTimer.Stop();
+            }
+            YAMPVars.CORE.LoadTrackInfo(Track);
+            YAMPVars.PLTRACKFLAG = true;
+            PlayFromStart();
         }
 
         private void CORE_TrackChanged(object sender, EventArgs e)
@@ -149,9 +161,10 @@ namespace YAMP_alpha
             {
                 PlayTimer.Stop();
                 YAMPVars.CORE.Stop();
-                if (YAMPVars.CORE.PlayNextTrackDirected(YAMPVars.CORE.NextTrackDirection))
+                if (YAMPVars.CORE.PlayNextTrackDirected(YAMPVars.CORE.NextTrackDirection) && PlayNext)
                 {
                     PlayFromStart();
+                    PlayNext = false;
                 }
             }
         }
