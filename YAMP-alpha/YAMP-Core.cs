@@ -75,7 +75,7 @@ namespace YAMP_alpha
             if (DestIndex >= 0 && DestIndex < YAMPVars.TrackList.Count)
             {
                 MoveValidated = true;
-                
+
             }
             else
             {
@@ -204,7 +204,7 @@ namespace YAMP_alpha
 
         public bool LoadTrackInfo(TrackInfo trackInfo)
         {
-            if (trackInfo!=null)
+            if (trackInfo != null)
             {
                 Stop();
                 InitializePlayer(trackInfo.Path);
@@ -246,6 +246,13 @@ namespace YAMP_alpha
             YAMPVars.ResetEffectVars();
             YAMPVars.ResetStreamNotifications();
             PlayerSource = PlayerSource
+            .AppendSource(x => new DmoDistortionEffect(x) { IsEnabled = false }, out YAMPVars.DistortionEffect)
+            .AppendSource(x => new DmoFlangerEffect(x) { IsEnabled = false }, out YAMPVars.FlangerEffect)
+            .AppendSource(x => new DmoWavesReverbEffect(x) { IsEnabled = false }, out YAMPVars.WavesReverbEffect)
+            .AppendSource(x => new DmoEchoEffect(x) { IsEnabled = false }, out YAMPVars.EchoEffect)
+            .AppendSource(x => new DmoCompressorEffect(x) { IsEnabled = false }, out YAMPVars.CompressorEffect)
+            .AppendSource(x => new DmoGargleEffect(x) { IsEnabled = false }, out YAMPVars.GargleEffect)
+            .AppendSource(x => new DmoChorusEffect(x) { IsEnabled = false }, out YAMPVars.ChorusEffect)
             .ToSampleSource()
             .AppendSource(x => new PeakMeter(x), out YAMPVars.AudioPeakMeter)
             .AppendSource(x => new PitchShifter(x), out YAMPVars.PitchShiftEffect)
