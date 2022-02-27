@@ -40,14 +40,22 @@ namespace YAMP_alpha
 
         private void button1_Click(object sender, EventArgs e)
         {
-            trackBar1.Value = trackBar1.Value - Convert.ToInt32(textBox1.Text);
-            updateInfo();
+            int DecVal = trackBar1.Value - Convert.ToInt32(textBox1.Text);
+            if (DecVal >= 1)
+            {
+                trackBar1.Value = DecVal;
+                updateInfo();
+            }
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            trackBar1.Value = trackBar1.Value + Convert.ToInt32(textBox1.Text);
-            updateInfo();
+            int IncVal = trackBar1.Value + Convert.ToInt32(textBox1.Text);
+            if (IncVal <= trackBar1.Maximum)
+            {
+                trackBar1.Value = IncVal;
+                updateInfo();
+            }
         }
 
         private void updateInfo()
