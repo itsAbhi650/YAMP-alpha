@@ -347,5 +347,11 @@ namespace YAMP_alpha
             }
             YAMPVars.CORE.AdjustPlayerPosition(DurationTracker.Value);
         }
+
+        private void distortionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            DistortionEffectDialog distortionEffect = new DistortionEffectDialog();
+            distortionEffect.Show();
+        }
     }
 }
