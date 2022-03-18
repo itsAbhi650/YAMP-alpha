@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace YAMP_alpha.Controls
@@ -20,6 +15,7 @@ namespace YAMP_alpha.Controls
         public EQBand(string Header, int MinVal, int MaxVal, int Value, string Footer)
         {
             InitializeComponent();
+            ValueChanged += EQBand_ValueChanged;
             EQBox.Text = Header;
             BandMin = MinVal;
             BandMax = MaxVal;
@@ -35,6 +31,13 @@ namespace YAMP_alpha.Controls
             FooterText = Footer;
         }
 
+        private void EQBand_ValueChanged(object sender, EventArgs e)
+        {
+            if (ShowBandValueInFooter)
+            {
+                FooterText = EQBandBar.Value.ToString();
+            }
+        }
 
         [Category("EQBand Settings")]
         [Browsable(true)]
@@ -49,6 +52,10 @@ namespace YAMP_alpha.Controls
                 EQBandBar.Minimum = value;
             }
         }
+
+        [Category("EQBand Settings")]
+        [Browsable(true)]
+        public bool ShowBandValueInFooter { get; set; }
 
         [Category("EQBand Settings")]
         [Browsable(true)]
@@ -176,7 +183,6 @@ namespace YAMP_alpha.Controls
             ValueChanged?.Invoke(this, EventArgs.Empty);
         }
 
-       
         [Browsable(true)]
         public new event EventHandler TextChanged;
         private void OnTextChanged()
@@ -191,7 +197,7 @@ namespace YAMP_alpha.Controls
 
         private void EQBand_SizeChanged(object sender, EventArgs e)
         {
-            EQSideMargin.Width = base.ClientRectangle.Width / 2 - 22;
+            EQSideMargin.Width = ClientRectangle.Width / 2 - 22;
         }
 
         private void EQBand_FocusChanged(object sender, EventArgs e)
@@ -203,17 +209,12 @@ namespace YAMP_alpha.Controls
 
         private void EQFooter_Click(object sender, EventArgs e)
         {
-            Focus();
-        }
-
-        private void EQBandBar_ChangeUICues(object sender, UICuesEventArgs e)
-        {
-
+            EQBox.Focus();
         }
 
         private void EQBandBar_Enter(object sender, EventArgs e)
         {
-            Focus();
+            EQBox.Focus();
         }
     }
 }

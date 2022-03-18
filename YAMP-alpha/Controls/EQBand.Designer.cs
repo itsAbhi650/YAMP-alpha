@@ -64,7 +64,6 @@
             this.EQBandBar.TickStyle = System.Windows.Forms.TickStyle.Both;
             this.EQBandBar.ValueChanged += new System.EventHandler(this.EQBandBar_ValueChanged);
             this.EQBandBar.Enter += new System.EventHandler(this.EQBandBar_Enter);
-            this.EQBandBar.ChangeUICues += new System.Windows.Forms.UICuesEventHandler(this.EQBandBar_ChangeUICues);
             // 
             // EQSideMargin
             // 
@@ -89,6 +88,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoValidate = System.Windows.Forms.AutoValidate.Disable;
             this.Controls.Add(this.EQBox);
             this.Name = "EQBand";
             this.Size = new System.Drawing.Size(72, 182);
