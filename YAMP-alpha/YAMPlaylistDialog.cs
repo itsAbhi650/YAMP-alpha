@@ -122,7 +122,7 @@ namespace YAMP_alpha
             int SelectedRowIndex = dataGridView1.CurrentRow.Index;
             int TotalTrackZ = PlaylistSource.Count - 1;
             int NewTrackIndex = dataGridView1.CurrentRow.Index + int.Parse(((Button)sender).Tag.ToString());
-            if (NewTrackIndex <= TotalTrackZ && NewTrackIndex >= 0)
+            if (NewTrackIndex >= 0 && NewTrackIndex <= PlaylistSource.Count - 1)
             {
                 TrackInfo temptrack = PlaylistSource[NewTrackIndex] as TrackInfo;
                 PlaylistSource[NewTrackIndex] = PlaylistSource[SelectedRowIndex];
@@ -147,7 +147,7 @@ namespace YAMP_alpha
             if (FBD.ShowDialog() == DialogResult.OK)
             {
                 DirectoryInfo dir = new DirectoryInfo(FBD.SelectedPath);
-                FileInfo[] Files = dir.GetFiles().Where(x=>x.Extension==".mp3").ToArray();
+                FileInfo[] Files = dir.GetFiles().Where(x => x.Extension == ".mp3").ToArray();
                 foreach (FileInfo item in Files)
                 {
                     TrackInfo Track = new TrackInfo(item.FullName);
