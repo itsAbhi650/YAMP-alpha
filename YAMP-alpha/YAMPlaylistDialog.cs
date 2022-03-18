@@ -147,10 +147,11 @@ namespace YAMP_alpha
             if (FBD.ShowDialog() == DialogResult.OK)
             {
                 DirectoryInfo dir = new DirectoryInfo(FBD.SelectedPath);
-                FileInfo[] Files = dir.GetFiles();
+                FileInfo[] Files = dir.GetFiles().Where(x=>x.Extension==".mp3").ToArray();
                 foreach (FileInfo item in Files)
                 {
-                    YAMPVars.TrackList.Add(new TrackInfo(item.FullName));
+                    TrackInfo Track = new TrackInfo(item.FullName);
+                    PlaylistSource.Add(Track);
                 }
             }
         }
