@@ -1,0 +1,360 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>CSCore.Ffmpeg</name>
+    </assembly>
+    <members>
+        <member name="T:CSCore.Ffmpeg.FfmpegConfigurationSection">
+            <summary>
+            Encapsulates configuration properties for CSCore.Ffmpeg.
+            </summary>
+        </member>
+        <member name="P:CSCore.Ffmpeg.FfmpegConfigurationSection.HttpProxy">
+            <summary>
+            Gets or sets the HTTP proxy.
+            </summary>
+            <value>
+            A proxy with the following format: http://[User@]MyProxy.MyDomain:Port/.
+            </value>
+        </member>
+        <member name="P:CSCore.Ffmpeg.FfmpegConfigurationSection.ProxyWhitelist">
+            <summary>
+            Gets or sets a whitelist where no proxy should be used.
+            </summary>
+            <value>
+            The proxy whitelist. For examples see https://ffmpeg.org/doxygen/3.2/noproxy_8c_source.html.
+            </value>
+        </member>
+        <member name="P:CSCore.Ffmpeg.FfmpegConfigurationSection.LogLevel">
+            <summary>
+            Gets or sets the log level. For more details see <see cref="P:CSCore.Ffmpeg.FfmpegUtils.LogLevel"/>.
+            </summary>
+            <value>
+            The log level.
+            </value>
+        </member>
+        <member name="T:CSCore.Ffmpeg.FfmpegDecoder">
+            <summary>
+                Generic FFmpeg based decoder.
+            </summary>
+            <remarks>
+                The <see cref="T:CSCore.Ffmpeg.FfmpegDecoder"/> uses the FFmpeg libraries to decode audio files.
+                In order to make sure that the FFmpeg libraries are compatible with the <see cref="T:CSCore.Ffmpeg.FfmpegDecoder"/>,
+                use the binaries shipped with the CSCore.Ffmpeg project.
+                If a custom build is necessary, use the FFmpeg source code, from the CSCore git repository
+                (https://github.com/filoe/cscore).
+            </remarks>
+        </member>
+        <member name="M:CSCore.Ffmpeg.FfmpegDecoder.#ctor(System.String)">
+            <summary>
+                Initializes a new instance of the <see cref="T:CSCore.Ffmpeg.FfmpegDecoder"/> class based on a specified filename or url.
+            </summary>
+            <param name="url">A url containing a filename or web url. </param>
+            <exception cref="T:CSCore.Ffmpeg.FfmpegException">
+                Any ffmpeg error.
+            </exception>
+            <exception cref="T:System.NotSupportedException">
+                DBL format is not supported.
+                or
+                Audio Sample Format not supported.
+            </exception>
+            <exception cref="T:System.ArgumentNullException">uri</exception>
+        </member>
+        <member name="M:CSCore.Ffmpeg.FfmpegDecoder.#ctor(System.IO.Stream)">
+            <summary>
+                Initializes a new instance of the <see cref="T:CSCore.Ffmpeg.FfmpegDecoder"/> class based on a <see cref="T:System.IO.Stream"/>.
+            </summary>
+            <param name="stream">The stream.</param>
+            <exception cref="T:CSCore.Ffmpeg.FfmpegException">Any ffmpeg error.</exception>
+            <exception cref="T:System.ArgumentNullException">stream</exception>
+            <exception cref="T:System.ArgumentException">Stream is not readable.</exception>
+            <exception cref="T:System.OutOfMemoryException">Could not allocate FormatContext.</exception>
+            <exception cref="T:System.NotSupportedException">
+                DBL format is not supported.
+                or
+                Audio Sample Format not supported.
+            </exception>
+        </member>
+        <member name="M:CSCore.Ffmpeg.FfmpegDecoder.Read(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+                Reads a sequence of bytes from the <see cref="T:CSCore.Ffmpeg.FfmpegDecoder"/> and advances the position within the
+                stream by the
+                number of bytes read.
+            </summary>
+            <param name="buffer">
+                An array of bytes. When this method returns, the <paramref name="buffer"/> contains the specified
+                array of bytes with the values between <paramref name="offset"/> and (<paramref name="offset"/> +
+                <paramref name="count"/> - 1) replaced by the bytes read from the current source.
+            </param>
+            <param name="offset">
+                The zero-based offset in the <paramref name="buffer"/> at which to begin storing the data
+                read from the current stream.
+            </param>
+            <param name="count">The maximum number of bytes to read from the current source.</param>
+            <returns>The total number of bytes read into the buffer.</returns>
+        </member>
+        <member name="M:CSCore.Ffmpeg.FfmpegDecoder.Dispose">
+            <summary>
+                Releases all allocated resources used by the <see cref="T:CSCore.Ffmpeg.FfmpegDecoder"/>.
+            </summary>
+        </member>
+        <member name="M:CSCore.Ffmpeg.FfmpegDecoder.Dispose(System.Boolean)">
+            <summary>
+            Releases unmanaged and - optionally - managed resources.
+            </summary>
+            <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        </member>
+        <member name="M:CSCore.Ffmpeg.FfmpegDecoder.Finalize">
+            <summary>
+                Finalizes an instance of the <see cref="T:CSCore.Ffmpeg.FfmpegDecoder"/> class.
+            </summary>
+        </member>
+        <member name="P:CSCore.Ffmpeg.FfmpegDecoder.CanSeek">
+            <summary>
+                Gets a value indicating whether the <see cref="T:CSCore.Ffmpeg.FfmpegDecoder"/> supports seeking.
+            </summary>
+        </member>
+        <member name="P:CSCore.Ffmpeg.FfmpegDecoder.WaveFormat">
+            <summary>
+                Gets the <see cref="P:CSCore.IAudioSource.WaveFormat"/> of the waveform-audio data.
+            </summary>
+        </member>
+        <member name="P:CSCore.Ffmpeg.FfmpegDecoder.Position">
+            <summary>
+                Gets or sets the current position in bytes.
+            </summary>
+        </member>
+        <member name="P:CSCore.Ffmpeg.FfmpegDecoder.Length">
+            <summary>
+                Gets the length of the waveform-audio data in bytes.
+            </summary>
+        </member>
+        <member name="T:CSCore.Ffmpeg.FfmpegException">
+            <summary>
+            FFmpeg Exception
+            </summary>
+        </member>
+        <member name="M:CSCore.Ffmpeg.FfmpegException.Try(System.Int32,System.String)">
+            <summary>
+            Throws an <see cref="T:CSCore.Ffmpeg.FfmpegException"/> if the <paramref name="errorCode"/> is less than zero.
+            </summary>
+            <param name="errorCode">The error code.</param>
+            <param name="function">The name of the function that returned the <paramref name="errorCode"/>.</param>
+            <exception cref="T:CSCore.Ffmpeg.FfmpegException"><see cref="T:CSCore.Ffmpeg.FfmpegException"/> with some details (including the <paramref name="errorCode"/> and the <paramref name="function"/>).</exception>
+        </member>
+        <member name="M:CSCore.Ffmpeg.FfmpegException.#ctor(System.Int32,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:CSCore.Ffmpeg.FfmpegException"/> class with an <paramref name="errorCode"/> that got returned by any ffmpeg <paramref name="function"/>.
+            </summary>
+            <param name="errorCode">The error code.</param>
+            <param name="function">The name of the function that returned the <paramref name="errorCode"/>.</param>
+        </member>
+        <member name="M:CSCore.Ffmpeg.FfmpegException.#ctor(System.String,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:CSCore.Ffmpeg.FfmpegException"/> class with a <paramref name="message"/> describing an error that occurred by calling any ffmpeg <paramref name="function"/>.
+            </summary>
+            <param name="message">The message that describes the error.</param>
+            <param name="function">The name of the function that caused the error.</param>
+        </member>
+        <member name="M:CSCore.Ffmpeg.FfmpegException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:CSCore.Ffmpeg.FfmpegException"/> class with a message that describes the error.
+            </summary>
+            <param name="message">The message that describes the error.</param>
+        </member>
+        <member name="T:CSCore.Ffmpeg.FfmpegLogReceivedEventArgs">
+            <summary>
+            Provides data for the <see cref="E:CSCore.Ffmpeg.FfmpegUtils.FfmpegLogReceived"/> event.
+            </summary>
+        </member>
+        <member name="P:CSCore.Ffmpeg.FfmpegLogReceivedEventArgs.Message">
+            <summary>
+            Gets the message.
+            </summary>
+            <value>
+            The message.
+            </value>
+        </member>
+        <member name="P:CSCore.Ffmpeg.FfmpegLogReceivedEventArgs.Level">
+            <summary>
+            Gets the level of the message.
+            </summary>
+            <value>
+            The level of the message.
+            </value>
+        </member>
+        <member name="P:CSCore.Ffmpeg.FfmpegLogReceivedEventArgs.ClassName">
+            <summary>
+            Gets the name of the class.
+            </summary>
+            <value>
+            The name of the class.
+            </value>
+        </member>
+        <member name="P:CSCore.Ffmpeg.FfmpegLogReceivedEventArgs.ItemName">
+            <summary>
+            Gets the item name of the class.
+            </summary>
+            <value>
+            The item name of the class.
+            </value>
+        </member>
+        <member name="P:CSCore.Ffmpeg.FfmpegLogReceivedEventArgs.ParentLogContextClassName">
+            <summary>
+            Gets or sets the name of the parent log context class.
+            </summary>
+            <value>
+            The name of the parent log context class. Might me empty.
+            </value>
+        </member>
+        <member name="P:CSCore.Ffmpeg.FfmpegLogReceivedEventArgs.ParentLogContextItemName">
+            <summary>
+            Gets or sets the item name of the parent log context class.
+            </summary>
+            <value>
+            The item name of the parent log context class. Might me empty.
+            </value>
+        </member>
+        <member name="T:CSCore.Ffmpeg.FfmpegUtils">
+            <summary>
+            Contains some utilities for working with ffmpeg.
+            </summary>
+        </member>
+        <member name="M:CSCore.Ffmpeg.FfmpegUtils.GetOutputFormats">
+            <summary>
+            Gets the output formats.
+            </summary>
+            <returns>All supported output formats.</returns>
+        </member>
+        <member name="M:CSCore.Ffmpeg.FfmpegUtils.GetInputFormats">
+            <summary>
+            Gets the input formats.
+            </summary>
+            <returns>All supported input formats.</returns>
+        </member>
+        <member name="E:CSCore.Ffmpeg.FfmpegUtils.FfmpegLogReceived">
+            <summary>
+            Occurs when a ffmpeg log entry was received.
+            </summary>
+        </member>
+        <member name="E:CSCore.Ffmpeg.FfmpegUtils.ResolveFfmpegAssemblyLocation">
+            <summary>
+            Occurs when the location of the native FFmpeg binaries has get resolved.
+            Note: This is currently only available for Windows Platforms.
+            </summary>
+        </member>
+        <member name="P:CSCore.Ffmpeg.FfmpegUtils.LogLevel">
+            <summary>
+            Gets or sets the log level.
+            </summary>
+            <value>
+            The log level.
+            </value>
+            <exception cref="T:System.ComponentModel.InvalidEnumArgumentException">value</exception>
+        </member>
+        <member name="P:CSCore.Ffmpeg.FfmpegUtils.LogToDefaultLogger">
+            <summary>
+            Gets or sets a value indicating whether log entries should be passed to the default ffmpeg logger.
+            </summary>
+            <value>
+              <c>true</c> if log messages should be passed to the default ffmpeg logger; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="T:CSCore.Ffmpeg.AvCodecId">
+            <summary>
+            Defines Ffmpeg Codec Ids.
+            </summary>
+        </member>
+        <member name="T:CSCore.Ffmpeg.Format">
+            <summary>
+            Represents a ffmpeg format.
+            </summary>
+        </member>
+        <member name="P:CSCore.Ffmpeg.Format.Name">
+            <summary>
+            Gets the name of the format.
+            </summary>
+        </member>
+        <member name="P:CSCore.Ffmpeg.Format.LongName">
+            <summary>
+            Gets the long name of the format.
+            </summary>
+        </member>
+        <member name="P:CSCore.Ffmpeg.Format.Codecs">
+            <summary>
+            Gets a list of the common codecs.
+            </summary>
+        </member>
+        <member name="P:CSCore.Ffmpeg.Format.FileExtensions">
+            <summary>
+            Gets a list with the common file extensions of the format.
+            </summary>
+        </member>
+        <member name="T:CSCore.Ffmpeg.ResolveFfmpegAssemblyLocationEventArgs">
+            <summary>
+            Provides data for the <see cref="E:CSCore.Ffmpeg.FfmpegUtils.ResolveFfmpegAssemblyLocation"/> event.
+            </summary>
+        </member>
+        <member name="P:CSCore.Ffmpeg.ResolveFfmpegAssemblyLocationEventArgs.Platform">
+            <summary>
+            Gets the platform.
+            </summary>
+            <value>
+            The platform.
+            </value>
+        </member>
+        <member name="P:CSCore.Ffmpeg.ResolveFfmpegAssemblyLocationEventArgs.FfmpegDirectory">
+            <summary>
+            Gets or sets the directory which contains the native Ffmpeg assemblies for the current <see cref="P:CSCore.Ffmpeg.ResolveFfmpegAssemblyLocationEventArgs.Platform"/> and architecture.
+            </summary>
+            <value>
+            The ffmpeg directory.
+            </value>
+        </member>
+        <member name="T:CSCore.Ffmpeg.LogLevel">
+            <summary>
+            Defines Ffmpeg Loglevels
+            </summary>
+        </member>
+        <member name="F:CSCore.Ffmpeg.LogLevel.Quit">
+            <summary>
+            Print no output
+            </summary>
+        </member>
+        <member name="F:CSCore.Ffmpeg.LogLevel.LogPanic">
+            <summary>
+            Something went really wrong and we will crash now. 
+            </summary>
+        </member>
+        <member name="F:CSCore.Ffmpeg.LogLevel.Fatal">
+            <summary>
+            Something went wrong and recovery is not possible. 
+            </summary>
+        </member>
+        <member name="F:CSCore.Ffmpeg.LogLevel.Error">
+            <summary>
+            Something went wrong and cannot losslessly be recovered. 
+            </summary>
+        </member>
+        <member name="F:CSCore.Ffmpeg.LogLevel.Warning">
+            <summary>
+            Something somehow does not look correct. 
+            </summary>
+        </member>
+        <member name="F:CSCore.Ffmpeg.LogLevel.Info">
+            <summary>
+            Standard information. 
+            </summary>
+        </member>
+        <member name="F:CSCore.Ffmpeg.LogLevel.Verbose">
+            <summary>
+            Detailed information. 
+            </summary>
+        </member>
+        <member name="F:CSCore.Ffmpeg.LogLevel.Debug">
+            <summary>
+            Stuff which is only useful for libav* developers. 
+            </summary>
+        </member>
+    </members>
+</doc>
