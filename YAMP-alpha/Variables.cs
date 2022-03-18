@@ -8,6 +8,7 @@ namespace YAMP_alpha
     public static class YAMPVars
     {
         public static YAMP_Core CORE;
+        public static DownloadProgress DownloadProgress = new DownloadProgress();
         public static MMDevice MediaDevice;
         public static DmoCompressorEffect CompressorEffect;
         public static DmoWavesReverbEffect WavesReverbEffect;
