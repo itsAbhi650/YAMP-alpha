@@ -1,56 +1,27 @@
 ﻿using System;
-using System.IO;
-using System.Windows.Forms;
-using System.Linq;
 using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Windows.Forms;
 
 namespace YAMP_alpha
 {
     public partial class YAMPlaylistDialog : Form
     {
-        //ObservableCollection<TrackInfo> trackInfo = YAMPVars.TrackList;
-        BindingSource PlaylistSource;
+        static BindingSource PlaylistSource;
         public YAMPlaylistDialog()
         {
             InitializeComponent();
-            //DataGridViewTextBoxCell DTCell = new DataGridViewTextBoxCell();
-
-            //DataGridViewColumn DGVTC = new DataGridViewColumn()
-            //{
-            //    HeaderText = "Title",
-            //    Name = "clm_Title",
-            //    AutoSizeMode = DataGridViewAutoSizeColumnMode.NotSet,
-            //    ValueType = typeof(string),
-            //    CellTemplate = DTCell
-            //};
-            //DataGridViewColumn DGVDC = new DataGridViewColumn()
-            //{
-            //    HeaderText = "Duration",
-            //    Name = "clm_Duration",
-            //    AutoSizeMode = DataGridViewAutoSizeColumnMode.NotSet,
-            //    ValueType = typeof(TimeSpan),
-            //    CellTemplate = DTCell
-            //};
-
-            //DataGridViewColumn DGVFPC = new DataGridViewColumn()
-            //{
-            //    Name = "clm_FilePath",
-            //    HeaderText = "Path",
-            //    AutoSizeMode = DataGridViewAutoSizeColumnMode.NotSet,
-            //    Visible = false,
-            //    CellTemplate = DTCell,
-            //    ValueType = typeof(string)
-            //};
-            //dataGridView1.columns
-            //if (YAMPVars.CORE.PlayerSource != null)
-            //{
-            PlaylistSource = new BindingSource
+            if (PlaylistSource == null)
             {
-                DataSource = YAMPVars.TrackList
-            };
+                PlaylistSource = new BindingSource
+                {
+                    DataSource = YAMPVars.TrackList
+                };
+            }
             dataGridView1.DataSource = PlaylistSource;
             dataGridView1.Columns["Duration"].AutoSizeMode = DataGridViewAutoSizeColumnMode.ColumnHeader;
-            
+
             DataGridViewButtonColumn DGVBC = new DataGridViewButtonColumn()
             {
                 HeaderText = "Info",
@@ -69,38 +40,12 @@ namespace YAMP_alpha
             }
 
             DGVBC.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-            //dataGridView1.Columns.Add(DGVTC);
-            //dataGridView1.Columns.Add(DGVDC);
-            //dataGridView1.Columns.Add(DGVFPC);
             dataGridView1.Columns.Add(DGVBC);
         }
 
         private void Btn_info_Click(object sender, EventArgs e)
         {
             MessageBox.Show("Clicked");
-        }
-
-        private void YAMPlaylistDialog_Load(object sender, EventArgs e)
-        {
-            //MediaInfo.MediaInfoWrapper minfo = new MediaInfo.MediaInfoWrapper(YAMPVars.CORE.PlayingFile);
-            //var bestStream = minfo.BestAudioStream;
-            //var CovArr = minfo.Tags.Covers.ToArray();
-            //var CoverArt = CovArr[0].Data;
-
-            //Image img = Image.FromStream(new MemoryStream(CoverArt));
-            //pictureBox1.Image = img;
-            //dataGridView1.ClearSelection();
-        }
-
-        private void dataGridView1_RowEnter(object sender, DataGridViewCellEventArgs e)
-        {
-            //MessageBox.Show("Fired");
-
-        }
-
-        private void dataGridView1_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
-        {
-
         }
 
         private void fileToolStripMenuItem_Click(object sender, EventArgs e)
@@ -118,7 +63,7 @@ namespace YAMP_alpha
                         }
                         else
                         {
-                            MessageBox.Show(string.Format("{0} Already Exist!",track.Title));
+                            MessageBox.Show(string.Format("{0} Already Exist!", track.Title));
                         }
                     }
 
@@ -193,42 +138,21 @@ namespace YAMP_alpha
 
         private void directoryToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (folderBrowserDialog1.ShowDialog()== DialogResult.OK)
+            LoadDirectory();
+        }
+
+        public static void LoadDirectory()
+        {
+            FolderBrowserDialog FBD = new FolderBrowserDialog();
+            if (FBD.ShowDialog() == DialogResult.OK)
             {
-                DirectoryInfo dir = new DirectoryInfo(folderBrowserDialog1.SelectedPath);
+                DirectoryInfo dir = new DirectoryInfo(FBD.SelectedPath);
                 FileInfo[] Files = dir.GetFiles();
                 foreach (FileInfo item in Files)
                 {
-                    PlaylistSource.Add(new TrackInfo(item.FullName));
+                    YAMPVars.TrackList.Add(new TrackInfo(item.FullName));
                 }
             }
-            
-        }
-
-        private void dataGridView1_DragOver(object sender, DragEventArgs e)
-        {
-            //if (e.Data.GetDataPresent(DataFormats.FileDrop) & e.Effect == DragDropEffects.Move)
-            //{
-            //    e.Effect = DragDropEffects.Link;
-            //}
-        }
-
-        private void dataGridView1_GiveFeedback(object sender, GiveFeedbackEventArgs e)
-        {
-            //if (e.Effect == DragDropEffects.Move)
-            //{
-
-            //}
-        }
-
-        private void dataGridView1_DragDrop(object sender, DragEventArgs e)
-        {
-            //FileInfo[] DroppedFiles = ((string[])e.Data.GetData(DataFormats.FileDrop)).Select(x => new FileInfo(x)).ToArray();
-            //foreach (FileInfo File in DroppedFiles)
-            //{
-            //    TrackInfo Track = new TrackInfo(File.FullName);
-            //    PlaylistSource.Add(Track);
-            //}
         }
 
         private void dataGridView1_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
