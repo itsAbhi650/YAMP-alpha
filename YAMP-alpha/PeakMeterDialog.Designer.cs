@@ -28,13 +28,11 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
             this.trackBar1 = new System.Windows.Forms.TrackBar();
             this.button1 = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.trackBar2 = new System.Windows.Forms.TrackBar();
-            this.PeakFetch = new System.Windows.Forms.Timer(this.components);
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.trackBar3 = new System.Windows.Forms.TrackBar();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
@@ -102,11 +100,6 @@
             this.trackBar2.TickFrequency = 5;
             this.trackBar2.TickStyle = System.Windows.Forms.TickStyle.Both;
             // 
-            // PeakFetch
-            // 
-            this.PeakFetch.Interval = 25;
-            this.PeakFetch.Tick += new System.EventHandler(this.PeakFetch_Tick);
-            // 
             // groupBox3
             // 
             this.groupBox3.Controls.Add(this.trackBar3);
@@ -164,7 +157,6 @@
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.TrackBar trackBar2;
-        private System.Windows.Forms.Timer PeakFetch;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.TrackBar trackBar3;
     }
