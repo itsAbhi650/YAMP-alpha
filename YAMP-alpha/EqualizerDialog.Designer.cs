@@ -31,9 +31,9 @@
             this.components = new System.ComponentModel.Container();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.tabControl1 = new System.Windows.Forms.TabControl();
-            this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.TbPg_Scope = new System.Windows.Forms.TabPage();
             this.formsPlot1 = new ScottPlot.FormsPlot();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.TbPg_Spectrogram = new System.Windows.Forms.TabPage();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.Scope = new System.Windows.Forms.Timer(this.components);
             this.Spectrogram = new System.Windows.Forms.Timer(this.components);
@@ -43,8 +43,8 @@
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.SuspendLayout();
             this.tabControl1.SuspendLayout();
-            this.tabPage1.SuspendLayout();
-            this.tabPage2.SuspendLayout();
+            this.TbPg_Scope.SuspendLayout();
+            this.TbPg_Spectrogram.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -65,8 +65,8 @@
             // 
             // tabControl1
             // 
-            this.tabControl1.Controls.Add(this.tabPage1);
-            this.tabControl1.Controls.Add(this.tabPage2);
+            this.tabControl1.Controls.Add(this.TbPg_Scope);
+            this.tabControl1.Controls.Add(this.TbPg_Spectrogram);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl1.Location = new System.Drawing.Point(0, 0);
             this.tabControl1.Name = "tabControl1";
@@ -74,16 +74,16 @@
             this.tabControl1.Size = new System.Drawing.Size(873, 217);
             this.tabControl1.TabIndex = 0;
             // 
-            // tabPage1
+            // TbPg_Scope
             // 
-            this.tabPage1.Controls.Add(this.formsPlot1);
-            this.tabPage1.Location = new System.Drawing.Point(4, 22);
-            this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(865, 191);
-            this.tabPage1.TabIndex = 0;
-            this.tabPage1.Text = "Scope";
-            this.tabPage1.UseVisualStyleBackColor = true;
+            this.TbPg_Scope.Controls.Add(this.formsPlot1);
+            this.TbPg_Scope.Location = new System.Drawing.Point(4, 22);
+            this.TbPg_Scope.Name = "TbPg_Scope";
+            this.TbPg_Scope.Padding = new System.Windows.Forms.Padding(3);
+            this.TbPg_Scope.Size = new System.Drawing.Size(865, 191);
+            this.TbPg_Scope.TabIndex = 0;
+            this.TbPg_Scope.Text = "Scope";
+            this.TbPg_Scope.UseVisualStyleBackColor = true;
             // 
             // formsPlot1
             // 
@@ -93,16 +93,16 @@
             this.formsPlot1.Size = new System.Drawing.Size(859, 185);
             this.formsPlot1.TabIndex = 0;
             // 
-            // tabPage2
+            // TbPg_Spectrogram
             // 
-            this.tabPage2.Controls.Add(this.pictureBox1);
-            this.tabPage2.Location = new System.Drawing.Point(4, 22);
-            this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(865, 191);
-            this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "Spectrogram";
-            this.tabPage2.UseVisualStyleBackColor = true;
+            this.TbPg_Spectrogram.Controls.Add(this.pictureBox1);
+            this.TbPg_Spectrogram.Location = new System.Drawing.Point(4, 22);
+            this.TbPg_Spectrogram.Name = "TbPg_Spectrogram";
+            this.TbPg_Spectrogram.Padding = new System.Windows.Forms.Padding(3);
+            this.TbPg_Spectrogram.Size = new System.Drawing.Size(865, 191);
+            this.TbPg_Spectrogram.TabIndex = 1;
+            this.TbPg_Spectrogram.Text = "Spectrogram";
+            this.TbPg_Spectrogram.UseVisualStyleBackColor = true;
             // 
             // pictureBox1
             // 
@@ -155,8 +155,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
             this.tabControl1.ResumeLayout(false);
-            this.tabPage1.ResumeLayout(false);
-            this.tabPage2.ResumeLayout(false);
+            this.TbPg_Scope.ResumeLayout(false);
+            this.TbPg_Spectrogram.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
@@ -169,8 +169,8 @@
 
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.TabControl tabControl1;
-        private System.Windows.Forms.TabPage tabPage1;
-        private System.Windows.Forms.TabPage tabPage2;
+        private System.Windows.Forms.TabPage TbPg_Scope;
+        private System.Windows.Forms.TabPage TbPg_Spectrogram;
         private ScottPlot.FormsPlot formsPlot1;
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.Timer Scope;

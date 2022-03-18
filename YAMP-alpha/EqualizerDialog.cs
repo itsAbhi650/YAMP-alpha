@@ -4,13 +4,9 @@ using CSCore.Streams.Effects;
 using FftSharp;
 using ScottPlot.Plottable;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using YAMP_alpha.Controls;
 
@@ -31,14 +27,16 @@ namespace YAMP_alpha
 
         private EQBand VolBand = new EQBand("Volume", 0, 100, 0, string.Empty)
         {
-            FooterVisible = false,
-            Dock = DockStyle.Left
+            FooterVisible = true,
+            Dock = DockStyle.Left,
+            ShowBandValueInFooter = true
         };
 
         private EQBand GainBand = new EQBand("Gain", 100, 400, 0, string.Empty)
         {
-            FooterVisible = false,
-            Dock = DockStyle.Left
+            FooterVisible = true,
+            Dock = DockStyle.Left,
+            ShowBandValueInFooter = true
         };
 
         public EqualizerDialog()
@@ -79,7 +77,9 @@ namespace YAMP_alpha
                 GainBand.ValueChanged += GainBand_ValueChanged;
                 Scope.Start();
                 Spectrogram.Start();
-                for (int i = YAMPVars.EqualizerEffect.SampleFilters.Count - 1; i > -1; i--)
+                splitContainer1.Panel2.Controls.Add(VolBand);
+                splitContainer1.Panel2.Controls.Add(GainBand);
+                for (int i = 0; i < YAMPVars.EqualizerEffect.SampleFilters.Count; i++)
                 {
                     EqualizerFilter item = YAMPVars.EqualizerEffect.SampleFilters[i];
                     int FilterFreq = (int)item.Filters[0].Frequency;
@@ -88,14 +88,17 @@ namespace YAMP_alpha
                     {
                         Dock = DockStyle.Left,
                         FooterText = FreqText,
-                        Tag = i
+                        Tag = i,
                     };
                     EQBAND.BandValue = (int)(item.AverageGainDB / MaxDB * EQBAND.BandMax);
                     EQBAND.ValueChanged += EQBAND_ValueChanged;
                     splitContainer1.Panel2.Controls.Add(EQBAND);
                 }
-                splitContainer1.Panel2.Controls.Add(GainBand);
-                splitContainer1.Panel2.Controls.Add(VolBand);
+                foreach (EQBand item in splitContainer1.Panel2.Controls.OfType<EQBand>())
+                {
+                    item.BringToFront();
+                }
+
             }
         }
 
@@ -157,7 +160,7 @@ namespace YAMP_alpha
                 YAMPVars.FftProvider.GetFftData(buffer);
                 double[] DoubleBuffer = Array.ConvertAll(buffer, (float x) => (double)x);
                 double[] zeropadded = Pad.ZeroPad(DoubleBuffer);
-                double[] fftpower = Transform.FFTmagnitude(zeropadded) ;
+                double[] fftpower = Transform.FFTmagnitude(zeropadded);
                 bool flag = formsPlot1.Plot.GetPlottables().Count() == 0;
                 if (flag)
                 {
