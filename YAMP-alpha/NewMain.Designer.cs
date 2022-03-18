@@ -50,6 +50,7 @@
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.LoadFileStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.LoadDirStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.streamToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator = new System.Windows.Forms.ToolStripSeparator();
             this.ExitStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -295,6 +296,7 @@
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.LoadFileStripMenuItem,
             this.LoadDirStripMenuItem,
+            this.streamToolStripMenuItem,
             this.toolStripSeparator,
             this.ExitStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
@@ -318,6 +320,16 @@
             this.LoadDirStripMenuItem.Name = "LoadDirStripMenuItem";
             this.LoadDirStripMenuItem.Size = new System.Drawing.Size(151, 22);
             this.LoadDirStripMenuItem.Text = "Load Directory";
+            this.LoadDirStripMenuItem.Click += new System.EventHandler(this.LoadDirStripMenuItem_Click);
+            // 
+            // streamToolStripMenuItem
+            // 
+            this.streamToolStripMenuItem.Image = global::YAMP_alpha.Properties.Resources.Radio;
+            this.streamToolStripMenuItem.Name = "streamToolStripMenuItem";
+            this.streamToolStripMenuItem.ShowShortcutKeys = false;
+            this.streamToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
+            this.streamToolStripMenuItem.Text = "Stream";
+            this.streamToolStripMenuItem.Click += new System.EventHandler(this.streamToolStripMenuItem_Click);
             // 
             // toolStripSeparator
             // 
@@ -388,63 +400,63 @@
             // pitchShifterToolStripMenuItem
             // 
             this.pitchShifterToolStripMenuItem.Name = "pitchShifterToolStripMenuItem";
-            this.pitchShifterToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.pitchShifterToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.pitchShifterToolStripMenuItem.Text = "Pitch Shifter";
             this.pitchShifterToolStripMenuItem.Click += new System.EventHandler(this.pitchShifterToolStripMenuItem_Click);
             // 
             // echoToolStripMenuItem
             // 
             this.echoToolStripMenuItem.Name = "echoToolStripMenuItem";
-            this.echoToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.echoToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.echoToolStripMenuItem.Text = "Echo";
             this.echoToolStripMenuItem.Click += new System.EventHandler(this.echoToolStripMenuItem_Click);
             // 
             // gargleEffectToolStripMenuItem
             // 
             this.gargleEffectToolStripMenuItem.Name = "gargleEffectToolStripMenuItem";
-            this.gargleEffectToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.gargleEffectToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.gargleEffectToolStripMenuItem.Text = "Gargle";
             this.gargleEffectToolStripMenuItem.Click += new System.EventHandler(this.gargleEffectToolStripMenuItem_Click);
             // 
             // flangerToolStripMenuItem
             // 
             this.flangerToolStripMenuItem.Name = "flangerToolStripMenuItem";
-            this.flangerToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.flangerToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.flangerToolStripMenuItem.Text = "Flanger";
             this.flangerToolStripMenuItem.Click += new System.EventHandler(this.flangerToolStripMenuItem_Click);
             // 
             // chorusToolStripMenuItem
             // 
             this.chorusToolStripMenuItem.Name = "chorusToolStripMenuItem";
-            this.chorusToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.chorusToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.chorusToolStripMenuItem.Text = "Chorus";
             this.chorusToolStripMenuItem.Click += new System.EventHandler(this.chorusToolStripMenuItem_Click);
             // 
             // compressorToolStripMenuItem
             // 
             this.compressorToolStripMenuItem.Name = "compressorToolStripMenuItem";
-            this.compressorToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.compressorToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.compressorToolStripMenuItem.Text = "Compressor";
             this.compressorToolStripMenuItem.Click += new System.EventHandler(this.compressorToolStripMenuItem_Click);
             // 
             // wavesReverbToolStripMenuItem
             // 
             this.wavesReverbToolStripMenuItem.Name = "wavesReverbToolStripMenuItem";
-            this.wavesReverbToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.wavesReverbToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.wavesReverbToolStripMenuItem.Text = "Waves Reverb";
             this.wavesReverbToolStripMenuItem.Click += new System.EventHandler(this.wavesReverbToolStripMenuItem_Click);
             // 
             // equalizerToolStripMenuItem
             // 
             this.equalizerToolStripMenuItem.Name = "equalizerToolStripMenuItem";
-            this.equalizerToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.equalizerToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.equalizerToolStripMenuItem.Text = "Equalizer";
             this.equalizerToolStripMenuItem.Click += new System.EventHandler(this.equalizerToolStripMenuItem_Click);
             // 
             // distortionToolStripMenuItem
             // 
             this.distortionToolStripMenuItem.Name = "distortionToolStripMenuItem";
-            this.distortionToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.distortionToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.distortionToolStripMenuItem.Text = "Distortion";
             this.distortionToolStripMenuItem.Click += new System.EventHandler(this.distortionToolStripMenuItem_Click);
             // 
@@ -517,6 +529,7 @@
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "NewMain";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "NewMain";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.NewMain_FormClosing);
             this.Load += new System.EventHandler(this.NewMain_Load);
@@ -581,5 +594,6 @@
         private System.Windows.Forms.Label Lbl_PlayerLabel;
         private System.Windows.Forms.Label Lbl_Duration;
         private System.Windows.Forms.ToolStripMenuItem distortionToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem streamToolStripMenuItem;
     }
 }
