@@ -356,6 +356,7 @@ namespace YAMP_alpha
             .AppendSource(x => new PeakMeter(x) { Interval = 25 }, out YAMPVars.AudioPeakMeter)
             .AppendSource(x => new PitchShifter(x), out YAMPVars.PitchShiftEffect)
             .AppendSource(x => Equalizer.Create10BandEqualizer(x), out YAMPVars.EqualizerEffect)
+            .AppendSource(x=> new NotificationSource(x), out YAMPVars.NotificationSource)
             .ToWaveSource();
         }
 

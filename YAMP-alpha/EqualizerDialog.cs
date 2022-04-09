@@ -7,6 +7,7 @@ using System;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using Spectrogram;
 using System.Windows.Forms;
 using YAMP_alpha.Controls;
 
@@ -15,9 +16,11 @@ namespace YAMP_alpha
     public partial class EqualizerDialog : Form
     {
         private float[] buffer;
+        private double[] SpectroBuffer;
         private SignalPlot signalPlot;
         private BasicSpectrumProvider SpectrumProvider;
         private VoicePrint3DSpectrum Spectrum;
+        private SpectrogramGenerator SpectroScott;
         private int SampleRate;
         private int ChannelCount;
         private FftSize FFTSIZE;
@@ -49,16 +52,23 @@ namespace YAMP_alpha
 
         private void EqualizerDialog_Load(object sender, EventArgs e)
         {
-            bool flag = YAMPVars.CORE != null && YAMPVars.CORE.PlayerSource != null;
-            if (flag)
+            CmbBx_ColMap.DataSource = Colormap.GetColormapNames();
+            CmbBx_RotateGraph.DataSource = Enum.GetNames(typeof(RotateFlipType)).Select(x => x.Remove(0, "Rotate".Length)).ToArray();
+            CmbBx_ImgMode.DataSource = Enum.GetNames(typeof(PictureBoxSizeMode));
+            if (YAMPVars.CORE != null && YAMPVars.CORE.PlayerSource != null)
             {
                 SampleRate = YAMPVars.CORE.PlayerSource.WaveFormat.SampleRate;
                 ChannelCount = YAMPVars.CORE.PlayerSource.WaveFormat.Channels;
+                YAMPVars.NotificationSource.BlockRead += NotificationSource_BlockRead;
                 YAMPVars.SingleBlockNotificationStream.SingleBlockRead += SingleBlockNotificationStream_SingleBlockRead;
                 YAMPVars.FftProvider = new FftProvider(ChannelCount, FftSize.Fft2048)
                 {
                     WindowFunction = WindowFunctions.Hanning
                 };
+                SpectroScott = new SpectrogramGenerator(SampleRate, (int)YAMPVars.FftProvider.FftSize, 512);
+                pictureBox1.Height = SpectroScott.Height;
+                //CmbBx_ColMap.SelectedIndex = Array.IndexOf((string[])CmbBx_ColMap.DataSource, CmbBx_ColMap.SelectedItem.ToString());
+                SpectroScott.SetFixedWidth(pictureBox2.Width);
                 FFTSIZE = YAMPVars.FftProvider.FftSize;
                 SpectrumProvider = new BasicSpectrumProvider(ChannelCount, SampleRate, FFTSIZE);
                 Spectrum = new VoicePrint3DSpectrum(FFTSIZE)
@@ -99,6 +109,11 @@ namespace YAMP_alpha
                     item.BringToFront();
                 }
             }
+        }
+
+        private void NotificationSource_BlockRead(object sender, BlockReadEventArgs<float> e)
+        {
+            SpectroBuffer = e.Data.Select(x => (double)(x * (int)NUD_Multiplier.Value)).ToArray();
         }
 
         private void SingleBlockNotificationStream_SingleBlockRead(object sender, SingleBlockReadEventArgs e)
@@ -168,6 +183,14 @@ namespace YAMP_alpha
                 {
                     signalPlot.Ys = fftpower;
                 }
+                SpectroScott.Add(SpectroBuffer);
+                if (SpectroScott.Width > 0)
+                {
+                    pictureBox2.Image?.Dispose();
+                    var Bitmp = SpectroScott.GetBitmap((float)NUD_Brightness.Value, roll: ChkBx_RollGraph.Checked);
+                    Bitmp.RotateFlip((RotateFlipType)Enum.Parse(typeof(RotateFlipType), "Rotate"+CmbBx_RotateGraph.SelectedItem.ToString()));
+                    pictureBox2.Image = Bitmp;
+                }
                 formsPlot1.Render(false, false);
             }
         }
@@ -184,6 +207,24 @@ namespace YAMP_alpha
             foreach (EQBand item in EQ2Bands)
             {
                 item.BandValue = 0;
+            }
+        }
+
+        private void CmbBx_ColMap_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            SpectroScott.Colormap = Colormap.GetColormaps().First(x => x.Name == (string)CmbBx_ColMap.SelectedValue);
+        }
+
+        private void CmbBx_ImgMode_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            pictureBox2.SizeMode = (PictureBoxSizeMode)Enum.Parse(typeof(PictureBoxSizeMode), CmbBx_ImgMode.SelectedItem.ToString());
+        }
+
+        private void EqualizerDialog_SizeChanged(object sender, EventArgs e)
+        {
+            if (ChkBx_ResizeSpectro.Checked)
+            {
+                SpectroScott.SetFixedWidth(pictureBox2.Width);
             }
         }
     }

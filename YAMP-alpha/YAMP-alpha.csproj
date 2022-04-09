@@ -117,6 +117,9 @@
     <Reference Include="ScottPlot.WinForms, Version=4.1.31.0, Culture=neutral, PublicKeyToken=5df1dfa5321e734b, processorArchitecture=MSIL">
       <HintPath>..\packages\ScottPlot.WinForms.4.1.31\lib\net472\ScottPlot.WinForms.dll</HintPath>
     </Reference>
+    <Reference Include="Spectrogram, Version=1.4.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Spectrogram.1.4.4\lib\netstandard2.0\Spectrogram.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>

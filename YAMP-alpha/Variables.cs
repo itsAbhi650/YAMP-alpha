@@ -50,7 +50,7 @@ namespace YAMP_alpha
         {
             SimpleNotificationSource = null;
             SingleBlockNotificationStream = null;
-            NotificationSource = null;
+            //NotificationSource = null;
         }
     }
 }
