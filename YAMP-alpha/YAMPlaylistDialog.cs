@@ -98,7 +98,10 @@ namespace YAMP_alpha
         {
             if (e.StateChanged == DataGridViewElementStates.Selected)
             {
-                pictureBox1.Image = YAMPVars.TrackList[e.Row.Index].Covers[0];
+                if (YAMPVars.TrackList[e.Row.Index].Covers.Count > 0)
+                {
+                    pictureBox1.Image = YAMPVars.TrackList[e.Row.Index].Covers[0];
+                }
             }
         }
 
