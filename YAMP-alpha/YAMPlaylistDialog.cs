@@ -50,7 +50,7 @@ namespace YAMP_alpha
 
         private void fileToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            using (OpenFileDialog OFD = new OpenFileDialog() { Filter = "mp3 files (*.mp3)|*.mp3", Multiselect = true })
+            using (OpenFileDialog OFD = new OpenFileDialog() { Filter = "mp3 files (*.mp3)|*.mp3|m4a files (*.m4a)|*.m4a", Multiselect = true })
             {
                 if (OFD.ShowDialog() == DialogResult.OK)
                 {

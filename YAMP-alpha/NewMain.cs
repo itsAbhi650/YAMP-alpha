@@ -97,7 +97,7 @@ namespace YAMP_alpha
                 bool TrackLoaded = YAMPVars.CORE.GetFirstTrack();
                 if (!TrackLoaded)
                 {
-                    using (OpenFileDialog OPD = new OpenFileDialog())
+                    using (OpenFileDialog OPD = new OpenFileDialog() { Filter = "mp3 files (*.mp3)|*.mp3|m4a files (*.m4a)|*.m4a" })
                     {
                         if (OPD.ShowDialog() == DialogResult.OK)
                         {
@@ -366,6 +366,19 @@ namespace YAMP_alpha
             {
                 UpdateTrackers();
                 PlayFromStart();
+            }
+        }
+
+        private void Btn_ToggleExtras_Click(object sender, EventArgs e)
+        {
+            Pnl_Extras.Visible = !Pnl_Extras.Visible;
+        }
+
+        private void CB_ToggleTrackLoop_CheckedChanged(object sender, EventArgs e)
+        {
+            if (YAMPVars.TrackLoop!=null)
+            {
+                YAMPVars.TrackLoop.EnableLoop = CB_ToggleTrackLoop.Checked;
             }
         }
     }
