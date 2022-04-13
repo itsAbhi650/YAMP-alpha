@@ -800,13 +800,13 @@
             // button6
             // 
             this.button6.BackColor = System.Drawing.Color.Red;
-            this.button6.Dock = System.Windows.Forms.DockStyle.Right;
+            this.button6.Dock = System.Windows.Forms.DockStyle.Fill;
             this.button6.FlatAppearance.BorderSize = 0;
             this.button6.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button6.ForeColor = System.Drawing.Color.White;
-            this.button6.Location = new System.Drawing.Point(11, 0);
+            this.button6.Location = new System.Drawing.Point(0, 0);
             this.button6.Name = "button6";
-            this.button6.Size = new System.Drawing.Size(46, 25);
+            this.button6.Size = new System.Drawing.Size(57, 25);
             this.button6.TabIndex = 0;
             this.button6.Text = "X";
             this.button6.UseVisualStyleBackColor = false;
