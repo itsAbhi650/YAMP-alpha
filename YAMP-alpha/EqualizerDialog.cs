@@ -15,6 +15,7 @@ namespace YAMP_alpha
 {
     public partial class EqualizerDialog : Form
     {
+
         private float[] buffer;
         private double[] SpectroBuffer;
         private SignalPlot signalPlot;
@@ -27,7 +28,7 @@ namespace YAMP_alpha
         private Bitmap SpectroBitmap;
         private int MaxDB = 12;
         private int _xpos;
-
+        private Colormap[] Colormaps = Colormap.GetColormaps();
         private EQBand VolBand = new EQBand("Volume", 0, 100, 0, string.Empty)
         {
             FooterVisible = true,
@@ -67,7 +68,6 @@ namespace YAMP_alpha
                 };
                 SpectroScott = new SpectrogramGenerator(SampleRate, (int)YAMPVars.FftProvider.FftSize, 512);
                 pictureBox1.Height = SpectroScott.Height;
-                //CmbBx_ColMap.SelectedIndex = Array.IndexOf((string[])CmbBx_ColMap.DataSource, CmbBx_ColMap.SelectedItem.ToString());
                 SpectroScott.SetFixedWidth(pictureBox2.Width);
                 FFTSIZE = YAMPVars.FftProvider.FftSize;
                 SpectrumProvider = new BasicSpectrumProvider(ChannelCount, SampleRate, FFTSIZE);
@@ -188,7 +188,7 @@ namespace YAMP_alpha
                 {
                     pictureBox2.Image?.Dispose();
                     var Bitmp = SpectroScott.GetBitmap((float)NUD_Brightness.Value, roll: ChkBx_RollGraph.Checked);
-                    Bitmp.RotateFlip((RotateFlipType)Enum.Parse(typeof(RotateFlipType), "Rotate"+CmbBx_RotateGraph.SelectedItem.ToString()));
+                    Bitmp.RotateFlip((RotateFlipType)Enum.Parse(typeof(RotateFlipType), "Rotate" + CmbBx_RotateGraph.SelectedItem.ToString()));
                     pictureBox2.Image = Bitmp;
                 }
                 formsPlot1.Render(false, false);
@@ -212,7 +212,7 @@ namespace YAMP_alpha
 
         private void CmbBx_ColMap_SelectedIndexChanged(object sender, EventArgs e)
         {
-            SpectroScott.Colormap = Colormap.GetColormaps().First(x => x.Name == (string)CmbBx_ColMap.SelectedValue);
+            SpectroScott.Colormap = Colormaps[CmbBx_ColMap.SelectedIndex];
         }
 
         private void CmbBx_ImgMode_SelectedIndexChanged(object sender, EventArgs e)
