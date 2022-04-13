@@ -32,10 +32,10 @@ namespace YAMP_alpha
         public static string[] ValidBitrates;
         public static CSCore.DSP.FftProvider FftProvider;
         internal static bool PLTRACKFLAG;
+        internal static LoopStream TrackLoop;
 
         public static void ResetEffectVars()
         {
-            //EffectManager.AllEffects[0]
             CompressorEffect = null;
             WavesReverbEffect = null;
             FlangerEffect = null;

@@ -94,9 +94,7 @@ namespace YAMP_alpha
 
         public void AdjustPlayerPosition(int Value)
         {
-
-
-            if (YAMPVars.CORE.PlayerInitialized)
+            if (PlayerInitialized)
             {
                 if (!NetPlay || PlayerSource.CanSeek)
                 {
@@ -104,7 +102,6 @@ namespace YAMP_alpha
                     Extensions.SetPosition(YAMPVars.CORE.PlayerSource, ts);
                 }
             }
-
         }
 
         public void LoadFile(string Filename)
@@ -350,13 +347,14 @@ namespace YAMP_alpha
             .AppendSource(x => new DmoCompressorEffect(x) { IsEnabled = false }, out YAMPVars.CompressorEffect)
             .AppendSource(x => new DmoGargleEffect(x) { IsEnabled = false }, out YAMPVars.GargleEffect)
             .AppendSource(x => new DmoChorusEffect(x) { IsEnabled = false }, out YAMPVars.ChorusEffect)
+            .AppendSource(x => new LoopStream(x) { EnableLoop = false }, out YAMPVars.TrackLoop)
             .ToSampleSource()
             .AppendSource(x => new GainSource(x) { Volume = 1.0f }, out YAMPVars.GainSource)
             .AppendSource(x => new VolumeSource(x) { Volume = 1.0f }, out YAMPVars.VolumeSource)
             .AppendSource(x => new PeakMeter(x) { Interval = 25 }, out YAMPVars.AudioPeakMeter)
             .AppendSource(x => new PitchShifter(x), out YAMPVars.PitchShiftEffect)
             .AppendSource(x => Equalizer.Create10BandEqualizer(x), out YAMPVars.EqualizerEffect)
-            .AppendSource(x=> new NotificationSource(x), out YAMPVars.NotificationSource)
+            .AppendSource(x => new NotificationSource(x), out YAMPVars.NotificationSource)
             .ToWaveSource();
         }
 
@@ -450,7 +448,6 @@ namespace YAMP_alpha
         {
             Player.Stop();
             AdjustPlayerPosition(0);
-            //PlayerStopped = true;
         }
 
         public void Pause()
