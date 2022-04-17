@@ -21,6 +21,7 @@ namespace YAMP_alpha
         public static DmoGargleEffect GargleEffect;
         public static PitchShifter PitchShiftEffect;
         public static GainSource GainSource;
+        internal static FadeInOut FadeEffect;
         public static VolumeSource VolumeSource;
         public static AudioMeterInformation MeterInformation;
         public static AudioSessionManager2 AudioSessionManager;
@@ -50,7 +51,6 @@ namespace YAMP_alpha
         {
             SimpleNotificationSource = null;
             SingleBlockNotificationStream = null;
-            //NotificationSource = null;
         }
     }
 }

@@ -77,6 +77,7 @@
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.Pnl_Extras = new System.Windows.Forms.Panel();
             this.CB_ToggleTrackLoop = new System.Windows.Forms.CheckBox();
+            this.Btn_ToggleFade = new System.Windows.Forms.CheckBox();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.VolumeTracker)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DurationTracker)).BeginInit();
@@ -424,63 +425,63 @@
             // pitchShifterToolStripMenuItem
             // 
             this.pitchShifterToolStripMenuItem.Name = "pitchShifterToolStripMenuItem";
-            this.pitchShifterToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.pitchShifterToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.pitchShifterToolStripMenuItem.Text = "Pitch Shifter";
             this.pitchShifterToolStripMenuItem.Click += new System.EventHandler(this.pitchShifterToolStripMenuItem_Click);
             // 
             // echoToolStripMenuItem
             // 
             this.echoToolStripMenuItem.Name = "echoToolStripMenuItem";
-            this.echoToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.echoToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.echoToolStripMenuItem.Text = "Echo";
             this.echoToolStripMenuItem.Click += new System.EventHandler(this.echoToolStripMenuItem_Click);
             // 
             // gargleEffectToolStripMenuItem
             // 
             this.gargleEffectToolStripMenuItem.Name = "gargleEffectToolStripMenuItem";
-            this.gargleEffectToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.gargleEffectToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.gargleEffectToolStripMenuItem.Text = "Gargle";
             this.gargleEffectToolStripMenuItem.Click += new System.EventHandler(this.gargleEffectToolStripMenuItem_Click);
             // 
             // flangerToolStripMenuItem
             // 
             this.flangerToolStripMenuItem.Name = "flangerToolStripMenuItem";
-            this.flangerToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.flangerToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.flangerToolStripMenuItem.Text = "Flanger";
             this.flangerToolStripMenuItem.Click += new System.EventHandler(this.flangerToolStripMenuItem_Click);
             // 
             // chorusToolStripMenuItem
             // 
             this.chorusToolStripMenuItem.Name = "chorusToolStripMenuItem";
-            this.chorusToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.chorusToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.chorusToolStripMenuItem.Text = "Chorus";
             this.chorusToolStripMenuItem.Click += new System.EventHandler(this.chorusToolStripMenuItem_Click);
             // 
             // compressorToolStripMenuItem
             // 
             this.compressorToolStripMenuItem.Name = "compressorToolStripMenuItem";
-            this.compressorToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.compressorToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.compressorToolStripMenuItem.Text = "Compressor";
             this.compressorToolStripMenuItem.Click += new System.EventHandler(this.compressorToolStripMenuItem_Click);
             // 
             // wavesReverbToolStripMenuItem
             // 
             this.wavesReverbToolStripMenuItem.Name = "wavesReverbToolStripMenuItem";
-            this.wavesReverbToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.wavesReverbToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.wavesReverbToolStripMenuItem.Text = "Waves Reverb";
             this.wavesReverbToolStripMenuItem.Click += new System.EventHandler(this.wavesReverbToolStripMenuItem_Click);
             // 
             // equalizerToolStripMenuItem
             // 
             this.equalizerToolStripMenuItem.Name = "equalizerToolStripMenuItem";
-            this.equalizerToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.equalizerToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.equalizerToolStripMenuItem.Text = "Equalizer";
             this.equalizerToolStripMenuItem.Click += new System.EventHandler(this.equalizerToolStripMenuItem_Click);
             // 
             // distortionToolStripMenuItem
             // 
             this.distortionToolStripMenuItem.Name = "distortionToolStripMenuItem";
-            this.distortionToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.distortionToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.distortionToolStripMenuItem.Text = "Distortion";
             this.distortionToolStripMenuItem.Click += new System.EventHandler(this.distortionToolStripMenuItem_Click);
             // 
@@ -495,7 +496,7 @@
             // changeSampleRateToolStripMenuItem
             // 
             this.changeSampleRateToolStripMenuItem.Name = "changeSampleRateToolStripMenuItem";
-            this.changeSampleRateToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.changeSampleRateToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.changeSampleRateToolStripMenuItem.Text = "Change sample rate";
             this.changeSampleRateToolStripMenuItem.Click += new System.EventHandler(this.changeSampleRateToolStripMenuItem_Click);
             // 
@@ -547,6 +548,7 @@
             // 
             this.Pnl_Extras.BackColor = System.Drawing.SystemColors.Control;
             this.Pnl_Extras.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.Pnl_Extras.Controls.Add(this.Btn_ToggleFade);
             this.Pnl_Extras.Controls.Add(this.CB_ToggleTrackLoop);
             this.Pnl_Extras.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.Pnl_Extras.Location = new System.Drawing.Point(0, 376);
@@ -566,6 +568,19 @@
             this.CB_ToggleTrackLoop.Text = "Loop";
             this.CB_ToggleTrackLoop.UseVisualStyleBackColor = true;
             this.CB_ToggleTrackLoop.CheckedChanged += new System.EventHandler(this.CB_ToggleTrackLoop_CheckedChanged);
+            // 
+            // Btn_ToggleFade
+            // 
+            this.Btn_ToggleFade.Appearance = System.Windows.Forms.Appearance.Button;
+            this.Btn_ToggleFade.AutoSize = true;
+            this.Btn_ToggleFade.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Btn_ToggleFade.Location = new System.Drawing.Point(54, 2);
+            this.Btn_ToggleFade.Name = "Btn_ToggleFade";
+            this.Btn_ToggleFade.Size = new System.Drawing.Size(45, 23);
+            this.Btn_ToggleFade.TabIndex = 1;
+            this.Btn_ToggleFade.Text = "Fade";
+            this.Btn_ToggleFade.UseVisualStyleBackColor = true;
+            this.Btn_ToggleFade.CheckedChanged += new System.EventHandler(this.Btn_ToggleFade_CheckedChanged);
             // 
             // NewMain
             // 
@@ -650,5 +665,6 @@
         private System.Windows.Forms.Button Btn_ToggleExtras;
         private System.Windows.Forms.Panel Pnl_Extras;
         private System.Windows.Forms.CheckBox CB_ToggleTrackLoop;
+        private System.Windows.Forms.CheckBox Btn_ToggleFade;
     }
 }

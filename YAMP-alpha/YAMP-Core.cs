@@ -15,6 +15,7 @@ namespace YAMP_alpha
     {
         internal NewMain UIRef;
         private TrackInfo _curtrack;
+        public bool EnableFade;
         public ID3Info TagInfo { get; set; }
         public CSCore.SoundOut.ISoundOut Player { get; private set; }
         public string PlayingFile { get; private set; }
@@ -354,6 +355,7 @@ namespace YAMP_alpha
             .AppendSource(x => new PeakMeter(x) { Interval = 25 }, out YAMPVars.AudioPeakMeter)
             .AppendSource(x => new PitchShifter(x), out YAMPVars.PitchShiftEffect)
             .AppendSource(x => Equalizer.Create10BandEqualizer(x), out YAMPVars.EqualizerEffect)
+            .AppendSource(x => new FadeInOut(x) { FadeStrategy = new LinearFadeStrategy() }, out YAMPVars.FadeEffect)
             .AppendSource(x => new NotificationSource(x), out YAMPVars.NotificationSource)
             .ToWaveSource();
         }
@@ -361,7 +363,7 @@ namespace YAMP_alpha
         public void CreateNotificationEvents()
         {
             YAMPVars.ResetStreamNotifications();
-            PlayerSource = PlayerSource.AppendSource(x => new SingleBlockNotificationStream(x.ToSampleSource()), out YAMPVars.SingleBlockNotificationStream).ToWaveSource();
+            PlayerSource = PlayerSource.AppendSource(x => new SingleBlockNotificationStream(x.ToSampleSource(), 200000), out YAMPVars.SingleBlockNotificationStream).ToWaveSource();
             YAMPVars.SingleBlockNotificationStream.SingleBlockRead += NotificationStream_SingleBlockRead;
             YAMPVars.SingleBlockNotificationStream.SingleBlockStreamAlmostFinished += NotificationStream_SingleBlockStreamAlmostFinished;
             YAMPVars.SingleBlockNotificationStream.SingleBlockStreamFinished += NotificationStream_SingleBlockStreamFinished;
@@ -378,6 +380,18 @@ namespace YAMP_alpha
             if (!NetPlay || PlayerSource.CanSeek)
             {
                 FetchTrackDirected(1);
+            }
+
+            if (EnableFade)
+            {
+                if (YAMPVars.FadeEffect != null)
+                {
+                    //This will find the remaining seconds after SingleBlockStreamAlmostFinished event triggers on which the fade out will be applied.
+                    TimeSpan REMSEC = PlayerSource.GetLength() - PlayerSource.GetPosition();
+
+                    //Starting volume set to null to use default/current volume.
+                    YAMPVars.FadeEffect.FadeStrategy.StartFading(null, 0, REMSEC);
+                }
             }
         }
 

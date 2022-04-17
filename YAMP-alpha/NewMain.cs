@@ -28,12 +28,15 @@ namespace YAMP_alpha
             }
         }
 
-        private void PlayFromStart()
+        private void PlayFromStart(bool FadeTrack = true)
         {
             DurationTracker.Value = 0;
-            pictureBox1.BackgroundImage = YAMPVars.CORE.GetTrackCover();
             YAMPVars.CORE.Play();
             PlayTimer.Start();
+            if (YAMPVars.CORE.EnableFade&&FadeTrack)
+            {
+                YAMPVars.FadeEffect.FadeStrategy.StartFading(0, 1, 5000D);
+            }
         }
 
         private void ThreadSafeCall(MethodInvoker method)
@@ -110,8 +113,7 @@ namespace YAMP_alpha
 
                 if (TrackLoaded)
                 {
-                    YAMPVars.CORE.Play();
-                    PlayTimer.Start();
+                    PlayFromStart();
                 }
             }
             else
@@ -238,24 +240,12 @@ namespace YAMP_alpha
         {
             EchoSignalDialog ESD = new EchoSignalDialog();
             ESD.Show();
-
         }
 
         private void peakMtToolStripMenuItem_Click(object sender, EventArgs e)
         {
             PeakMeterDialog PMD = new PeakMeterDialog();
             PMD.Show();
-
-        }
-
-        private void NotificationSource_SingleBlockRead(object sender, SingleBlockReadEventArgs e)
-        {
-            //throw new System.NotImplementedException();
-        }
-
-        private void NotificationSource_SingleBlockStreamAlmostFinished(object sender, SingleBlockStreamAlmostFinishedEventArgs e)
-        {
-            //throw new System.NotImplementedException();
         }
 
         private void gargleEffectToolStripMenuItem_Click(object sender, EventArgs e)
@@ -290,8 +280,7 @@ namespace YAMP_alpha
 
         private void changeSampleRateToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //SampleConverterDialog SCD = new SampleConverterDialog(YAMPCore.PlayerSource);
-            //SCD.Show();
+            
         }
 
         private void waveformNAudioToolStripMenuItem_Click(object sender, EventArgs e)
@@ -376,10 +365,15 @@ namespace YAMP_alpha
 
         private void CB_ToggleTrackLoop_CheckedChanged(object sender, EventArgs e)
         {
-            if (YAMPVars.TrackLoop!=null)
+            if (YAMPVars.TrackLoop != null)
             {
                 YAMPVars.TrackLoop.EnableLoop = CB_ToggleTrackLoop.Checked;
             }
+        }
+
+        private void Btn_ToggleFade_CheckedChanged(object sender, EventArgs e)
+        {
+            YAMPVars.CORE.EnableFade = Btn_ToggleFade.Checked;
         }
     }
 }
