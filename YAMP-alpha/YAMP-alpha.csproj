@@ -258,6 +258,7 @@
     <Compile Include="PitchShiftDialog.Designer.cs">
       <DependentUpon>PitchShiftDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="PositionLoop.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StreamDialog.cs">
