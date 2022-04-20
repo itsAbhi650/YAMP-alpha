@@ -240,6 +240,12 @@
     <Compile Include="NewMain.Designer.cs">
       <DependentUpon>NewMain.cs</DependentUpon>
     </Compile>
+    <Compile Include="PanSlider.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PanSlider.Designer.cs">
+      <DependentUpon>PanSlider.cs</DependentUpon>
+    </Compile>
     <Compile Include="PeakMeterDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -332,6 +338,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="NewMain.resx">
       <DependentUpon>NewMain.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PanSlider.resx">
+      <DependentUpon>PanSlider.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="PeakMeterDialog.resx">
       <DependentUpon>PeakMeterDialog.cs</DependentUpon>
