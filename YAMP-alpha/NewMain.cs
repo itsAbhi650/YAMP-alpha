@@ -33,7 +33,7 @@ namespace YAMP_alpha
             DurationTracker.Value = 0;
             YAMPVars.CORE.Play();
             PlayTimer.Start();
-            if (YAMPVars.CORE.EnableFade&&FadeTrack)
+            if (YAMPVars.CORE.EnableFade && FadeTrack)
             {
                 YAMPVars.FadeEffect.FadeStrategy.StartFading(0, 1, 5000D);
             }
@@ -280,7 +280,7 @@ namespace YAMP_alpha
 
         private void changeSampleRateToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            
+
         }
 
         private void waveformNAudioToolStripMenuItem_Click(object sender, EventArgs e)
@@ -374,6 +374,15 @@ namespace YAMP_alpha
         private void Btn_ToggleFade_CheckedChanged(object sender, EventArgs e)
         {
             YAMPVars.CORE.EnableFade = Btn_ToggleFade.Checked;
+        }
+
+        private void Btn_ChannelPan_Click(object sender, EventArgs e)
+        {
+            PanSlider PanSlide = new PanSlider
+            {
+                StartPosition = FormStartPosition.Manual,
+            };
+            PanSlide.Show();
         }
     }
 }

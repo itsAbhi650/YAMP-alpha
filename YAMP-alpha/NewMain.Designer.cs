@@ -76,8 +76,9 @@
             this.waveformPainter1 = new NAudio.Gui.WaveformPainter();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.Pnl_Extras = new System.Windows.Forms.Panel();
-            this.CB_ToggleTrackLoop = new System.Windows.Forms.CheckBox();
             this.Btn_ToggleFade = new System.Windows.Forms.CheckBox();
+            this.CB_ToggleTrackLoop = new System.Windows.Forms.CheckBox();
+            this.Btn_ChannelPan = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.VolumeTracker)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DurationTracker)).BeginInit();
@@ -548,6 +549,7 @@
             // 
             this.Pnl_Extras.BackColor = System.Drawing.SystemColors.Control;
             this.Pnl_Extras.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.Pnl_Extras.Controls.Add(this.Btn_ChannelPan);
             this.Pnl_Extras.Controls.Add(this.Btn_ToggleFade);
             this.Pnl_Extras.Controls.Add(this.CB_ToggleTrackLoop);
             this.Pnl_Extras.Dock = System.Windows.Forms.DockStyle.Bottom;
@@ -555,6 +557,19 @@
             this.Pnl_Extras.Name = "Pnl_Extras";
             this.Pnl_Extras.Size = new System.Drawing.Size(384, 28);
             this.Pnl_Extras.TabIndex = 14;
+            // 
+            // Btn_ToggleFade
+            // 
+            this.Btn_ToggleFade.Appearance = System.Windows.Forms.Appearance.Button;
+            this.Btn_ToggleFade.AutoSize = true;
+            this.Btn_ToggleFade.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Btn_ToggleFade.Location = new System.Drawing.Point(54, 2);
+            this.Btn_ToggleFade.Name = "Btn_ToggleFade";
+            this.Btn_ToggleFade.Size = new System.Drawing.Size(45, 23);
+            this.Btn_ToggleFade.TabIndex = 1;
+            this.Btn_ToggleFade.Text = "Fade";
+            this.Btn_ToggleFade.UseVisualStyleBackColor = true;
+            this.Btn_ToggleFade.CheckedChanged += new System.EventHandler(this.Btn_ToggleFade_CheckedChanged);
             // 
             // CB_ToggleTrackLoop
             // 
@@ -569,18 +584,16 @@
             this.CB_ToggleTrackLoop.UseVisualStyleBackColor = true;
             this.CB_ToggleTrackLoop.CheckedChanged += new System.EventHandler(this.CB_ToggleTrackLoop_CheckedChanged);
             // 
-            // Btn_ToggleFade
+            // Btn_ChannelPan
             // 
-            this.Btn_ToggleFade.Appearance = System.Windows.Forms.Appearance.Button;
-            this.Btn_ToggleFade.AutoSize = true;
-            this.Btn_ToggleFade.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Btn_ToggleFade.Location = new System.Drawing.Point(54, 2);
-            this.Btn_ToggleFade.Name = "Btn_ToggleFade";
-            this.Btn_ToggleFade.Size = new System.Drawing.Size(45, 23);
-            this.Btn_ToggleFade.TabIndex = 1;
-            this.Btn_ToggleFade.Text = "Fade";
-            this.Btn_ToggleFade.UseVisualStyleBackColor = true;
-            this.Btn_ToggleFade.CheckedChanged += new System.EventHandler(this.Btn_ToggleFade_CheckedChanged);
+            this.Btn_ChannelPan.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Btn_ChannelPan.Location = new System.Drawing.Point(105, 2);
+            this.Btn_ChannelPan.Name = "Btn_ChannelPan";
+            this.Btn_ChannelPan.Size = new System.Drawing.Size(39, 23);
+            this.Btn_ChannelPan.TabIndex = 3;
+            this.Btn_ChannelPan.Text = "Pan";
+            this.Btn_ChannelPan.UseVisualStyleBackColor = true;
+            this.Btn_ChannelPan.Click += new System.EventHandler(this.Btn_ChannelPan_Click);
             // 
             // NewMain
             // 
@@ -666,5 +679,6 @@
         private System.Windows.Forms.Panel Pnl_Extras;
         private System.Windows.Forms.CheckBox CB_ToggleTrackLoop;
         private System.Windows.Forms.CheckBox Btn_ToggleFade;
+        private System.Windows.Forms.Button Btn_ChannelPan;
     }
 }
