@@ -384,5 +384,46 @@ namespace YAMP_alpha
             };
             PanSlide.Show();
         }
+
+        private void DurationTracker_ValueChanged(object sender, EventArgs e)
+        {
+            if (YAMPVars.TrackPositionLoop != null && Btn_PosLoop.Tag.ToString() == "B")
+            {
+                if (DurationTracker.Value >= YAMPVars.TrackPositionLoop.B)
+                {
+                    DurationTracker.Value = YAMPVars.TrackPositionLoop.A;
+                    YAMPVars.CORE.AdjustPlayerPosition(YAMPVars.TrackPositionLoop.A);
+                }
+            }
+        }
+
+        private void Btn_PosLoop_Click(object sender, EventArgs e)
+        {
+            if (YAMPVars.CORE.Player != null)
+            {
+                Button Btn = sender as Button;
+                string BtnTag = Btn.Tag.ToString();
+                switch (BtnTag)
+                {
+                    case "*":
+                        YAMPVars.TrackPositionLoop = new PositionLoop() { A = DurationTracker.Value };
+                        Btn.Text = "A→";
+                        Btn.Tag = "A";
+                        break;
+                    case "A":
+                        YAMPVars.TrackPositionLoop.B = DurationTracker.Value;
+                        Btn.Text = "A↔B";
+                        Btn.Tag = "B";
+                        DurationTracker.Value = YAMPVars.TrackPositionLoop.A;
+                        YAMPVars.CORE.AdjustPlayerPosition(YAMPVars.TrackPositionLoop.A);
+                        break;
+                    default:
+                        YAMPVars.TrackPositionLoop = null;
+                        Btn.Text = "AB";
+                        Btn.Tag = "*";
+                        break;
+                }
+            }
+        }
     }
 }

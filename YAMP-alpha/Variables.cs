@@ -35,6 +35,7 @@ namespace YAMP_alpha
         internal static bool PLTRACKFLAG;
         internal static LoopStream TrackLoop;
         internal static PanSource ChannelPan;
+        internal static PositionLoop TrackPositionLoop;
 
         public static void ResetEffectVars()
         {
