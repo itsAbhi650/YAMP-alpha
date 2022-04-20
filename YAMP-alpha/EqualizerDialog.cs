@@ -66,10 +66,10 @@ namespace YAMP_alpha
                 {
                     WindowFunction = WindowFunctions.Hanning
                 };
-                SpectroScott = new SpectrogramGenerator(SampleRate, (int)YAMPVars.FftProvider.FftSize, 512);
+                FFTSIZE = YAMPVars.FftProvider.FftSize;
+                SpectroScott = new SpectrogramGenerator(SampleRate, (int)FFTSIZE, (int)FFTSIZE / 2);
                 pictureBox1.Height = SpectroScott.Height;
                 SpectroScott.SetFixedWidth(pictureBox2.Width);
-                FFTSIZE = YAMPVars.FftProvider.FftSize;
                 SpectrumProvider = new BasicSpectrumProvider(ChannelCount, SampleRate, FFTSIZE);
                 Spectrum = new VoicePrint3DSpectrum(FFTSIZE)
                 {
