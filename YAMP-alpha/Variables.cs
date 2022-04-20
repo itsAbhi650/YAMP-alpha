@@ -34,6 +34,7 @@ namespace YAMP_alpha
         public static CSCore.DSP.FftProvider FftProvider;
         internal static bool PLTRACKFLAG;
         internal static LoopStream TrackLoop;
+        internal static PanSource ChannelPan;
 
         public static void ResetEffectVars()
         {
