@@ -1,5 +1,4 @@
 ﻿using CSCore;
-using CSCore.Streams;
 using Microsoft.VisualBasic;
 using System;
 using System.Drawing;
