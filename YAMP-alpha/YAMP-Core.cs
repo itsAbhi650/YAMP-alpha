@@ -51,7 +51,7 @@ namespace YAMP_alpha
 
         public YAMP_Core()
         {
-            Player = new CSCore.SoundOut.DirectSoundOut();
+            Player = new CSCore.SoundOut.WasapiOut();
             YAMPVars.MediaDevice = new MMDeviceEnumerator().GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
             Task.Run(() =>
             {
@@ -341,7 +341,8 @@ namespace YAMP_alpha
         private IWaveSource AppendEffectSources(IWaveSource Source)
         {
             YAMPVars.ResetEffectVars();
-            return Source.AppendSource(x => new DmoDistortionEffect(x) { IsEnabled = false }, out YAMPVars.DistortionEffect)
+            Source = Source
+            .AppendSource(x => new DmoDistortionEffect(x) { IsEnabled = false }, out YAMPVars.DistortionEffect)
             .AppendSource(x => new DmoFlangerEffect(x) { IsEnabled = false }, out YAMPVars.FlangerEffect)
             .AppendSource(x => new DmoWavesReverbEffect(x) { IsEnabled = false }, out YAMPVars.WavesReverbEffect)
             .AppendSource(x => new DmoEchoEffect(x) { IsEnabled = false }, out YAMPVars.EchoEffect)
@@ -354,11 +355,20 @@ namespace YAMP_alpha
             .AppendSource(x => new VolumeSource(x) { Volume = 1.0f }, out YAMPVars.VolumeSource)
             .AppendSource(x => new PeakMeter(x) { Interval = 25 }, out YAMPVars.AudioPeakMeter)
             .AppendSource(x => new PitchShifter(x), out YAMPVars.PitchShiftEffect)
-            .AppendSource(x => Equalizer.Create10BandEqualizer(x), out YAMPVars.EqualizerEffect)
             .AppendSource(x => new FadeInOut(x) { FadeStrategy = new LinearFadeStrategy() }, out YAMPVars.FadeEffect)
-            .AppendSource(x => new PanSource(x) { Pan = 0.0F }, out YAMPVars.ChannelPan)
             .AppendSource(x => new NotificationSource(x), out YAMPVars.NotificationSource)
             .ToWaveSource();
+
+            if (Source.WaveFormat.Channels > 1)
+            {
+                Source = Source.ToSampleSource().AppendSource(x => new PanSource(x) { Pan = 0.0F }, out YAMPVars.ChannelPan).ToWaveSource();
+            }
+
+            if (Source.WaveFormat.SampleRate >= 32000)
+            {
+                Source = Source.ToSampleSource().AppendSource(x => Equalizer.Create10BandEqualizer(x), out YAMPVars.EqualizerEffect).ToWaveSource();
+            }
+            return Source;
         }
 
         public void CreateNotificationEvents()
@@ -372,6 +382,7 @@ namespace YAMP_alpha
 
         private void NotificationStream_SingleBlockRead(object sender, SingleBlockReadEventArgs e)
         {
+
             WaveFormLEFT = e.Left;
             WaveFormRIGHT = e.Right;
         }
@@ -442,7 +453,7 @@ namespace YAMP_alpha
         public void ReinitializePlayer()
         {
             ReleasePlayer();
-            Player = new CSCore.SoundOut.DirectSoundOut();
+            Player = new CSCore.SoundOut.WasapiOut();
             LoadFile(PlayingFile);
             InitializePlayer();
         }
