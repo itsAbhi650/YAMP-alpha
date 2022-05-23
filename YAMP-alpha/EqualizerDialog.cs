@@ -15,7 +15,6 @@ namespace YAMP_alpha
 {
     public partial class EqualizerDialog : Form
     {
-
         private float[] buffer;
         private double[] SpectroBuffer;
         private SignalPlot signalPlot;
@@ -62,14 +61,15 @@ namespace YAMP_alpha
                 ChannelCount = YAMPVars.CORE.PlayerSource.WaveFormat.Channels;
                 YAMPVars.NotificationSource.BlockRead += NotificationSource_BlockRead;
                 YAMPVars.SingleBlockNotificationStream.SingleBlockRead += SingleBlockNotificationStream_SingleBlockRead;
-                YAMPVars.FftProvider = new FftProvider(ChannelCount, FftSize.Fft2048)
+                YAMPVars.FftProvider = new FftProvider(ChannelCount, FftSize.Fft1024)
                 {
                     WindowFunction = WindowFunctions.Hanning
                 };
                 FFTSIZE = YAMPVars.FftProvider.FftSize;
-                SpectroScott = new SpectrogramGenerator(SampleRate, (int)FFTSIZE, (int)FFTSIZE / 2);
+                SpectroScott = new SpectrogramGenerator(SampleRate, 1024, 512) { OffsetHz = 10000 };
+
                 pictureBox1.Height = SpectroScott.Height;
-                SpectroScott.SetFixedWidth(pictureBox2.Width);
+                SpectroScott.SetFixedWidth(Pb_SpectrogramAdv.Width);
                 SpectrumProvider = new BasicSpectrumProvider(ChannelCount, SampleRate, FFTSIZE);
                 Spectrum = new VoicePrint3DSpectrum(FFTSIZE)
                 {
@@ -82,7 +82,7 @@ namespace YAMP_alpha
                 splitContainer1.Panel2.Controls.Add(VolBand);
                 splitContainer1.Panel2.Controls.Add(GainBand);
                 VolBand.BandValue = (int)(YAMPVars.VolumeSource.Volume * 100f);
-                GainBand.BandValue = (int)(YAMPVars.VolumeSource.Volume * 100f);
+                GainBand.BandValue = (int)(YAMPVars.GainSource.Volume * 100f);
                 VolBand.ValueChanged += VolBand_ValueChanged;
                 GainBand.ValueChanged += GainBand_ValueChanged;
                 Scope.Start();
@@ -120,6 +120,7 @@ namespace YAMP_alpha
         {
             YAMPVars.FftProvider.Add(e.Left, e.Right);
             SpectrumProvider.Add(e.Left, e.Right);
+
         }
 
         private void GainBand_ValueChanged(object sender, EventArgs e)
@@ -186,12 +187,13 @@ namespace YAMP_alpha
                 SpectroScott.Add(SpectroBuffer);
                 if (SpectroScott.Width > 0)
                 {
-                    pictureBox2.Image?.Dispose();
-                    var Bitmp = SpectroScott.GetBitmap((float)NUD_Brightness.Value, roll: ChkBx_RollGraph.Checked);
+                    Pb_SpectrogramAdv.Image?.Dispose();
+                    var Bitmp = SpectroScott.GetBitmap((float)NUD_Brightness.Value, dB: ChkBx_Dcbl.Checked, roll: ChkBx_RollGraph.Checked);
                     Bitmp.RotateFlip((RotateFlipType)Enum.Parse(typeof(RotateFlipType), "Rotate" + CmbBx_RotateGraph.SelectedItem.ToString()));
-                    pictureBox2.Image = Bitmp;
+                    Pb_SpectrogramAdv.Image = Bitmp;
                 }
                 formsPlot1.Render(false, false);
+                formsPlot1.Plot.AxisAutoY();
             }
         }
         private void Spectrogram_Tick(object sender, EventArgs e)
@@ -217,15 +219,20 @@ namespace YAMP_alpha
 
         private void CmbBx_ImgMode_SelectedIndexChanged(object sender, EventArgs e)
         {
-            pictureBox2.SizeMode = (PictureBoxSizeMode)Enum.Parse(typeof(PictureBoxSizeMode), CmbBx_ImgMode.SelectedItem.ToString());
+            Pb_SpectrogramAdv.SizeMode = (PictureBoxSizeMode)Enum.Parse(typeof(PictureBoxSizeMode), CmbBx_ImgMode.SelectedItem.ToString());
         }
 
         private void EqualizerDialog_SizeChanged(object sender, EventArgs e)
         {
             if (ChkBx_ResizeSpectro.Checked)
             {
-                SpectroScott.SetFixedWidth(pictureBox2.Width);
+                SpectroScott.SetFixedWidth(Pb_SpectrogramAdv.Width);
             }
+        }
+
+        private void NUD_OffHz_ValueChanged(object sender, EventArgs e)
+        {
+            SpectroScott.OffsetHz = (int)NUD_OffHz.Value;
         }
     }
 }
