@@ -1,4 +1,5 @@
 ﻿using CSCore.CoreAudioAPI;
+using CSCore.DSP;
 using CSCore.Streams;
 using CSCore.Streams.Effects;
 using System.Collections.Generic;
@@ -22,6 +23,7 @@ namespace YAMP_alpha
         public static PitchShifter PitchShiftEffect;
         public static GainSource GainSource;
         internal static FadeInOut FadeEffect;
+        internal static FftProvider FftProvider;
         public static VolumeSource VolumeSource;
         public static AudioMeterInformation MeterInformation;
         public static AudioSessionManager2 AudioSessionManager;
