@@ -110,7 +110,7 @@
             this.panel1.Controls.Add(this.VolumeTracker);
             this.panel1.Controls.Add(this.DurationTracker);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel1.Location = new System.Drawing.Point(0, 303);
+            this.panel1.Location = new System.Drawing.Point(0, 363);
             this.panel1.Margin = new System.Windows.Forms.Padding(0);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(384, 73);
@@ -277,7 +277,7 @@
             this.panel2.Controls.Add(this.Lbl_PlayerLabel);
             this.panel2.Controls.Add(this.Lbl_Duration);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel2.Location = new System.Drawing.Point(0, 404);
+            this.panel2.Location = new System.Drawing.Point(0, 464);
             this.panel2.Margin = new System.Windows.Forms.Padding(0);
             this.panel2.Name = "panel2";
             this.panel2.Padding = new System.Windows.Forms.Padding(3);
@@ -428,63 +428,63 @@
             // pitchShifterToolStripMenuItem
             // 
             this.pitchShifterToolStripMenuItem.Name = "pitchShifterToolStripMenuItem";
-            this.pitchShifterToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
+            this.pitchShifterToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.pitchShifterToolStripMenuItem.Text = "Pitch Shifter";
             this.pitchShifterToolStripMenuItem.Click += new System.EventHandler(this.pitchShifterToolStripMenuItem_Click);
             // 
             // echoToolStripMenuItem
             // 
             this.echoToolStripMenuItem.Name = "echoToolStripMenuItem";
-            this.echoToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
+            this.echoToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.echoToolStripMenuItem.Text = "Echo";
             this.echoToolStripMenuItem.Click += new System.EventHandler(this.echoToolStripMenuItem_Click);
             // 
             // gargleEffectToolStripMenuItem
             // 
             this.gargleEffectToolStripMenuItem.Name = "gargleEffectToolStripMenuItem";
-            this.gargleEffectToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
+            this.gargleEffectToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.gargleEffectToolStripMenuItem.Text = "Gargle";
             this.gargleEffectToolStripMenuItem.Click += new System.EventHandler(this.gargleEffectToolStripMenuItem_Click);
             // 
             // flangerToolStripMenuItem
             // 
             this.flangerToolStripMenuItem.Name = "flangerToolStripMenuItem";
-            this.flangerToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
+            this.flangerToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.flangerToolStripMenuItem.Text = "Flanger";
             this.flangerToolStripMenuItem.Click += new System.EventHandler(this.flangerToolStripMenuItem_Click);
             // 
             // chorusToolStripMenuItem
             // 
             this.chorusToolStripMenuItem.Name = "chorusToolStripMenuItem";
-            this.chorusToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
+            this.chorusToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.chorusToolStripMenuItem.Text = "Chorus";
             this.chorusToolStripMenuItem.Click += new System.EventHandler(this.chorusToolStripMenuItem_Click);
             // 
             // compressorToolStripMenuItem
             // 
             this.compressorToolStripMenuItem.Name = "compressorToolStripMenuItem";
-            this.compressorToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
+            this.compressorToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.compressorToolStripMenuItem.Text = "Compressor";
             this.compressorToolStripMenuItem.Click += new System.EventHandler(this.compressorToolStripMenuItem_Click);
             // 
             // wavesReverbToolStripMenuItem
             // 
             this.wavesReverbToolStripMenuItem.Name = "wavesReverbToolStripMenuItem";
-            this.wavesReverbToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
+            this.wavesReverbToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.wavesReverbToolStripMenuItem.Text = "Waves Reverb";
             this.wavesReverbToolStripMenuItem.Click += new System.EventHandler(this.wavesReverbToolStripMenuItem_Click);
             // 
             // equalizerToolStripMenuItem
             // 
             this.equalizerToolStripMenuItem.Name = "equalizerToolStripMenuItem";
-            this.equalizerToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
+            this.equalizerToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.equalizerToolStripMenuItem.Text = "Equalizer";
             this.equalizerToolStripMenuItem.Click += new System.EventHandler(this.equalizerToolStripMenuItem_Click);
             // 
             // distortionToolStripMenuItem
             // 
             this.distortionToolStripMenuItem.Name = "distortionToolStripMenuItem";
-            this.distortionToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
+            this.distortionToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.distortionToolStripMenuItem.Text = "Distortion";
             this.distortionToolStripMenuItem.Click += new System.EventHandler(this.distortionToolStripMenuItem_Click);
             // 
@@ -499,21 +499,9 @@
             // changeSampleRateToolStripMenuItem
             // 
             this.changeSampleRateToolStripMenuItem.Name = "changeSampleRateToolStripMenuItem";
-            this.changeSampleRateToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.changeSampleRateToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.changeSampleRateToolStripMenuItem.Text = "Change sample rate";
             this.changeSampleRateToolStripMenuItem.Click += new System.EventHandler(this.changeSampleRateToolStripMenuItem_Click);
-            // 
-            // pictureBox1
-            // 
-            this.pictureBox1.BackColor = System.Drawing.Color.Black;
-            this.pictureBox1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pictureBox1.Location = new System.Drawing.Point(0, 0);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(384, 370);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
-            this.pictureBox1.TabIndex = 2;
-            this.pictureBox1.TabStop = false;
             // 
             // PlayTimer
             // 
@@ -525,7 +513,7 @@
             this.waveformPainter1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.waveformPainter1.Location = new System.Drawing.Point(0, 0);
             this.waveformPainter1.Name = "waveformPainter1";
-            this.waveformPainter1.Size = new System.Drawing.Size(384, 39);
+            this.waveformPainter1.Size = new System.Drawing.Size(384, 32);
             this.waveformPainter1.TabIndex = 3;
             this.waveformPainter1.Text = "waveformPainter1";
             // 
@@ -543,9 +531,21 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.waveformPainter1);
-            this.splitContainer1.Size = new System.Drawing.Size(384, 413);
-            this.splitContainer1.SplitterDistance = 370;
+            this.splitContainer1.Size = new System.Drawing.Size(384, 344);
+            this.splitContainer1.SplitterDistance = 308;
             this.splitContainer1.TabIndex = 4;
+            // 
+            // pictureBox1
+            // 
+            this.pictureBox1.BackColor = System.Drawing.Color.Black;
+            this.pictureBox1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pictureBox1.Location = new System.Drawing.Point(0, 0);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(384, 308);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
+            this.pictureBox1.TabIndex = 2;
+            this.pictureBox1.TabStop = false;
             // 
             // Pnl_Extras
             // 
@@ -556,10 +556,22 @@
             this.Pnl_Extras.Controls.Add(this.Btn_ToggleFade);
             this.Pnl_Extras.Controls.Add(this.CB_ToggleTrackLoop);
             this.Pnl_Extras.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.Pnl_Extras.Location = new System.Drawing.Point(0, 376);
+            this.Pnl_Extras.Location = new System.Drawing.Point(0, 436);
             this.Pnl_Extras.Name = "Pnl_Extras";
             this.Pnl_Extras.Size = new System.Drawing.Size(384, 28);
             this.Pnl_Extras.TabIndex = 14;
+            // 
+            // Btn_PosLoop
+            // 
+            this.Btn_PosLoop.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Btn_PosLoop.Location = new System.Drawing.Point(147, 2);
+            this.Btn_PosLoop.Name = "Btn_PosLoop";
+            this.Btn_PosLoop.Size = new System.Drawing.Size(54, 23);
+            this.Btn_PosLoop.TabIndex = 4;
+            this.Btn_PosLoop.Tag = "*";
+            this.Btn_PosLoop.Text = "AB";
+            this.Btn_PosLoop.UseVisualStyleBackColor = true;
+            this.Btn_PosLoop.Click += new System.EventHandler(this.Btn_PosLoop_Click);
             // 
             // Btn_ChannelPan
             // 
@@ -598,27 +610,15 @@
             this.CB_ToggleTrackLoop.UseVisualStyleBackColor = true;
             this.CB_ToggleTrackLoop.CheckedChanged += new System.EventHandler(this.CB_ToggleTrackLoop_CheckedChanged);
             // 
-            // Btn_PosLoop
-            // 
-            this.Btn_PosLoop.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Btn_PosLoop.Location = new System.Drawing.Point(147, 2);
-            this.Btn_PosLoop.Name = "Btn_PosLoop";
-            this.Btn_PosLoop.Size = new System.Drawing.Size(54, 23);
-            this.Btn_PosLoop.TabIndex = 4;
-            this.Btn_PosLoop.Tag = "*";
-            this.Btn_PosLoop.Text = "AB";
-            this.Btn_PosLoop.UseVisualStyleBackColor = true;
-            this.Btn_PosLoop.Click += new System.EventHandler(this.Btn_PosLoop_Click);
-            // 
             // NewMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(384, 432);
+            this.ClientSize = new System.Drawing.Size(384, 492);
+            this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.Pnl_Extras);
             this.Controls.Add(this.panel2);
-            this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "NewMain";
@@ -632,12 +632,12 @@
             this.panel2.ResumeLayout(false);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel1.PerformLayout();
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.Pnl_Extras.ResumeLayout(false);
             this.Pnl_Extras.PerformLayout();
             this.ResumeLayout(false);
