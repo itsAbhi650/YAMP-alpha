@@ -213,7 +213,6 @@
       <DependentUpon>EchoSignalDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="EffectManager.cs" />
-    <Compile Include="Encoder.cs" />
     <Compile Include="EqualizerDialog.cs">
       <SubType>Form</SubType>
     </Compile>

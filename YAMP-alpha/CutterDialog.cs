@@ -70,7 +70,7 @@ namespace YAMP_alpha
                 byte[] buffer = new byte[source.WaveFormat.BytesPerSecond];
                 Progress<int> progress = new Progress<int>(per => { progressBar1.Value = per; });
                 await Task.Run(() => CutStream = GetCutStream(source, CutBegin, CutEnd, progress));
-                EncodeStreamM4A(source.WaveFormat, CutStream, File.OpenWrite(SFD.FileName));
+                EncodeStreamM4A(CutStream, source.WaveFormat, File.OpenWrite(SFD.FileName));
                 CutStream.Flush();
                 CutStream.Dispose();
                 MessageBox.Show("audio cut success!");
@@ -113,7 +113,7 @@ namespace YAMP_alpha
             }
         }
 
-        private void EncodeStreamM4A(WaveFormat targetformat, Stream sourcestream, Stream targetstream)
+        private void EncodeStreamM4A(Stream sourcestream,WaveFormat targetformat , Stream targetstream)
         {
             if (targetformat == null)
             {
@@ -128,7 +128,7 @@ namespace YAMP_alpha
                 throw new Exception("Cannot write to target stream.");
             }
             byte[] buffer = new byte[source.WaveFormat.BytesPerSecond];
-            CSCore.Codecs.AAC.AacEncoder encoder = new CSCore.Codecs.AAC.AacEncoder(source.WaveFormat, targetstream);
+            CSCore.MediaFoundation.MediaFoundationEncoder encoder = CSCore.MediaFoundation.MediaFoundationEncoder.CreateAACEncoder(source.WaveFormat, targetstream);
             while (buffer.Length != 0)
             {
                 sourcestream.Read(buffer, 0, buffer.Length);
