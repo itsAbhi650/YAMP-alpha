@@ -89,6 +89,7 @@ namespace YAMP_alpha
                 UpdateTrackers();
                 pictureBox1.BackgroundImage = YAMPVars.CORE.GetTrackCover();
                 Lbl_PlayerLabel.Text = string.Format(">  {0}", YAMPVars.CORE.CurrentTrack.Title);
+                Lbl_Duration.Text = TrackDurationText();
             }
         }
 
@@ -103,8 +104,14 @@ namespace YAMP_alpha
                     {
                         if (OPD.ShowDialog() == DialogResult.OK)
                         {
+                            //
+                            //
+                            // Try to create a cutter with repositioning and reading till cut part 
+                            //
+                            //
                             TrackInfo track = new TrackInfo(OPD.FileName);
                             YAMPVars.TrackList.Add(track);
+
                             TrackLoaded = YAMPVars.CORE.GetFirstTrack();
                         }
                     }
@@ -142,15 +149,20 @@ namespace YAMP_alpha
             }
         }
 
+        private string TrackDurationText()
+        {
+            TimeSpan Duration = Extensions.GetPosition(YAMPVars.CORE.PlayerSource);
+            DurationTracker.Value = (Duration.Minutes * 60) + Duration.Seconds;
+            return string.Format("{0}\\{1}", Duration.ToString(@"mm\:ss"), TimeSpan.FromSeconds(DurationTracker.Maximum).ToString(@"mm\:ss"));
+        }
+
         private void PlayTimer_Tick(object sender, EventArgs e)
         {
             if (!YAMPVars.CORE.PlayerStopped)
             {
                 if (!YAMPVars.CORE.NetPlay || YAMPVars.CORE.PlayerSource.CanSeek)
                 {
-                    TimeSpan Duration = Extensions.GetPosition(YAMPVars.CORE.PlayerSource);
-                    DurationTracker.Value = (Duration.Minutes * 60) + Duration.Seconds;
-                    Lbl_Duration.Text = string.Format("{0}\\{1}", Duration.ToString(@"mm\:ss"), TimeSpan.FromSeconds(DurationTracker.Maximum).ToString(@"mm\:ss"));
+                    Lbl_Duration.Text = TrackDurationText();
                 }
                 waveformPainter1.AddMax(YAMPVars.CORE.WaveFormLEFT);
             }
@@ -423,6 +435,11 @@ namespace YAMP_alpha
                         break;
                 }
             }
+        }
+
+        private void audioCutterToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new CutterDialog() { StartPosition = FormStartPosition.CenterParent }.ShowDialog();
         }
     }
 }
