@@ -1,4 +1,5 @@
 ﻿using CSCore.CoreAudioAPI;
+using CSCore.DSP;
 using CSCore.Streams;
 using CSCore.Streams.Effects;
 using System.Collections.Generic;
@@ -15,6 +16,7 @@ namespace YAMP_alpha
         public static PeakMeter AudioPeakMeter = null;
         public static DmoFlangerEffect FlangerEffect;
         public static DmoDistortionEffect DistortionEffect;
+        internal static FftProvider FftProvider;
         public static DmoEchoEffect EchoEffect;
         public static DmoChorusEffect ChorusEffect;
         public static Equalizer EqualizerEffect;
