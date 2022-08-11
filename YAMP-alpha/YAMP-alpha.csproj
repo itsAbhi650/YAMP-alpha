@@ -68,6 +68,9 @@
     <Reference Include="CSCore.Ffmpeg, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\CSCore.Ffmpeg.1.2.0-beta1\lib\net35\CSCore.Ffmpeg.dll</HintPath>
     </Reference>
+    <Reference Include="DoubleTrackBar">
+      <HintPath>..\..\DoubleTrackBar\DoubleTrackBar\bin\Debug\DoubleTrackBar.dll</HintPath>
+    </Reference>
     <Reference Include="FftSharp, Version=1.1.4.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\FftSharp.1.1.4\lib\netstandard2.0\FftSharp.dll</HintPath>
     </Reference>
@@ -184,6 +187,12 @@
     <Compile Include="Controls\EQBand.Designer.cs">
       <DependentUpon>EQBand.cs</DependentUpon>
     </Compile>
+    <Compile Include="CutterDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CutterDialog.Designer.cs">
+      <DependentUpon>CutterDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="DistortionEffectDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -204,6 +213,7 @@
       <DependentUpon>EchoSignalDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="EffectManager.cs" />
+    <Compile Include="Encoder.cs" />
     <Compile Include="EqualizerDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -313,6 +323,9 @@
     <EmbeddedResource Include="Controls\EQBand.resx">
       <DependentUpon>EQBand.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="CutterDialog.resx">
+      <DependentUpon>CutterDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="DistortionEffectDialog.resx">
       <DependentUpon>DistortionEffectDialog.cs</DependentUpon>
     </EmbeddedResource>
@@ -398,7 +411,6 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="CSCore.Ffmpeg ReadMe.txt" />
     <None Include="Resources\Radio.ico" />
     <None Include="Resources\msg_warning-0.png" />
     <Content Include="Todo.txt" />
