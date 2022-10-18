@@ -73,16 +73,9 @@ namespace YAMP_alpha
 
         private bool TrackExist(TrackInfo track)
         {
-            bool exist = false;
-            foreach (DataGridViewRow item in dataGridView1.Rows)
-            {
-                if ((string)item.Cells["Path"].Value == track.File.FullName)
-                {
-                    exist = true;
-                    break;
-                }
-            }
-            return exist;
+            bool Exst = dataGridView1.Rows.OfType<DataGridViewRow>()
+                .Any(row => (string)row.Cells["path"].Value == track.File.FullName);
+            return Exst;
         }
 
         private void dataGridView1_CellClick(object sender, DataGridViewCellEventArgs e)
@@ -107,11 +100,7 @@ namespace YAMP_alpha
 
         private void pictureBox1_DoubleClick(object sender, EventArgs e)
         {
-            BigArt bigart = new BigArt()
-            {
-                AlbumArt = pictureBox1.Image
-            };
-            bigart.ShowDialog();
+            new BigArt(pictureBox1.Image).ShowDialog();
         }
 
         private void dataGridView1_DoubleClick(object sender, EventArgs e)
@@ -123,11 +112,10 @@ namespace YAMP_alpha
         private void button1_Click(object sender, EventArgs e)
         {
             int SelectedRowIndex = dataGridView1.CurrentRow.Index;
-            int TotalTrackZ = PlaylistSource.Count - 1;
-            int NewTrackIndex = dataGridView1.CurrentRow.Index + int.Parse(((Button)sender).Tag.ToString());
+            int NewTrackIndex = SelectedRowIndex + Convert.ToInt32(((Button)sender).Tag);
             if (NewTrackIndex >= 0 && NewTrackIndex <= PlaylistSource.Count - 1)
             {
-                TrackInfo temptrack = PlaylistSource[NewTrackIndex] as TrackInfo;
+                var temptrack = PlaylistSource[NewTrackIndex] as TrackInfo;
                 PlaylistSource[NewTrackIndex] = PlaylistSource[SelectedRowIndex];
                 PlaylistSource[SelectedRowIndex] = temptrack;
                 dataGridView1.CurrentCell = dataGridView1[0, NewTrackIndex];
@@ -189,6 +177,30 @@ namespace YAMP_alpha
                 PlaylistSource.Add(Track);
                 label1_DragLeave(sender, e);
             }
+        }
+
+        private void delselectedToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var CurrentowIndex = dataGridView1.CurrentRow.Index;
+            PlaylistSource.RemoveAt(CurrentowIndex);
+            dataGridView1.ClearSelection();
+            if (PlaylistSource.Count > 0)
+            {
+                if (CurrentowIndex >= PlaylistSource.Count - 1)
+                {
+                    dataGridView1.CurrentCell = dataGridView1[0, PlaylistSource.Count - 1];
+                }
+                else
+                {
+                    dataGridView1.CurrentCell = dataGridView1[0, CurrentowIndex];
+                }
+                dataGridView1.CurrentCell.Selected = true;
+            }
+            else
+            {
+                pictureBox1.Image = null;
+            }
+            dataGridView1.RefreshEdit();
         }
     }
 }

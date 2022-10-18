@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using MediaInfo.Model;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 
@@ -28,8 +29,9 @@ namespace YAMP_alpha
         public TrackInfo(string Filename)
         {
             File = new FileInfo(Filename);
-            MediaInfo.MediaInfoWrapper minfo = new MediaInfo.MediaInfoWrapper(Filename);
-            Title = minfo.AudioStreams[0].Tags.Title;
+            var minfo = new MediaInfo.MediaInfoWrapper(Filename);
+            AudioTags Tags = minfo.AudioStreams[0].Tags;
+            Title = string.IsNullOrEmpty(Tags.Title) ? File.Name : Tags.Title;
             Duration = minfo.AudioStreams[0].Duration.ToString(@"mm\:ss");
             Album = minfo.AudioStreams[0].Tags.Album;
             AlbumArtist = minfo.AudioStreams[0].Tags.AlbumArtist;
@@ -37,22 +39,22 @@ namespace YAMP_alpha
             BitRate = minfo.AudioStreams[0].Bitrate.ToString();
             SampleRate = minfo.AudioStreams[0].SamplingRate.ToString();
             TrackNum = minfo.AudioStreams[0].Tags.TrackPosition?.ToString();
-            GetCoverArts(minfo);
+            Covers = GetCoverArts(Tags.Covers);
         }
 
-        private void GetCoverArts(MediaInfo.MediaInfoWrapper MINFO)
+        private List<Image> GetCoverArts(IEnumerable<CoverInfo> Covers)
         {
-            Covers = new List<Image>();
-            foreach (var item in MINFO.BestAudioStream.Tags.Covers)
+            var _Covers = new List<Image>();
+            foreach (var item in Covers)
             {
                 byte[] ImgData = item.Data;
                 Image CoverImage = BufferToImage(ImgData);
                 if (CoverImage != null)
                 {
-                    Covers.Add(CoverImage);
+                    _Covers.Add(CoverImage);
                 }
             }
-            bool filled = Covers.Count > 0;
+            bool filled = _Covers.Count > 0;
             if (!filled)
             {
                 var tg = TagLib.File.Create(File.FullName, TagLib.ReadStyle.PictureLazy);
@@ -62,13 +64,14 @@ namespace YAMP_alpha
                     Image CoverImage = BufferToImage(ImgData);
                     if (CoverImage != null)
                     {
-                        Covers.Add(CoverImage);
+                        _Covers.Add(CoverImage);
                         break;
                     }
                 }
                 tg.Mode = TagLib.File.AccessMode.Closed;
                 tg.Dispose();
             }
+            return _Covers;
         }
 
         private Image BufferToImage(byte[] ImageBuffer)

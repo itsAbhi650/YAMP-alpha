@@ -116,7 +116,6 @@ namespace YAMP_alpha
                         }
                     }
                 }
-
                 if (TrackLoaded)
                 {
                     PlayFromStart();
@@ -136,7 +135,10 @@ namespace YAMP_alpha
 
         private void trackBar2_Scroll(object sender, EventArgs e)
         {
-            YAMPVars.CORE.SoundOutVolume = VolumeTracker.Value;
+            if (YAMPVars.CORE.PlayerInitialized)
+            {
+                YAMPVars.CORE.SoundOutVolume = VolumeTracker.Value;
+            }
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -205,7 +207,7 @@ namespace YAMP_alpha
 
         private void LoadFileStripMenuItem_Click(object sender, EventArgs e)
         {
-            using (OpenFileDialog OPD = new OpenFileDialog())
+            using (OpenFileDialog OPD = new OpenFileDialog() { Filter = CSCore.Codecs.CodecFactory.SupportedFilesFilterEn })
             {
                 if (OPD.ShowDialog() == DialogResult.OK)
                 {
@@ -287,11 +289,6 @@ namespace YAMP_alpha
         {
             WavesReverbEffectDialog WRED = new WavesReverbEffectDialog();
             WRED.Show();
-        }
-
-        private void changeSampleRateToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
         }
 
         private void waveformNAudioToolStripMenuItem_Click(object sender, EventArgs e)
@@ -440,6 +437,37 @@ namespace YAMP_alpha
         private void audioCutterToolStripMenuItem_Click(object sender, EventArgs e)
         {
             new CutterDialog() { StartPosition = FormStartPosition.CenterParent }.ShowDialog();
+        }
+
+        private void sampleRateToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new ResamplerDialog()
+            {
+                StartPosition = FormStartPosition.CenterParent
+            }.ShowDialog();
+        }
+
+        private void bitRateToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new BitrateDialog()
+            {
+                StartPosition = FormStartPosition.CenterParent
+            }.ShowDialog();
+        }
+
+        private void filtersToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void signalFilteringToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new SignalFilterDialog().Show();
+        }
+
+        private void tagEditorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new TagEditorDialog(YAMPVars.CORE.PlayingFile).ShowDialog();
         }
     }
 }

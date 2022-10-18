@@ -39,10 +39,13 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
-            this.label1 = new System.Windows.Forms.Label();
+            this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.delselectedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.allToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -88,7 +91,8 @@
             // playlistToolStripMenuItem
             // 
             this.playlistToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.addToolStripMenuItem});
+            this.addToolStripMenuItem,
+            this.deleteToolStripMenuItem});
             this.playlistToolStripMenuItem.Name = "playlistToolStripMenuItem";
             this.playlistToolStripMenuItem.Size = new System.Drawing.Size(56, 20);
             this.playlistToolStripMenuItem.Text = "Playlist";
@@ -100,27 +104,27 @@
             this.directoryToolStripMenuItem,
             this.urlToolStripMenuItem});
             this.addToolStripMenuItem.Name = "addToolStripMenuItem";
-            this.addToolStripMenuItem.Size = new System.Drawing.Size(96, 22);
+            this.addToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.addToolStripMenuItem.Text = "Add";
             // 
             // fileToolStripMenuItem
             // 
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.fileToolStripMenuItem.Text = "File";
             this.fileToolStripMenuItem.Click += new System.EventHandler(this.fileToolStripMenuItem_Click);
             // 
             // directoryToolStripMenuItem
             // 
             this.directoryToolStripMenuItem.Name = "directoryToolStripMenuItem";
-            this.directoryToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
+            this.directoryToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.directoryToolStripMenuItem.Text = "Directory";
             this.directoryToolStripMenuItem.Click += new System.EventHandler(this.directoryToolStripMenuItem_Click);
             // 
             // urlToolStripMenuItem
             // 
             this.urlToolStripMenuItem.Name = "urlToolStripMenuItem";
-            this.urlToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
+            this.urlToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.urlToolStripMenuItem.Text = "URL";
             // 
             // panel1
@@ -160,6 +164,20 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Dropper";
             // 
+            // label1
+            // 
+            this.label1.AllowDrop = true;
+            this.label1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.label1.Location = new System.Drawing.Point(3, 16);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(179, 177);
+            this.label1.TabIndex = 0;
+            this.label1.Text = "Drop MP3 files here to add to playlist";
+            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.label1.DragDrop += new System.Windows.Forms.DragEventHandler(this.label1_DragDrop);
+            this.label1.DragOver += new System.Windows.Forms.DragEventHandler(this.label1_DragOver);
+            this.label1.DragLeave += new System.EventHandler(this.label1_DragLeave);
+            // 
             // panel2
             // 
             this.panel2.BackColor = System.Drawing.SystemColors.ActiveBorder;
@@ -194,24 +212,30 @@
             this.dataGridView1.TabIndex = 5;
             this.dataGridView1.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellClick);
             this.dataGridView1.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellDoubleClick);
-            //this.dataGridView1.DataBindingComplete += new System.Windows.Forms.DataGridViewBindingCompleteEventHandler(this.dataGridView1_DataBindingComplete);
-            //this.dataGridView1.RowEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_RowEnter);
             this.dataGridView1.RowStateChanged += new System.Windows.Forms.DataGridViewRowStateChangedEventHandler(this.dataGridView1_RowStateChanged);
             this.dataGridView1.DoubleClick += new System.EventHandler(this.dataGridView1_DoubleClick);
             // 
-            // label1
+            // deleteToolStripMenuItem
             // 
-            this.label1.AllowDrop = true;
-            this.label1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label1.Location = new System.Drawing.Point(3, 16);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(179, 177);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "Drop MP3 files here to add to playlist";
-            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.label1.DragDrop += new System.Windows.Forms.DragEventHandler(this.label1_DragDrop);
-            this.label1.DragOver += new System.Windows.Forms.DragEventHandler(this.label1_DragOver);
-            this.label1.DragLeave += new System.EventHandler(this.label1_DragLeave);
+            this.deleteToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.delselectedToolStripMenuItem,
+            this.allToolStripMenuItem});
+            this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
+            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.deleteToolStripMenuItem.Text = "Delete";
+            // 
+            // delselectedToolStripMenuItem
+            // 
+            this.delselectedToolStripMenuItem.Name = "delselectedToolStripMenuItem";
+            this.delselectedToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.delselectedToolStripMenuItem.Text = "Selected";
+            this.delselectedToolStripMenuItem.Click += new System.EventHandler(this.delselectedToolStripMenuItem_Click);
+            // 
+            // allToolStripMenuItem
+            // 
+            this.allToolStripMenuItem.Name = "allToolStripMenuItem";
+            this.allToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.allToolStripMenuItem.Text = "All";
             // 
             // YAMPlaylistDialog
             // 
@@ -225,7 +249,6 @@
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "YAMPlaylistDialog";
             this.Text = "YAMPlaylistDialog";
-            //this.Load += new System.EventHandler(this.YAMPlaylistDialog_Load);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.panel1.ResumeLayout(false);
@@ -255,5 +278,8 @@
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.ToolStripMenuItem deleteToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem delselectedToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem allToolStripMenuItem;
     }
 }

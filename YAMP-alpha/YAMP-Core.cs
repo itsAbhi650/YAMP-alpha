@@ -351,6 +351,11 @@ namespace YAMP_alpha
             .AppendSource(x => new DmoChorusEffect(x) { IsEnabled = false }, out YAMPVars.ChorusEffect)
             .AppendSource(x => new LoopStream(x) { EnableLoop = false }, out YAMPVars.TrackLoop)
             .ToSampleSource()
+            .AppendSource(x => new BiQuadFiltersSource(x)
+            {
+                FilteringEnabled = false,
+                Filters = AudioFilters.SetAllFilters(Source.WaveFormat.SampleRate, 600, 1, 1)
+            }, out YAMPVars.biQuadFilterSrc)
             .AppendSource(x => new GainSource(x) { Volume = 1.0f }, out YAMPVars.GainSource)
             .AppendSource(x => new VolumeSource(x) { Volume = 1.0f }, out YAMPVars.VolumeSource)
             .AppendSource(x => new PeakMeter(x) { Interval = 25 }, out YAMPVars.AudioPeakMeter)
@@ -358,6 +363,7 @@ namespace YAMP_alpha
             .AppendSource(x => new FadeInOut(x) { FadeStrategy = new LinearFadeStrategy() }, out YAMPVars.FadeEffect)
             .AppendSource(x => new NotificationSource(x), out YAMPVars.NotificationSource)
             .ToWaveSource();
+
 
             if (Source.WaveFormat.Channels > 1)
             {
