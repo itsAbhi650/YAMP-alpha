@@ -1,4 +1,4 @@
-# YAMP (Yet Another Media Player)  α
+# YAMP (Yet Another Music Player)  α
 [![Build](https://github.com/itsAbhi650/YAMP-Alpha/workflows/Build/badge.svg)](https://github.com/itsAbhi650/YAMP-Alpha/actions?query=workflow:"Build")
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=itsAbhi650_YAMP-alpha&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=itsAbhi650_YAMP-alpha) 
 [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=itsAbhi650_YAMP-alpha&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=itsAbhi650_YAMP-alpha)
