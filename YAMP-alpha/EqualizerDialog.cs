@@ -41,6 +41,7 @@ namespace YAMP_alpha
             Dock = DockStyle.Left,
             ShowBandValueInFooter = true
         };
+        private bool inBand;
 
         public EqualizerDialog()
         {
@@ -102,6 +103,7 @@ namespace YAMP_alpha
                     };
                     EQBAND.BandValue = (int)(item.AverageGainDB / MaxDB * EQBAND.BandMax);
                     EQBAND.ValueChanged += EQBAND_ValueChanged;
+                    EQBAND.DoubleClick += EQBAND_DoubleClick;
                     splitContainer1.Panel2.Controls.Add(EQBAND);
                 }
                 foreach (EQBand item in splitContainer1.Panel2.Controls.OfType<EQBand>())
@@ -109,6 +111,20 @@ namespace YAMP_alpha
                     item.BringToFront();
                 }
             }
+        }
+
+        private void EQBAND_DoubleClick(object sender, EventArgs e)
+        {
+            inBand = true;
+            var Band = (EQBand)sender;
+            int filterIndex = (int)Band.Tag;
+            var EQFilter = YAMPVars.EqualizerEffect.SampleFilters[filterIndex];
+            using (var BandConfigurator = new EQBandConfigDialog(EQFilter))
+            {
+                BandConfigurator.ShowDialog();
+            }
+            Band.BandValue = GainToBand(EQFilter.AverageGainDB, Band.BandMax, MaxDB);
+            inBand = false;
         }
 
         private void NotificationSource_BlockRead(object sender, BlockReadEventArgs<float> e)
@@ -135,15 +151,30 @@ namespace YAMP_alpha
 
         private void EQBAND_ValueChanged(object sender, EventArgs e)
         {
-            EQBand EQBAND;
-            bool flag = (EQBAND = (sender as EQBand)) != null && YAMPVars.EqualizerEffect != null;
-            if (flag)
+            if (!inBand)
             {
-                double perc = EQBAND.BandValue / (double)EQBAND.BandMax;
-                float value = (float)(perc * MaxDB);
-                int filterIndex = (int)EQBAND.Tag;
-                YAMPVars.EqualizerEffect.SampleFilters[filterIndex].AverageGainDB = value;
+                EQBand EQBAND;
+                bool flag = (EQBAND = sender as EQBand) != null && YAMPVars.EqualizerEffect != null;
+                if (flag)
+                {
+                    int filterIndex = (int)EQBAND.Tag;
+                    YAMPVars.EqualizerEffect.SampleFilters[filterIndex].AverageGainDB = BandToGain(EQBAND.BandValue, EQBAND.BandMax, MaxDB);
+                }
             }
+        }
+
+        private int GainToBand(double dB, int BandMax, int DBMax)
+        {
+            double perc = dB / DBMax;
+            int BandValue = (int)(perc * BandMax);
+            return BandValue;
+        }
+
+        private double BandToGain(int BandValue, int BandMax, int DBMax)
+        {
+            double perc = BandValue / (double)BandMax;
+            double GainValue = perc * MaxDB;
+            return GainValue;
         }
 
         private void GenerateVoice3DPrintSpectrum()
@@ -184,16 +215,19 @@ namespace YAMP_alpha
                 {
                     signalPlot.Ys = fftpower;
                 }
-                SpectroScott.Add(SpectroBuffer);
-                if (SpectroScott.Width > 0)
+                if (SpectroBuffer != null)
                 {
-                    Pb_SpectrogramAdv.Image?.Dispose();
-                    var Bitmp = SpectroScott.GetBitmap((float)NUD_Brightness.Value, dB: ChkBx_Dcbl.Checked, roll: ChkBx_RollGraph.Checked);
-                    Bitmp.RotateFlip((RotateFlipType)Enum.Parse(typeof(RotateFlipType), "Rotate" + CmbBx_RotateGraph.SelectedItem.ToString()));
-                    Pb_SpectrogramAdv.Image = Bitmp;
+                    SpectroScott.Add(SpectroBuffer);
+                    if (SpectroScott.Width > 0)
+                    {
+                        Pb_SpectrogramAdv.Image?.Dispose();
+                        var Bitmp = SpectroScott.GetBitmap((float)NUD_Brightness.Value, dB: ChkBx_Dcbl.Checked, roll: ChkBx_RollGraph.Checked);
+                        Bitmp.RotateFlip((RotateFlipType)Enum.Parse(typeof(RotateFlipType), "Rotate" + CmbBx_RotateGraph.SelectedItem.ToString()));
+                        Pb_SpectrogramAdv.Image = Bitmp;
+                    }
+                    formsPlot1.Render(false, false);
+                    formsPlot1.Plot.AxisAutoY();
                 }
-                formsPlot1.Render(false, false);
-                formsPlot1.Plot.AxisAutoY();
             }
         }
         private void Spectrogram_Tick(object sender, EventArgs e)
