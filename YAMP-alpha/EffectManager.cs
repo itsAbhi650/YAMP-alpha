@@ -16,7 +16,6 @@ namespace YAMP_alpha
         private static DmoGargleEffect gargleEffect;
         private static DmoWavesReverbEffect wavesReverbEffect;
         private static PitchShifter pitchShifter;
-        private static IWaveSource waveSource;
         private static event EventHandler PropertyChanged;
         private static void OnPropertyChanged()
         {

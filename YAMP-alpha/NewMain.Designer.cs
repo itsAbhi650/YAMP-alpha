@@ -44,7 +44,7 @@
             this.button1 = new System.Windows.Forms.Button();
             this.VolumeTracker = new System.Windows.Forms.TrackBar();
             this.DurationTracker = new System.Windows.Forms.TrackBar();
-            this.panel2 = new System.Windows.Forms.Panel();
+            this.Pnl_PlayerFooter = new System.Windows.Forms.Panel();
             this.Lbl_PlayerLabel = new System.Windows.Forms.Label();
             this.Lbl_Duration = new System.Windows.Forms.Label();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
@@ -88,7 +88,7 @@
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.VolumeTracker)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DurationTracker)).BeginInit();
-            this.panel2.SuspendLayout();
+            this.Pnl_PlayerFooter.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -276,18 +276,18 @@
             this.DurationTracker.Scroll += new System.EventHandler(this.trackBar1_Scroll);
             this.DurationTracker.ValueChanged += new System.EventHandler(this.DurationTracker_ValueChanged);
             // 
-            // panel2
+            // Pnl_PlayerFooter
             // 
-            this.panel2.BackColor = System.Drawing.Color.Black;
-            this.panel2.Controls.Add(this.Lbl_PlayerLabel);
-            this.panel2.Controls.Add(this.Lbl_Duration);
-            this.panel2.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel2.Location = new System.Drawing.Point(0, 464);
-            this.panel2.Margin = new System.Windows.Forms.Padding(0);
-            this.panel2.Name = "panel2";
-            this.panel2.Padding = new System.Windows.Forms.Padding(3);
-            this.panel2.Size = new System.Drawing.Size(384, 28);
-            this.panel2.TabIndex = 1;
+            this.Pnl_PlayerFooter.BackColor = System.Drawing.Color.Black;
+            this.Pnl_PlayerFooter.Controls.Add(this.Lbl_PlayerLabel);
+            this.Pnl_PlayerFooter.Controls.Add(this.Lbl_Duration);
+            this.Pnl_PlayerFooter.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.Pnl_PlayerFooter.Location = new System.Drawing.Point(0, 464);
+            this.Pnl_PlayerFooter.Margin = new System.Windows.Forms.Padding(0);
+            this.Pnl_PlayerFooter.Name = "Pnl_PlayerFooter";
+            this.Pnl_PlayerFooter.Padding = new System.Windows.Forms.Padding(3);
+            this.Pnl_PlayerFooter.Size = new System.Drawing.Size(384, 28);
+            this.Pnl_PlayerFooter.TabIndex = 1;
             // 
             // Lbl_PlayerLabel
             // 
@@ -510,7 +510,7 @@
             this.sampleRateToolStripMenuItem,
             this.bitRateToolStripMenuItem});
             this.changeSampleRateToolStripMenuItem.Name = "changeSampleRateToolStripMenuItem";
-            this.changeSampleRateToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.changeSampleRateToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.changeSampleRateToolStripMenuItem.Text = "Change";
             // 
             // sampleRateToolStripMenuItem
@@ -530,21 +530,21 @@
             // audioCutterToolStripMenuItem
             // 
             this.audioCutterToolStripMenuItem.Name = "audioCutterToolStripMenuItem";
-            this.audioCutterToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.audioCutterToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.audioCutterToolStripMenuItem.Text = "Audio Cutter";
             this.audioCutterToolStripMenuItem.Click += new System.EventHandler(this.audioCutterToolStripMenuItem_Click);
             // 
             // signalFilteringToolStripMenuItem
             // 
             this.signalFilteringToolStripMenuItem.Name = "signalFilteringToolStripMenuItem";
-            this.signalFilteringToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.signalFilteringToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.signalFilteringToolStripMenuItem.Text = "Signal Filtering";
             this.signalFilteringToolStripMenuItem.Click += new System.EventHandler(this.signalFilteringToolStripMenuItem_Click);
             // 
             // tagEditorToolStripMenuItem
             // 
             this.tagEditorToolStripMenuItem.Name = "tagEditorToolStripMenuItem";
-            this.tagEditorToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.tagEditorToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.tagEditorToolStripMenuItem.Text = "Tag Editor";
             this.tagEditorToolStripMenuItem.Click += new System.EventHandler(this.tagEditorToolStripMenuItem_Click);
             // 
@@ -663,7 +663,7 @@
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.Pnl_Extras);
-            this.Controls.Add(this.panel2);
+            this.Controls.Add(this.Pnl_PlayerFooter);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "NewMain";
@@ -674,7 +674,7 @@
             this.panel1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.VolumeTracker)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.DurationTracker)).EndInit();
-            this.panel2.ResumeLayout(false);
+            this.Pnl_PlayerFooter.ResumeLayout(false);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.splitContainer1.Panel1.ResumeLayout(false);
@@ -692,7 +692,7 @@
         #endregion
 
         private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.Panel panel2;
+        private System.Windows.Forms.Panel Pnl_PlayerFooter;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem LoadFileStripMenuItem;

@@ -21,7 +21,8 @@ namespace YAMP_alpha
             LowPass = 3,
             LowShelf = 4,
             Notch = 5,
-            Peak = 6
+            Peak = 6,
+            Bell = 7
         }
 
         private static PeakFilter BQP = null;
@@ -31,6 +32,7 @@ namespace YAMP_alpha
         private static HighShelfFilter BQHS = null;
         private static LowpassFilter BQLP = null;
         private static LowShelfFilter BQLS = null;
+        private static BellFilter BQB = null;
 
         /// <summary>
         /// Get a single audio filter specified by its type.
@@ -103,6 +105,9 @@ namespace YAMP_alpha
                 case Filter.Peak:
                     BQP = new PeakFilter(SampleRate, Frequency, BandWidth, Gain);
                     break;
+                case Filter.Bell:
+                    BQB = new BellFilter(SampleRate, Frequency, BandWidth, Gain);
+                    break;
                 default:
                     break;
             }
@@ -149,7 +154,9 @@ namespace YAMP_alpha
             if (BandWidth > 0)
             {
                 BQP = new PeakFilter(SampleRate, Frequency, BandWidth, Gain);
+                BQB = new BellFilter(SampleRate, Frequency, BandWidth, Gain);
                 Filters.Add(BQP);
+                Filters.Add(BQB);
             }
             return Filters.ToArray();
         }

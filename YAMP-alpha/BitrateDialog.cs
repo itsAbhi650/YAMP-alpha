@@ -42,8 +42,8 @@ namespace YAMP_alpha
             {
                 if (SFD.ShowDialog() == DialogResult.OK)
                 {
-
-                    var enc = Encoder.GetEncoder(fileBox.Text, SFD.FileName, out IWaveSource source, Convert.ToInt32(validBitRateBox.SelectedItem));
+                    IWaveSource source = null; 
+                    var enc = Encoder.GetEncoder(fileBox.Text, SFD.FileName, out source, Convert.ToInt32(validBitRateBox.SelectedItem));
                     Encoder.PerformOperation(enc, source, new Progress<int>(per => { bitrateProgressBar.Value = per; }));
                     enc.Dispose();
                     source.Dispose();

@@ -48,6 +48,15 @@
             this.nudFreq = new System.Windows.Forms.NumericUpDown();
             this.nudGain = new System.Windows.Forms.NumericUpDown();
             this.filterGroupBox = new System.Windows.Forms.GroupBox();
+            this.checkBox8 = new System.Windows.Forms.CheckBox();
+            this.checkBox7 = new System.Windows.Forms.CheckBox();
+            this.checkBox6 = new System.Windows.Forms.CheckBox();
+            this.checkBox5 = new System.Windows.Forms.CheckBox();
+            this.checkBox4 = new System.Windows.Forms.CheckBox();
+            this.checkBox3 = new System.Windows.Forms.CheckBox();
+            this.checkBox2 = new System.Windows.Forms.CheckBox();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.radioBell = new System.Windows.Forms.RadioButton();
             this.radioPeak = new System.Windows.Forms.RadioButton();
             this.radioBandReject = new System.Windows.Forms.RadioButton();
             this.radioLowShelf = new System.Windows.Forms.RadioButton();
@@ -71,9 +80,8 @@
             // 
             // toggleFilterCheck
             // 
-            this.toggleFilterCheck.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.toggleFilterCheck.AutoSize = true;
-            this.toggleFilterCheck.Location = new System.Drawing.Point(233, 351);
+            this.toggleFilterCheck.Location = new System.Drawing.Point(12, 13);
             this.toggleFilterCheck.Name = "toggleFilterCheck";
             this.toggleFilterCheck.Size = new System.Drawing.Size(98, 17);
             this.toggleFilterCheck.TabIndex = 15;
@@ -91,9 +99,9 @@
             this.InitParamGroupBox.Controls.Add(this.nudInitFreq);
             this.InitParamGroupBox.Controls.Add(this.label6);
             this.InitParamGroupBox.Enabled = false;
-            this.InitParamGroupBox.Location = new System.Drawing.Point(12, 10);
+            this.InitParamGroupBox.Location = new System.Drawing.Point(12, 36);
             this.InitParamGroupBox.Name = "InitParamGroupBox";
-            this.InitParamGroupBox.Size = new System.Drawing.Size(106, 171);
+            this.InitParamGroupBox.Size = new System.Drawing.Size(144, 171);
             this.InitParamGroupBox.TabIndex = 14;
             this.InitParamGroupBox.TabStop = false;
             this.InitParamGroupBox.Text = "Reset Parameters";
@@ -110,9 +118,10 @@
             // 
             // nudInitBndWdt
             // 
+            this.nudInitBndWdt.DecimalPlaces = 3;
             this.nudInitBndWdt.Location = new System.Drawing.Point(18, 115);
             this.nudInitBndWdt.Maximum = new decimal(new int[] {
-            10000,
+            1000,
             0,
             0,
             0});
@@ -203,9 +212,9 @@
             this.FltCtrGroupBox.Controls.Add(this.nudFreq);
             this.FltCtrGroupBox.Controls.Add(this.nudGain);
             this.FltCtrGroupBox.Enabled = false;
-            this.FltCtrGroupBox.Location = new System.Drawing.Point(124, 10);
+            this.FltCtrGroupBox.Location = new System.Drawing.Point(162, 36);
             this.FltCtrGroupBox.Name = "FltCtrGroupBox";
-            this.FltCtrGroupBox.Size = new System.Drawing.Size(207, 335);
+            this.FltCtrGroupBox.Size = new System.Drawing.Size(207, 372);
             this.FltCtrGroupBox.TabIndex = 13;
             this.FltCtrGroupBox.TabStop = false;
             this.FltCtrGroupBox.Text = "Filter Controls";
@@ -220,7 +229,7 @@
             this.BndWdtTracker.Minimum = 1;
             this.BndWdtTracker.Name = "BndWdtTracker";
             this.BndWdtTracker.Orientation = System.Windows.Forms.Orientation.Vertical;
-            this.BndWdtTracker.Size = new System.Drawing.Size(42, 255);
+            this.BndWdtTracker.Size = new System.Drawing.Size(42, 292);
             this.BndWdtTracker.TabIndex = 16;
             this.BndWdtTracker.TickFrequency = 10;
             this.BndWdtTracker.TickStyle = System.Windows.Forms.TickStyle.Both;
@@ -236,7 +245,7 @@
             this.gainTracker.Maximum = 50;
             this.gainTracker.Name = "gainTracker";
             this.gainTracker.Orientation = System.Windows.Forms.Orientation.Vertical;
-            this.gainTracker.Size = new System.Drawing.Size(42, 255);
+            this.gainTracker.Size = new System.Drawing.Size(42, 292);
             this.gainTracker.TabIndex = 15;
             this.gainTracker.TickStyle = System.Windows.Forms.TickStyle.Both;
             this.gainTracker.ValueChanged += new System.EventHandler(this.Gain_ValueChanged);
@@ -251,7 +260,7 @@
             this.freqTracker.Minimum = 1;
             this.freqTracker.Name = "freqTracker";
             this.freqTracker.Orientation = System.Windows.Forms.Orientation.Vertical;
-            this.freqTracker.Size = new System.Drawing.Size(43, 255);
+            this.freqTracker.Size = new System.Drawing.Size(43, 292);
             this.freqTracker.TabIndex = 14;
             this.freqTracker.TickFrequency = 100;
             this.freqTracker.TickStyle = System.Windows.Forms.TickStyle.Both;
@@ -262,7 +271,7 @@
             // 
             this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(137, 309);
+            this.label3.Location = new System.Drawing.Point(137, 346);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(57, 13);
             this.label3.TabIndex = 13;
@@ -295,7 +304,7 @@
             // 
             this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(90, 309);
+            this.label2.Location = new System.Drawing.Point(90, 346);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(29, 13);
             this.label2.TabIndex = 10;
@@ -305,7 +314,7 @@
             // 
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(15, 309);
+            this.label1.Location = new System.Drawing.Point(15, 346);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(57, 13);
             this.label1.TabIndex = 8;
@@ -349,6 +358,15 @@
             // 
             // filterGroupBox
             // 
+            this.filterGroupBox.Controls.Add(this.checkBox8);
+            this.filterGroupBox.Controls.Add(this.checkBox7);
+            this.filterGroupBox.Controls.Add(this.checkBox6);
+            this.filterGroupBox.Controls.Add(this.checkBox5);
+            this.filterGroupBox.Controls.Add(this.checkBox4);
+            this.filterGroupBox.Controls.Add(this.checkBox3);
+            this.filterGroupBox.Controls.Add(this.checkBox2);
+            this.filterGroupBox.Controls.Add(this.checkBox1);
+            this.filterGroupBox.Controls.Add(this.radioBell);
             this.filterGroupBox.Controls.Add(this.radioPeak);
             this.filterGroupBox.Controls.Add(this.radioBandReject);
             this.filterGroupBox.Controls.Add(this.radioLowShelf);
@@ -357,17 +375,126 @@
             this.filterGroupBox.Controls.Add(this.radioHighPass);
             this.filterGroupBox.Controls.Add(this.radioBandPass);
             this.filterGroupBox.Enabled = false;
-            this.filterGroupBox.Location = new System.Drawing.Point(12, 187);
+            this.filterGroupBox.Location = new System.Drawing.Point(12, 211);
             this.filterGroupBox.Name = "filterGroupBox";
-            this.filterGroupBox.Size = new System.Drawing.Size(106, 181);
+            this.filterGroupBox.Size = new System.Drawing.Size(144, 197);
             this.filterGroupBox.TabIndex = 12;
             this.filterGroupBox.TabStop = false;
             this.filterGroupBox.Text = "Filters";
             // 
+            // checkBox8
+            // 
+            this.checkBox8.AutoSize = true;
+            this.checkBox8.Location = new System.Drawing.Point(88, 174);
+            this.checkBox8.Name = "checkBox8";
+            this.checkBox8.Size = new System.Drawing.Size(52, 17);
+            this.checkBox8.TabIndex = 15;
+            this.checkBox8.Tag = "7";
+            this.checkBox8.Text = "Apply";
+            this.checkBox8.UseVisualStyleBackColor = true;
+            this.checkBox8.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
+            // 
+            // checkBox7
+            // 
+            this.checkBox7.AutoSize = true;
+            this.checkBox7.Location = new System.Drawing.Point(88, 151);
+            this.checkBox7.Name = "checkBox7";
+            this.checkBox7.Size = new System.Drawing.Size(52, 17);
+            this.checkBox7.TabIndex = 14;
+            this.checkBox7.Tag = "6";
+            this.checkBox7.Text = "Apply";
+            this.checkBox7.UseVisualStyleBackColor = true;
+            this.checkBox7.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
+            // 
+            // checkBox6
+            // 
+            this.checkBox6.AutoSize = true;
+            this.checkBox6.Location = new System.Drawing.Point(88, 129);
+            this.checkBox6.Name = "checkBox6";
+            this.checkBox6.Size = new System.Drawing.Size(52, 17);
+            this.checkBox6.TabIndex = 13;
+            this.checkBox6.Tag = "5";
+            this.checkBox6.Text = "Apply";
+            this.checkBox6.UseVisualStyleBackColor = true;
+            this.checkBox6.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
+            // 
+            // checkBox5
+            // 
+            this.checkBox5.AutoSize = true;
+            this.checkBox5.Location = new System.Drawing.Point(88, 107);
+            this.checkBox5.Name = "checkBox5";
+            this.checkBox5.Size = new System.Drawing.Size(52, 17);
+            this.checkBox5.TabIndex = 12;
+            this.checkBox5.Tag = "4";
+            this.checkBox5.Text = "Apply";
+            this.checkBox5.UseVisualStyleBackColor = true;
+            this.checkBox5.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
+            // 
+            // checkBox4
+            // 
+            this.checkBox4.AutoSize = true;
+            this.checkBox4.Location = new System.Drawing.Point(88, 85);
+            this.checkBox4.Name = "checkBox4";
+            this.checkBox4.Size = new System.Drawing.Size(52, 17);
+            this.checkBox4.TabIndex = 11;
+            this.checkBox4.Tag = "3";
+            this.checkBox4.Text = "Apply";
+            this.checkBox4.UseVisualStyleBackColor = true;
+            this.checkBox4.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
+            // 
+            // checkBox3
+            // 
+            this.checkBox3.AutoSize = true;
+            this.checkBox3.Location = new System.Drawing.Point(88, 63);
+            this.checkBox3.Name = "checkBox3";
+            this.checkBox3.Size = new System.Drawing.Size(52, 17);
+            this.checkBox3.TabIndex = 10;
+            this.checkBox3.Tag = "2";
+            this.checkBox3.Text = "Apply";
+            this.checkBox3.UseVisualStyleBackColor = true;
+            this.checkBox3.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
+            // 
+            // checkBox2
+            // 
+            this.checkBox2.AutoSize = true;
+            this.checkBox2.Location = new System.Drawing.Point(88, 41);
+            this.checkBox2.Name = "checkBox2";
+            this.checkBox2.Size = new System.Drawing.Size(52, 17);
+            this.checkBox2.TabIndex = 9;
+            this.checkBox2.Tag = "1";
+            this.checkBox2.Text = "Apply";
+            this.checkBox2.UseVisualStyleBackColor = true;
+            this.checkBox2.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
+            // 
+            // checkBox1
+            // 
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.Location = new System.Drawing.Point(88, 19);
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size(52, 17);
+            this.checkBox1.TabIndex = 8;
+            this.checkBox1.Tag = "0";
+            this.checkBox1.Text = "Apply";
+            this.checkBox1.UseVisualStyleBackColor = true;
+            this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
+            // 
+            // radioBell
+            // 
+            this.radioBell.AutoSize = true;
+            this.radioBell.Location = new System.Drawing.Point(6, 173);
+            this.radioBell.Name = "radioBell";
+            this.radioBell.Size = new System.Drawing.Size(42, 17);
+            this.radioBell.TabIndex = 7;
+            this.radioBell.TabStop = true;
+            this.radioBell.Tag = "7";
+            this.radioBell.Text = "Bell";
+            this.radioBell.UseVisualStyleBackColor = true;
+            this.radioBell.CheckedChanged += new System.EventHandler(this.radioFilter_CheckedChanged);
+            // 
             // radioPeak
             // 
             this.radioPeak.AutoSize = true;
-            this.radioPeak.Location = new System.Drawing.Point(6, 156);
+            this.radioPeak.Location = new System.Drawing.Point(6, 151);
             this.radioPeak.Name = "radioPeak";
             this.radioPeak.Size = new System.Drawing.Size(50, 17);
             this.radioPeak.TabIndex = 6;
@@ -380,7 +507,7 @@
             // radioBandReject
             // 
             this.radioBandReject.AutoSize = true;
-            this.radioBandReject.Location = new System.Drawing.Point(6, 133);
+            this.radioBandReject.Location = new System.Drawing.Point(6, 129);
             this.radioBandReject.Name = "radioBandReject";
             this.radioBandReject.Size = new System.Drawing.Size(54, 17);
             this.radioBandReject.TabIndex = 5;
@@ -393,7 +520,7 @@
             // radioLowShelf
             // 
             this.radioLowShelf.AutoSize = true;
-            this.radioLowShelf.Location = new System.Drawing.Point(6, 110);
+            this.radioLowShelf.Location = new System.Drawing.Point(6, 107);
             this.radioLowShelf.Name = "radioLowShelf";
             this.radioLowShelf.Size = new System.Drawing.Size(72, 17);
             this.radioLowShelf.TabIndex = 4;
@@ -406,7 +533,7 @@
             // radioLowPass
             // 
             this.radioLowPass.AutoSize = true;
-            this.radioLowPass.Location = new System.Drawing.Point(6, 88);
+            this.radioLowPass.Location = new System.Drawing.Point(6, 85);
             this.radioLowPass.Name = "radioLowPass";
             this.radioLowPass.Size = new System.Drawing.Size(71, 17);
             this.radioLowPass.TabIndex = 3;
@@ -419,7 +546,7 @@
             // radioHighShelf
             // 
             this.radioHighShelf.AutoSize = true;
-            this.radioHighShelf.Location = new System.Drawing.Point(6, 65);
+            this.radioHighShelf.Location = new System.Drawing.Point(6, 63);
             this.radioHighShelf.Name = "radioHighShelf";
             this.radioHighShelf.Size = new System.Drawing.Size(74, 17);
             this.radioHighShelf.TabIndex = 2;
@@ -432,7 +559,7 @@
             // radioHighPass
             // 
             this.radioHighPass.AutoSize = true;
-            this.radioHighPass.Location = new System.Drawing.Point(6, 42);
+            this.radioHighPass.Location = new System.Drawing.Point(6, 41);
             this.radioHighPass.Name = "radioHighPass";
             this.radioHighPass.Size = new System.Drawing.Size(73, 17);
             this.radioHighPass.TabIndex = 1;
@@ -459,14 +586,13 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(344, 375);
+            this.ClientSize = new System.Drawing.Size(380, 418);
             this.Controls.Add(this.toggleFilterCheck);
             this.Controls.Add(this.FltCtrGroupBox);
             this.Controls.Add(this.filterGroupBox);
             this.Controls.Add(this.InitParamGroupBox);
             this.Name = "SignalFilterDialog";
             this.Text = "SignalFilterDialog";
-            this.Load += new System.EventHandler(this.SignalFilterDialog_Load);
             this.InitParamGroupBox.ResumeLayout(false);
             this.InitParamGroupBox.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudInitBndWdt)).EndInit();
@@ -516,5 +642,14 @@
         private System.Windows.Forms.RadioButton radioHighShelf;
         private System.Windows.Forms.RadioButton radioHighPass;
         private System.Windows.Forms.RadioButton radioBandPass;
+        private System.Windows.Forms.RadioButton radioBell;
+        private System.Windows.Forms.CheckBox checkBox8;
+        private System.Windows.Forms.CheckBox checkBox7;
+        private System.Windows.Forms.CheckBox checkBox6;
+        private System.Windows.Forms.CheckBox checkBox5;
+        private System.Windows.Forms.CheckBox checkBox4;
+        private System.Windows.Forms.CheckBox checkBox3;
+        private System.Windows.Forms.CheckBox checkBox2;
+        private System.Windows.Forms.CheckBox checkBox1;
     }
 }

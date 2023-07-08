@@ -217,7 +217,10 @@ namespace YAMP_alpha
                     YAMPVars.CORE.CurrentTrack = Track;
                     VolumeTracker.Value = YAMPVars.CORE.SoundOutVolume;
                     YAMPVars.TrackList.Add(YAMPVars.CORE.CurrentTrack);
-                    pictureBox1.BackgroundImage = YAMPVars.CORE.CurrentTrack.Covers[0];
+                    if (YAMPVars.CORE.CurrentTrack.Covers.Count > 0)
+                    {
+                        pictureBox1.BackgroundImage = YAMPVars.CORE.CurrentTrack.Covers[0];
+                    }
                 }
             }
         }
@@ -320,7 +323,8 @@ namespace YAMP_alpha
             if (!YAMPVars.CORE.PlayerStopped)
             {
                 YAMPVars.CORE.NextTrackDirection = int.Parse(((Button)sender).Tag.ToString());
-                if (YAMPVars.CORE.isValidMove(YAMPVars.CORE.NextTrackDirection, out int DestIndex))
+                int DestIndex = 0;
+                if (YAMPVars.CORE.isValidMove(YAMPVars.CORE.NextTrackDirection, out DestIndex))
                 {
                     DurationTracker.Value = 0;
                     YAMPVars.CORE.PlayerSource.Position = 0;

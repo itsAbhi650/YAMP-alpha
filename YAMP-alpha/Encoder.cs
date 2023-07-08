@@ -222,7 +222,7 @@ namespace YAMP_alpha
                 throw new ArgumentNullException("Source file cannot be null or empty");
             }
         }
-
+ 
         public static void Resample(string SourcePath, string DestinationPath, int SampleRate, IProgress<int> p = null)
         {
             var resampler = GetEncoder(new FileInfo(SourcePath).Extension, DestinationPath, out IWaveSource source);
