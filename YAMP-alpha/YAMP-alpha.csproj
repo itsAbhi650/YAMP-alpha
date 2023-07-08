@@ -215,6 +215,12 @@
       <DependentUpon>EchoSignalDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="EffectManager.cs" />
+    <Compile Include="EQBandConfigDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="EQBandConfigDialog.Designer.cs">
+      <DependentUpon>EQBandConfigDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="EqualizerDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -360,6 +366,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="EchoSignalDialog.resx">
       <DependentUpon>EchoSignalDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EQBandConfigDialog.resx">
+      <DependentUpon>EQBandConfigDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="EqualizerDialog.resx">
       <DependentUpon>EqualizerDialog.cs</DependentUpon>
