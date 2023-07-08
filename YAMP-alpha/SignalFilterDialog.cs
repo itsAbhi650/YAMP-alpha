@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CSCore.DSP;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -13,6 +14,9 @@ namespace YAMP_alpha
     public partial class SignalFilterDialog : Form
     {
         AudioFilters.Filter filterType;
+        BiQuad[] Filters = null;
+        List<BiQuad> FilterList = new List<BiQuad>();
+        private bool Processing;
 
         public SignalFilterDialog()
         {
@@ -23,12 +27,10 @@ namespace YAMP_alpha
         {
             if (YAMPVars.biQuadFilterSrc != null)
             {
-                //YAMPVars.biQuadFilterSrc.Filters = AudioFilters.GetFilters(YAMPVars.CORE.PlayerSource.WaveFormat.SampleRate, 600, 0, 1);
-                foreach (CSCore.DSP.BiQuad filter in YAMPVars.biQuadFilterSrc.Filters)
+                foreach (BiQuad filter in YAMPVars.biQuadFilterSrc.Filters)
                 {
                     filter.Frequency = (double)nudInitFreq.Value;
                     filter.GainDB = Convert.ToInt32(nudInitGain.Value);
-                    //filter.Q = (double)nudBndWdt.Value;
                 }
                 nudFreq.Value = nudInitFreq.Value;
                 nudGain.Value = nudInitGain.Value;
@@ -38,36 +40,9 @@ namespace YAMP_alpha
 
         private void radioFilter_CheckedChanged(object sender, EventArgs e)
         {
-
             filterType = (AudioFilters.Filter)Convert.ToInt32((sender as RadioButton).Tag);
-            if (YAMPVars.biQuadFilterSrc != null)
-            {
-                nudBndWdt.Enabled = false;
-                BndWdtTracker.Enabled = false;
-                nudGain.Enabled = false;
-                gainTracker.Enabled = false;
-                switch (filterType)
-                {
-                    case AudioFilters.Filter.HighShelf:
-                        nudGain.Enabled = true;
-                        gainTracker.Enabled = true;
-                        break;
-                    case AudioFilters.Filter.LowShelf:
-                        nudGain.Enabled = true;
-                        gainTracker.Enabled = true;
-                        break;
-                    case AudioFilters.Filter.Peak:
-                        nudBndWdt.Value = Convert.ToDecimal((YAMPVars.biQuadFilterSrc.Filters[(int)filterType] as CSCore.DSP.PeakFilter).BandWidth);
-                        nudGain.Enabled = true;
-                        gainTracker.Enabled = true;
-                        nudBndWdt.Enabled = true;
-                        BndWdtTracker.Enabled = true;
-                        break;
-                }
-                nudFreq.Value = Convert.ToDecimal(YAMPVars.biQuadFilterSrc.Filters[(int)filterType].Frequency);
-                nudGain.Value = Convert.ToDecimal(YAMPVars.biQuadFilterSrc.Filters[(int)filterType].GainDB);
-            }
-
+            nudFreq.Value = Convert.ToDecimal(Filters[(int)filterType].Frequency);
+            nudGain.Value = Convert.ToDecimal(Filters[(int)filterType].GainDB);
         }
 
         private void Freq_ValueChanged(object sender, EventArgs e)
@@ -85,7 +60,7 @@ namespace YAMP_alpha
             }
             if (YAMPVars.biQuadFilterSrc.Filters != null)
             {
-                YAMPVars.biQuadFilterSrc.Filters[(int)filterType].Frequency = FreqVal;
+                Filters[(int)filterType].Frequency = FreqVal;
             }
         }
 
@@ -104,38 +79,42 @@ namespace YAMP_alpha
             }
             if (YAMPVars.biQuadFilterSrc.Filters != null)
             {
-                YAMPVars.biQuadFilterSrc.Filters[(int)filterType].GainDB = GainVal;
+                Filters[(int)filterType].GainDB = GainVal;
             }
         }
 
         private void BndWdt_ValueChanged(object sender, EventArgs e)
         {
-            int Bandwidth;
-            if (sender.GetType() == typeof(NumericUpDown))
+            if (!Processing)
             {
-                Bandwidth = Convert.ToInt32(((NumericUpDown)sender).Value);
-                BndWdtTracker.Value = Bandwidth;
-            }
-            else
-            {
-                Bandwidth = Convert.ToInt32(((TrackBar)sender).Value);
-                nudBndWdt.Value = Bandwidth;
-            }
-            if (YAMPVars.biQuadFilterSrc.Filters != null)
-            {
-                if (filterType == AudioFilters.Filter.Peak)
+                Processing = true;
+                int Bandwidth;
+                if (sender.GetType() == typeof(NumericUpDown))
                 {
-                    var PQ = YAMPVars.biQuadFilterSrc.Filters[(int)filterType] as CSCore.DSP.PeakFilter;
-                    PQ.BandWidth = Convert.ToDouble(nudBndWdt.Value);
-                    BndWdtTracker.Value = Convert.ToInt32(nudBndWdt.Value);
-
+                    Bandwidth = Convert.ToInt32(((NumericUpDown)sender).Value);
+                    BndWdtTracker.Value = Bandwidth;
                 }
+                else
+                {
+                    Bandwidth = Convert.ToInt32(((TrackBar)sender).Value);
+                    nudBndWdt.Value = Bandwidth;
+                }
+                if (Filters != null)
+                {
+                    if (filterType == AudioFilters.Filter.Peak)
+                    {
+                        var PQ = Filters[(int)filterType] as PeakFilter;
+                        PQ.BandWidth = Convert.ToDouble(nudBndWdt.Value);
+                    }
+                    else if (filterType == AudioFilters.Filter.Bell)
+                    {
+                        var PQ = Filters[(int)filterType] as BellFilter;
+                        PQ.BandWidth = Convert.ToDouble(nudBndWdt.Value);
+                    }
+                    BndWdtTracker.Value = Convert.ToInt32(nudBndWdt.Value);
+                }
+                Processing = false;
             }
-        }
-
-        private void SignalFilterDialog_Load(object sender, EventArgs e)
-        {
-            
         }
 
         private void toggleFilterCheck_CheckedChanged(object sender, EventArgs e)
@@ -146,7 +125,34 @@ namespace YAMP_alpha
                 InitParamGroupBox.Enabled =
                 FltCtrGroupBox.Enabled =
                 YAMPVars.biQuadFilterSrc.FilteringEnabled = toggleFilterCheck.Checked;
+                if (toggleFilterCheck.Checked)
+                {
+                    if (Filters == null)
+                    {
+                        Filters = AudioFilters.SetAllFilters(44100, 600, 1, 1);
+                    }
+                }
             }
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            CheckBox cbfilter = sender as CheckBox;
+            int cbTag = Convert.ToInt32(cbfilter.Tag);
+            RadioButton rbFilter = filterGroupBox.Controls.OfType<RadioButton>().First(x => Convert.ToInt32(x.Tag) == cbTag);
+            if (cbfilter.Checked)
+            {
+                FilterList.Add(Filters[Convert.ToInt32(cbfilter.Tag)]);
+                rbFilter.ForeColor = Color.White;
+                rbFilter.BackColor = Color.Blue;
+            }
+            else
+            {
+                FilterList.Remove(Filters[Convert.ToInt32(cbfilter.Tag)]);
+                rbFilter.ForeColor = Color.Black;
+                rbFilter.BackColor = SystemColors.Control;
+            }
+            YAMPVars.biQuadFilterSrc.Filters = FilterList.ToArray();
         }
     }
 }

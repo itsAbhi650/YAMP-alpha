@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -28,8 +30,10 @@ namespace YAMP_alpha
                 Text = "i",
                 UseColumnTextForButtonValue = true,
                 Name = "clm_MediaInfo",
-                AutoSizeMode = DataGridViewAutoSizeColumnMode.ColumnHeader,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.ColumnHeader
             };
+            dataGridView1.Columns.Add(DGVBC);
+
 
             foreach (DataGridViewColumn item in dataGridView1.Columns)
             {
@@ -40,7 +44,6 @@ namespace YAMP_alpha
             }
 
             DGVBC.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-            dataGridView1.Columns.Add(DGVBC);
         }
 
         private void Btn_info_Click(object sender, EventArgs e)
@@ -201,6 +204,39 @@ namespace YAMP_alpha
                 pictureBox1.Image = null;
             }
             dataGridView1.RefreshEdit();
+        }
+
+        private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var dt = GetDataTableFromDataGridView(dataGridView1);
+        }
+
+        private DataTable GetDataTableFromDataGridView(DataGridView gridView)
+        {
+            DataTable dt = new DataTable("YAMP_Playlist");
+
+            foreach (DataGridViewColumn column in gridView.Columns)
+            {
+                if (column is DataGridViewTextBoxColumn && column.Visible)
+                {
+                    dt.Columns.Add(column.HeaderText);
+                }
+            }
+
+            List<string> data = new List<string>();
+
+            //gridView.Rows.OfType<DataGridViewRow>().Select(x=> new {row = x }).
+            foreach (DataGridViewRow row in gridView.Rows)
+            {
+                foreach (DataColumn column in dt.Columns)
+                {
+                    data.Add(gridView[column.ColumnName, row.Index].FormattedValue.ToString());
+                }
+                dt.Rows.Add(data);
+                
+            }
+
+            return dt;
         }
     }
 }

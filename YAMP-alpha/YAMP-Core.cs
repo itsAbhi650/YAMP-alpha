@@ -297,7 +297,7 @@ namespace YAMP_alpha
                 {
                     WebC.OpenRead(StreamUrl);
                     long TotalBytes = Convert.ToInt64(WebC.ResponseHeaders["Content-Length"]);
-                    var TotalMegaBytes = TotalBytes / 1024 / 1024F;
+                    var TotalMegaBytes = TotalBytes / 1024F / 1024F;
                     using (StreamDialog Sdiag = new StreamDialog(TotalMegaBytes))
                     {
                         if (Sdiag.ShowDialog() == System.Windows.Forms.DialogResult.OK)
@@ -353,8 +353,7 @@ namespace YAMP_alpha
             .ToSampleSource()
             .AppendSource(x => new BiQuadFiltersSource(x)
             {
-                FilteringEnabled = false,
-                Filters = AudioFilters.SetAllFilters(Source.WaveFormat.SampleRate, 600, 1, 1)
+                FilteringEnabled = false
             }, out YAMPVars.biQuadFilterSrc)
             .AppendSource(x => new GainSource(x) { Volume = 1.0f }, out YAMPVars.GainSource)
             .AppendSource(x => new VolumeSource(x) { Volume = 1.0f }, out YAMPVars.VolumeSource)

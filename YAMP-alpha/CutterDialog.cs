@@ -24,8 +24,6 @@ namespace YAMP_alpha
             }
         }
 
-        TagLib.File TagSource = null;
-        TagLib.File TagTarget = null;
         long CutLength;
         private long CutEnd;
         private long CutBegin;
