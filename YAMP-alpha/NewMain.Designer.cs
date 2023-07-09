@@ -85,6 +85,7 @@
             this.Btn_ChannelPan = new System.Windows.Forms.Button();
             this.Btn_ToggleFade = new System.Windows.Forms.CheckBox();
             this.CB_ToggleTrackLoop = new System.Windows.Forms.CheckBox();
+            this.visualizer = new System.Windows.Forms.Timer(this.components);
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.VolumeTracker)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DurationTracker)).BeginInit();
@@ -591,6 +592,7 @@
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
             this.pictureBox1.TabIndex = 2;
             this.pictureBox1.TabStop = false;
+            this.pictureBox1.DoubleClick += new System.EventHandler(this.pictureBox1_DoubleClick);
             // 
             // Pnl_Extras
             // 
@@ -654,6 +656,11 @@
             this.CB_ToggleTrackLoop.Text = "Loop";
             this.CB_ToggleTrackLoop.UseVisualStyleBackColor = true;
             this.CB_ToggleTrackLoop.CheckedChanged += new System.EventHandler(this.CB_ToggleTrackLoop_CheckedChanged);
+            // 
+            // visualizer
+            // 
+            this.visualizer.Interval = 20;
+            this.visualizer.Tick += new System.EventHandler(this.visualizer_Tick);
             // 
             // NewMain
             // 
@@ -746,5 +753,6 @@
         private System.Windows.Forms.ToolStripMenuItem bitRateToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem signalFilteringToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem tagEditorToolStripMenuItem;
+        private System.Windows.Forms.Timer visualizer;
     }
 }

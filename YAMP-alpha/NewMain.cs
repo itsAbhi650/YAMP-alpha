@@ -8,6 +8,7 @@ namespace YAMP_alpha
 {
     public partial class NewMain : Form
     {
+        GraphVisualization visualisation = null;
         private bool PlayNext;
         public NewMain()
         {
@@ -472,6 +473,39 @@ namespace YAMP_alpha
         private void tagEditorToolStripMenuItem_Click(object sender, EventArgs e)
         {
             new TagEditorDialog(YAMPVars.CORE.PlayingFile).ShowDialog();
+        }
+
+        private void pictureBox1_DoubleClick(object sender, EventArgs e)
+        {
+            visualisation = new GraphVisualization();
+            visualizer.Enabled = !visualizer.Enabled;
+            if (visualizer.Enabled)
+            {
+                YAMPVars.SingleBlockNotificationStream.SingleBlockRead += SingleBlockNotificationStream_SingleBlockRead;
+                pictureBox1.BackgroundImage = null;
+            }
+            else
+            {
+                visualisation = null;
+                YAMPVars.SingleBlockNotificationStream.SingleBlockRead -= SingleBlockNotificationStream_SingleBlockRead;
+                pictureBox1.BackgroundImage = YAMPVars.CORE.CurrentTrack.Covers[0];
+            }
+            
+        }
+
+        private void SingleBlockNotificationStream_SingleBlockRead(object sender, CSCore.Streams.SingleBlockReadEventArgs e)
+        {
+            visualisation.AddSamples(e.Left, e.Right);
+        }
+
+        private void visualizer_Tick(object sender, EventArgs e)
+        {
+            var image = pictureBox1.BackgroundImage;
+            pictureBox1.BackgroundImage = visualisation.Draw(pictureBox1.Width, pictureBox1.Height);
+            if (image!=null)
+            {
+                image.Dispose();
+            }
         }
     }
 }
