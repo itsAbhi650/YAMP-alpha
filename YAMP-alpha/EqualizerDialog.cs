@@ -46,13 +46,13 @@ namespace YAMP_alpha
         public EqualizerDialog()
         {
             InitializeComponent();
-            formsPlot1.Plot.Frameless(true);
-            formsPlot1.Plot.Margins(0);
-            SpectroBitmap = new Bitmap(2000, 600);
         }
 
         private void EqualizerDialog_Load(object sender, EventArgs e)
         {
+            formsPlot1.Plot.Frameless(true);
+            formsPlot1.Plot.Margins(0);
+            SpectroBitmap = new Bitmap(2140, 702);
             CmbBx_ColMap.DataSource = Colormap.GetColormapNames();
             CmbBx_RotateGraph.DataSource = Enum.GetNames(typeof(RotateFlipType)).Select(x => x.Remove(0, "Rotate".Length)).ToArray();
             CmbBx_ImgMode.DataSource = Enum.GetNames(typeof(PictureBoxSizeMode));
@@ -62,14 +62,10 @@ namespace YAMP_alpha
                 ChannelCount = YAMPVars.CORE.PlayerSource.WaveFormat.Channels;
                 YAMPVars.NotificationSource.BlockRead += NotificationSource_BlockRead;
                 YAMPVars.SingleBlockNotificationStream.SingleBlockRead += SingleBlockNotificationStream_SingleBlockRead;
-                YAMPVars.FftProvider = new FftProvider(ChannelCount, FftSize.Fft1024)
-                {
-                    WindowFunction = WindowFunctions.Hanning
-                };
+                YAMPVars.FftProvider = new FftProvider(ChannelCount, FftSize.Fft4096);
                 FFTSIZE = YAMPVars.FftProvider.FftSize;
-                SpectroScott = new SpectrogramGenerator(SampleRate, 1024, 512) { OffsetHz = 10000 };
+                SpectroScott = new SpectrogramGenerator(SampleRate, 4096, 512) { OffsetHz = 20 };
 
-                pictureBox1.Height = SpectroScott.Height;
                 SpectroScott.SetFixedWidth(Pb_SpectrogramAdv.Width);
                 SpectrumProvider = new BasicSpectrumProvider(ChannelCount, SampleRate, FFTSIZE);
                 Spectrum = new VoicePrint3DSpectrum(FFTSIZE)
@@ -88,8 +84,6 @@ namespace YAMP_alpha
                 GainBand.ValueChanged += GainBand_ValueChanged;
                 Scope.Start();
                 Spectrogram.Start();
-                splitContainer1.Panel2.Controls.Add(VolBand);
-                splitContainer1.Panel2.Controls.Add(GainBand);
                 for (int i = 0; i < YAMPVars.EqualizerEffect.SampleFilters.Count; i++)
                 {
                     EqualizerFilter item = YAMPVars.EqualizerEffect.SampleFilters[i];
@@ -134,9 +128,8 @@ namespace YAMP_alpha
 
         private void SingleBlockNotificationStream_SingleBlockRead(object sender, SingleBlockReadEventArgs e)
         {
-            YAMPVars.FftProvider.Add(e.Left, e.Right);
             SpectrumProvider.Add(e.Left, e.Right);
-
+            YAMPVars.FftProvider.Add(e.Left, e.Right);
         }
 
         private void GainBand_ValueChanged(object sender, EventArgs e)

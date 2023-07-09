@@ -283,7 +283,6 @@
             this.Pb_SpectrogramAdv.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.Pb_SpectrogramAdv.TabIndex = 7;
             this.Pb_SpectrogramAdv.TabStop = false;
-//            this.Pb_SpectrogramAdv.Click += new System.EventHandler(this.pictureBox2_Click);
             // 
             // label3
             // 
@@ -384,7 +383,7 @@
             // 
             // Spectrogram
             // 
-            this.Spectrogram.Interval = 1;
+            this.Spectrogram.Interval = 40;
             this.Spectrogram.Tick += new System.EventHandler(this.Spectrogram_Tick);
             // 
             // menuStrip1
