@@ -1,17 +1,21 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 
 namespace YAMP_alpha.Controls
 {
+
+    [DefaultEvent("ValueChanged")]
+    [DebuggerDisplay("Value = {BandValue}, Max = {BandMax}, Min = {BandMin}, Footer = {FooterText}")]
     public partial class EQBand : UserControl
     {
         public EQBand()
         {
             InitializeComponent();
         }
-
+        
         public EQBand(string Header, int MinVal, int MaxVal, int Value, string Footer)
         {
             InitializeComponent();
@@ -136,6 +140,22 @@ namespace YAMP_alpha.Controls
 
         [Category("EQBand Settings")]
         [Browsable(true)]
+        public Color FooterBackColor
+        {
+            get { return EQFooter.BackColor; }
+            set { EQFooter.BackColor = value; }
+        }
+
+        [Category("EQBand Settings")]
+        [Browsable(true)]
+        public Color FooterForeColor
+        {
+            get { return EQFooter.ForeColor; }
+            set { EQFooter.ForeColor = value; }
+        }
+
+        [Category("EQBand Settings")]
+        [Browsable(true)]
         public int TickFrequency
         {
             get
@@ -215,6 +235,11 @@ namespace YAMP_alpha.Controls
         private void EQBandBar_Enter(object sender, EventArgs e)
         {
             EQBox.Focus();
+        }
+
+        private void EQFooter_DoubleClick(object sender, EventArgs e)
+        {
+            base.OnDoubleClick(e);
         }
     }
 }

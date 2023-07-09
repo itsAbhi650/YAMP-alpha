@@ -66,7 +66,7 @@ namespace YAMP_alpha
                 Player = CSCore.Codecs.CodecFactory.Instance.GetCodec(filename);
                 ISampleSource PlayerSampleSource = Player.ToSampleSource();
                 PlayingFile = new FileInfo(filename);
-
+                //TagLib.Mpeg4.BoxHeader
                 BSP = new BasicSpectrumProvider(Player.WaveFormat.Channels, Player.WaveFormat.SampleRate, FftSize.Fft16384);
                 LS = new LineSpectrum(BSP.FftSize)
                 {
@@ -546,9 +546,8 @@ namespace YAMP_alpha
             PictureBox PicSpecBox = sender as PictureBox;
             if (PicSpecBox.BackgroundImage != null)
             {
-                using (BigArt BG = new BigArt())
+                using (BigArt BG = new BigArt(PicSpecBox.BackgroundImage))
                 {
-                    BG.AlbumArt = PicSpecBox.BackgroundImage;
                     BG.ShowDialog();
                 }
             }

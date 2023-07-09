@@ -297,7 +297,7 @@ namespace YAMP_alpha
                 {
                     WebC.OpenRead(StreamUrl);
                     long TotalBytes = Convert.ToInt64(WebC.ResponseHeaders["Content-Length"]);
-                    var TotalMegaBytes = TotalBytes / 1024 / 1024F;
+                    var TotalMegaBytes = TotalBytes / 1024F / 1024F;
                     using (StreamDialog Sdiag = new StreamDialog(TotalMegaBytes))
                     {
                         if (Sdiag.ShowDialog() == System.Windows.Forms.DialogResult.OK)
@@ -351,6 +351,10 @@ namespace YAMP_alpha
             .AppendSource(x => new DmoChorusEffect(x) { IsEnabled = false }, out YAMPVars.ChorusEffect)
             .AppendSource(x => new LoopStream(x) { EnableLoop = false }, out YAMPVars.TrackLoop)
             .ToSampleSource()
+            .AppendSource(x => new BiQuadFiltersSource(x)
+            {
+                FilteringEnabled = false
+            }, out YAMPVars.biQuadFilterSrc)
             .AppendSource(x => new GainSource(x) { Volume = 1.0f }, out YAMPVars.GainSource)
             .AppendSource(x => new VolumeSource(x) { Volume = 1.0f }, out YAMPVars.VolumeSource)
             .AppendSource(x => new PeakMeter(x) { Interval = 25 }, out YAMPVars.AudioPeakMeter)
@@ -358,6 +362,7 @@ namespace YAMP_alpha
             .AppendSource(x => new FadeInOut(x) { FadeStrategy = new LinearFadeStrategy() }, out YAMPVars.FadeEffect)
             .AppendSource(x => new NotificationSource(x), out YAMPVars.NotificationSource)
             .ToWaveSource();
+
 
             if (Source.WaveFormat.Channels > 1)
             {

@@ -1,4 +1,4 @@
-# YAMP (Yet Another Media Player)  α
+# YAMP (Yet Another Music Player)  α
 [![Build](https://github.com/itsAbhi650/YAMP-Alpha/workflows/Build/badge.svg)](https://github.com/itsAbhi650/YAMP-Alpha/actions?query=workflow:"Build")
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=itsAbhi650_YAMP-alpha&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=itsAbhi650_YAMP-alpha) 
 [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=itsAbhi650_YAMP-alpha&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=itsAbhi650_YAMP-alpha)
@@ -10,11 +10,12 @@ My prime objective of creating this project is to learn about the libraries as i
  
 ## Libraries used
 * [CSCore](https://github.com/filoe/cscore)
-* [NAudio](https://github.com/naudio)
+* [NAudio.WinForms](https://github.com/naudio/NAudio/tree/master/NAudio.WinForms)
 * [TagLibSharp](https://github.com/mono/taglib-sharp)
 * [MediaInfo](https://github.com/yartat/MP-MediaInfo)
 * [FftSharp](https://github.com/swharden/FftSharp)
 * [ScottPlot](https://github.com/ScottPlot/ScottPlot)
+* [Spectrogram](https://github.com/swharden/Spectrogram)
 
 Note that both libraries **TagLibSharp** and **MediaInfo** (used for reading Tag data) are currently included in the project as of now but after some time I'm planning to keep only one which ever will be more suitable.
 

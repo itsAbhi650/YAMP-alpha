@@ -17,6 +17,7 @@ namespace YAMP_alpha
         public static DmoFlangerEffect FlangerEffect;
         public static DmoDistortionEffect DistortionEffect;
         internal static FftProvider FftProvider;
+        internal static BiQuadFiltersSource biQuadFilterSrc;
         public static DmoEchoEffect EchoEffect;
         public static DmoChorusEffect ChorusEffect;
         public static Equalizer EqualizerEffect;

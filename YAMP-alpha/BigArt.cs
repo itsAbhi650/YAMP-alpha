@@ -10,10 +10,11 @@ namespace YAMP_alpha
 
         public Point StartPoint { get; private set; }
         internal Image AlbumArt { get; set; } = null;
-        public BigArt()
+        public BigArt(Image Art)
         {
             InitializeComponent();
             pictureBox1.ContextMenuStrip = contextMenuStrip1;
+            AlbumArt = Art;
         }
 
         private void BigArt_Load(object sender, EventArgs e)

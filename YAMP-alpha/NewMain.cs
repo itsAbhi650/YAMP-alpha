@@ -116,7 +116,6 @@ namespace YAMP_alpha
                         }
                     }
                 }
-
                 if (TrackLoaded)
                 {
                     PlayFromStart();
@@ -136,7 +135,10 @@ namespace YAMP_alpha
 
         private void trackBar2_Scroll(object sender, EventArgs e)
         {
-            YAMPVars.CORE.SoundOutVolume = VolumeTracker.Value;
+            if (YAMPVars.CORE.PlayerInitialized)
+            {
+                YAMPVars.CORE.SoundOutVolume = VolumeTracker.Value;
+            }
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -205,7 +207,7 @@ namespace YAMP_alpha
 
         private void LoadFileStripMenuItem_Click(object sender, EventArgs e)
         {
-            using (OpenFileDialog OPD = new OpenFileDialog())
+            using (OpenFileDialog OPD = new OpenFileDialog() { Filter = CSCore.Codecs.CodecFactory.SupportedFilesFilterEn })
             {
                 if (OPD.ShowDialog() == DialogResult.OK)
                 {
@@ -215,7 +217,10 @@ namespace YAMP_alpha
                     YAMPVars.CORE.CurrentTrack = Track;
                     VolumeTracker.Value = YAMPVars.CORE.SoundOutVolume;
                     YAMPVars.TrackList.Add(YAMPVars.CORE.CurrentTrack);
-                    pictureBox1.BackgroundImage = YAMPVars.CORE.CurrentTrack.Covers[0];
+                    if (YAMPVars.CORE.CurrentTrack.Covers.Count > 0)
+                    {
+                        pictureBox1.BackgroundImage = YAMPVars.CORE.CurrentTrack.Covers[0];
+                    }
                 }
             }
         }
@@ -289,11 +294,6 @@ namespace YAMP_alpha
             WRED.Show();
         }
 
-        private void changeSampleRateToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
-        }
-
         private void waveformNAudioToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Waveform WF = new Waveform();
@@ -323,7 +323,8 @@ namespace YAMP_alpha
             if (!YAMPVars.CORE.PlayerStopped)
             {
                 YAMPVars.CORE.NextTrackDirection = int.Parse(((Button)sender).Tag.ToString());
-                if (YAMPVars.CORE.isValidMove(YAMPVars.CORE.NextTrackDirection, out int DestIndex))
+                int DestIndex = 0;
+                if (YAMPVars.CORE.isValidMove(YAMPVars.CORE.NextTrackDirection, out DestIndex))
                 {
                     DurationTracker.Value = 0;
                     YAMPVars.CORE.PlayerSource.Position = 0;
@@ -440,6 +441,37 @@ namespace YAMP_alpha
         private void audioCutterToolStripMenuItem_Click(object sender, EventArgs e)
         {
             new CutterDialog() { StartPosition = FormStartPosition.CenterParent }.ShowDialog();
+        }
+
+        private void sampleRateToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new ResamplerDialog()
+            {
+                StartPosition = FormStartPosition.CenterParent
+            }.ShowDialog();
+        }
+
+        private void bitRateToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new BitrateDialog()
+            {
+                StartPosition = FormStartPosition.CenterParent
+            }.ShowDialog();
+        }
+
+        private void filtersToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void signalFilteringToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new SignalFilterDialog().Show();
+        }
+
+        private void tagEditorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new TagEditorDialog(YAMPVars.CORE.PlayingFile).ShowDialog();
         }
     }
 }

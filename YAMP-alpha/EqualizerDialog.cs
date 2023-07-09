@@ -41,17 +41,18 @@ namespace YAMP_alpha
             Dock = DockStyle.Left,
             ShowBandValueInFooter = true
         };
+        private bool inBand;
 
         public EqualizerDialog()
         {
             InitializeComponent();
-            formsPlot1.Plot.Frameless(true);
-            formsPlot1.Plot.Margins(0);
-            SpectroBitmap = new Bitmap(2000, 600);
         }
 
         private void EqualizerDialog_Load(object sender, EventArgs e)
         {
+            formsPlot1.Plot.Frameless(true);
+            formsPlot1.Plot.Margins(0);
+            SpectroBitmap = new Bitmap(2140, 702);
             CmbBx_ColMap.DataSource = Colormap.GetColormapNames();
             CmbBx_RotateGraph.DataSource = Enum.GetNames(typeof(RotateFlipType)).Select(x => x.Remove(0, "Rotate".Length)).ToArray();
             CmbBx_ImgMode.DataSource = Enum.GetNames(typeof(PictureBoxSizeMode));
@@ -63,9 +64,8 @@ namespace YAMP_alpha
                 YAMPVars.SingleBlockNotificationStream.SingleBlockRead += SingleBlockNotificationStream_SingleBlockRead;
                 YAMPVars.FftProvider = new FftProvider(ChannelCount, FftSize.Fft4096);
                 FFTSIZE = YAMPVars.FftProvider.FftSize;
-                SpectroScott = new SpectrogramGenerator(SampleRate, 1024, 512) { OffsetHz = 10000 };
+                SpectroScott = new SpectrogramGenerator(SampleRate, 4096, 512) { OffsetHz = 20 };
 
-                Spectrogram.Start();
                 pictureBox1.Height = SpectroScott.Height;
                 SpectroScott.SetFixedWidth(Pb_SpectrogramAdv.Width);
                 SpectrumProvider = new BasicSpectrumProvider(ChannelCount, SampleRate, FFTSIZE);
@@ -84,6 +84,7 @@ namespace YAMP_alpha
                 GainBand.BandValue = (int)(YAMPVars.GainSource.Volume * 100f);
                 VolBand.ValueChanged += VolBand_ValueChanged;
                 Scope.Start();
+                Spectrogram.Start();
                 for (int i = 0; i < YAMPVars.EqualizerEffect.SampleFilters.Count; i++)
                 {
                     EqualizerFilter item = YAMPVars.EqualizerEffect.SampleFilters[i];
@@ -97,6 +98,7 @@ namespace YAMP_alpha
                     };
                     EQBAND.BandValue = (int)(item.AverageGainDB / MaxDB * EQBAND.BandMax);
                     EQBAND.ValueChanged += EQBAND_ValueChanged;
+                    EQBAND.DoubleClick += EQBAND_DoubleClick;
                     splitContainer1.Panel2.Controls.Add(EQBAND);
                 }
                 foreach (EQBand item in splitContainer1.Panel2.Controls.OfType<EQBand>())
@@ -106,6 +108,20 @@ namespace YAMP_alpha
             }
         }
 
+        private void EQBAND_DoubleClick(object sender, EventArgs e)
+        {
+            inBand = true;
+            var Band = (EQBand)sender;
+            int filterIndex = (int)Band.Tag;
+            var EQFilter = YAMPVars.EqualizerEffect.SampleFilters[filterIndex];
+            using (var BandConfigurator = new EQBandConfigDialog(EQFilter))
+            {
+                BandConfigurator.ShowDialog();
+            }
+            Band.BandValue = GainToBand(EQFilter.AverageGainDB, Band.BandMax, MaxDB);
+            inBand = false;
+        }
+
         private void NotificationSource_BlockRead(object sender, BlockReadEventArgs<float> e)
         {
             SpectroBuffer = e.Data.Select(x => (double)(x * (int)NUD_Multiplier.Value)).ToArray();
@@ -113,9 +129,8 @@ namespace YAMP_alpha
 
         private void SingleBlockNotificationStream_SingleBlockRead(object sender, SingleBlockReadEventArgs e)
         {
-            YAMPVars.FftProvider.Add(e.Left, e.Right);
             SpectrumProvider.Add(e.Left, e.Right);
-
+            YAMPVars.FftProvider.Add(e.Left, e.Right);
         }
 
         private void GainBand_ValueChanged(object sender, EventArgs e)
@@ -130,15 +145,30 @@ namespace YAMP_alpha
 
         private void EQBAND_ValueChanged(object sender, EventArgs e)
         {
-            EQBand EQBAND;
-            bool flag = (EQBAND = (sender as EQBand)) != null && YAMPVars.EqualizerEffect != null;
-            if (flag)
+            if (!inBand)
             {
-                double perc = EQBAND.BandValue / (double)EQBAND.BandMax;
-                float value = (float)(perc * MaxDB);
-                int filterIndex = (int)EQBAND.Tag;
-                YAMPVars.EqualizerEffect.SampleFilters[filterIndex].AverageGainDB = value;
+                EQBand EQBAND;
+                bool flag = (EQBAND = sender as EQBand) != null && YAMPVars.EqualizerEffect != null;
+                if (flag)
+                {
+                    int filterIndex = (int)EQBAND.Tag;
+                    YAMPVars.EqualizerEffect.SampleFilters[filterIndex].AverageGainDB = BandToGain(EQBAND.BandValue, EQBAND.BandMax, MaxDB);
+                }
             }
+        }
+
+        private int GainToBand(double dB, int BandMax, int DBMax)
+        {
+            double perc = dB / DBMax;
+            int BandValue = (int)(perc * BandMax);
+            return BandValue;
+        }
+
+        private double BandToGain(int BandValue, int BandMax, int DBMax)
+        {
+            double perc = BandValue / (double)BandMax;
+            double GainValue = perc * MaxDB;
+            return GainValue;
         }
 
         private void GenerateVoice3DPrintSpectrum()
@@ -179,16 +209,19 @@ namespace YAMP_alpha
                 {
                     signalPlot.Ys = fftpower;
                 }
-                SpectroScott.Add(SpectroBuffer);
-                if (SpectroScott.Width > 0)
+                if (SpectroBuffer != null)
                 {
-                    Pb_SpectrogramAdv.Image?.Dispose();
-                    var Bitmp = SpectroScott.GetBitmap((float)NUD_Brightness.Value, dB: ChkBx_Dcbl.Checked, roll: ChkBx_RollGraph.Checked);
-                    Bitmp.RotateFlip((RotateFlipType)Enum.Parse(typeof(RotateFlipType), "Rotate" + CmbBx_RotateGraph.SelectedItem.ToString()));
-                    Pb_SpectrogramAdv.Image = Bitmp;
+                    SpectroScott.Add(SpectroBuffer);
+                    if (SpectroScott.Width > 0)
+                    {
+                        Pb_SpectrogramAdv.Image?.Dispose();
+                        var Bitmp = SpectroScott.GetBitmap((float)NUD_Brightness.Value, dB: ChkBx_Dcbl.Checked, roll: ChkBx_RollGraph.Checked);
+                        Bitmp.RotateFlip((RotateFlipType)Enum.Parse(typeof(RotateFlipType), "Rotate" + CmbBx_RotateGraph.SelectedItem.ToString()));
+                        Pb_SpectrogramAdv.Image = Bitmp;
+                    }
+                    formsPlot1.Render(false, false);
+                    formsPlot1.Plot.AxisAutoY();
                 }
-                formsPlot1.Render(false, false);
-                formsPlot1.Plot.AxisAutoY();
             }
         }
         private void Spectrogram_Tick(object sender, EventArgs e)
