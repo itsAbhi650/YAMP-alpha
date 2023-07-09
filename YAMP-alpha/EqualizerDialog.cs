@@ -61,13 +61,11 @@ namespace YAMP_alpha
                 ChannelCount = YAMPVars.CORE.PlayerSource.WaveFormat.Channels;
                 YAMPVars.NotificationSource.BlockRead += NotificationSource_BlockRead;
                 YAMPVars.SingleBlockNotificationStream.SingleBlockRead += SingleBlockNotificationStream_SingleBlockRead;
-                YAMPVars.FftProvider = new FftProvider(ChannelCount, FftSize.Fft1024)
-                {
-                    WindowFunction = WindowFunctions.Hanning
-                };
+                YAMPVars.FftProvider = new FftProvider(ChannelCount, FftSize.Fft4096);
                 FFTSIZE = YAMPVars.FftProvider.FftSize;
                 SpectroScott = new SpectrogramGenerator(SampleRate, 1024, 512) { OffsetHz = 10000 };
 
+                Spectrogram.Start();
                 pictureBox1.Height = SpectroScott.Height;
                 SpectroScott.SetFixedWidth(Pb_SpectrogramAdv.Width);
                 SpectrumProvider = new BasicSpectrumProvider(ChannelCount, SampleRate, FFTSIZE);
@@ -79,16 +77,13 @@ namespace YAMP_alpha
                     IsXLogScale = true,
                     ScalingStrategy = ScalingStrategy.Sqrt
                 };
+                GainBand.ValueChanged += GainBand_ValueChanged;
                 splitContainer1.Panel2.Controls.Add(VolBand);
                 splitContainer1.Panel2.Controls.Add(GainBand);
                 VolBand.BandValue = (int)(YAMPVars.VolumeSource.Volume * 100f);
                 GainBand.BandValue = (int)(YAMPVars.GainSource.Volume * 100f);
                 VolBand.ValueChanged += VolBand_ValueChanged;
-                GainBand.ValueChanged += GainBand_ValueChanged;
                 Scope.Start();
-                Spectrogram.Start();
-                splitContainer1.Panel2.Controls.Add(VolBand);
-                splitContainer1.Panel2.Controls.Add(GainBand);
                 for (int i = 0; i < YAMPVars.EqualizerEffect.SampleFilters.Count; i++)
                 {
                     EqualizerFilter item = YAMPVars.EqualizerEffect.SampleFilters[i];

@@ -83,7 +83,7 @@
             // 
             this.splitContainer1.Panel1.Controls.Add(this.tabControl1);
             this.splitContainer1.Size = new System.Drawing.Size(869, 524);
-            this.splitContainer1.SplitterDistance = 324;
+            this.splitContainer1.SplitterDistance = 272;
             this.splitContainer1.TabIndex = 0;
             // 
             // tabControl1
@@ -95,7 +95,7 @@
             this.tabControl1.Location = new System.Drawing.Point(0, 0);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(869, 324);
+            this.tabControl1.Size = new System.Drawing.Size(869, 272);
             this.tabControl1.TabIndex = 0;
             // 
             // TbPg_Scope
@@ -123,7 +123,7 @@
             this.TbPg_Spectrogram.Location = new System.Drawing.Point(4, 22);
             this.TbPg_Spectrogram.Name = "TbPg_Spectrogram";
             this.TbPg_Spectrogram.Padding = new System.Windows.Forms.Padding(3);
-            this.TbPg_Spectrogram.Size = new System.Drawing.Size(861, 298);
+            this.TbPg_Spectrogram.Size = new System.Drawing.Size(861, 246);
             this.TbPg_Spectrogram.TabIndex = 1;
             this.TbPg_Spectrogram.Text = "Spectrogram";
             this.TbPg_Spectrogram.UseVisualStyleBackColor = true;
@@ -131,10 +131,10 @@
             // pictureBox1
             // 
             this.pictureBox1.BackColor = System.Drawing.Color.White;
-            this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Left;
             this.pictureBox1.Location = new System.Drawing.Point(3, 3);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(855, 292);
+            this.pictureBox1.Size = new System.Drawing.Size(800, 240);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pictureBox1.TabIndex = 0;
             this.pictureBox1.TabStop = false;
@@ -283,7 +283,6 @@
             this.Pb_SpectrogramAdv.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.Pb_SpectrogramAdv.TabIndex = 7;
             this.Pb_SpectrogramAdv.TabStop = false;
-//            this.Pb_SpectrogramAdv.Click += new System.EventHandler(this.pictureBox2_Click);
             // 
             // label3
             // 
@@ -384,7 +383,7 @@
             // 
             // Spectrogram
             // 
-            this.Spectrogram.Interval = 1;
+            this.Spectrogram.Interval = 40;
             this.Spectrogram.Tick += new System.EventHandler(this.Spectrogram_Tick);
             // 
             // menuStrip1
