@@ -69,6 +69,7 @@ namespace YAMP_alpha
                 YAMPVars.PLTRACKFLAG = false;
                 YAMPVars.CORE.PlayerStopped = false;
                 PlayFromStart();
+
             }
         }
 
@@ -189,6 +190,8 @@ namespace YAMP_alpha
         {
             if (YAMPVars.CORE != null)
             {
+                YAMPVars.CORE.Player.Stopped -= Player_Stopped;
+                YAMPVars.CORE.Player.Stop();
                 YAMPVars.CORE.Dispose();
             }
         }
@@ -374,6 +377,7 @@ namespace YAMP_alpha
         private void Btn_ToggleExtras_Click(object sender, EventArgs e)
         {
             Pnl_Extras.Visible = !Pnl_Extras.Visible;
+            Btn_ToggleExtras.Text = Pnl_Extras.Visible ? "-" : "+";
         }
 
         private void CB_ToggleTrackLoop_CheckedChanged(object sender, EventArgs e)
@@ -490,7 +494,7 @@ namespace YAMP_alpha
                 YAMPVars.SingleBlockNotificationStream.SingleBlockRead -= SingleBlockNotificationStream_SingleBlockRead;
                 pictureBox1.BackgroundImage = YAMPVars.CORE.CurrentTrack.Covers[0];
             }
-            
+
         }
 
         private void SingleBlockNotificationStream_SingleBlockRead(object sender, CSCore.Streams.SingleBlockReadEventArgs e)
@@ -502,7 +506,7 @@ namespace YAMP_alpha
         {
             var image = pictureBox1.BackgroundImage;
             pictureBox1.BackgroundImage = visualisation.Draw(pictureBox1.Width, pictureBox1.Height);
-            if (image!=null)
+            if (image != null)
             {
                 image.Dispose();
             }

@@ -607,6 +607,7 @@
             this.Pnl_Extras.Name = "Pnl_Extras";
             this.Pnl_Extras.Size = new System.Drawing.Size(384, 28);
             this.Pnl_Extras.TabIndex = 14;
+            this.Pnl_Extras.Visible = false;
             // 
             // Btn_PosLoop
             // 
