@@ -10,6 +10,7 @@ namespace YAMP_alpha
     {
         public static YAMP_Core CORE;
         public static DownloadProgress DownloadProgress = new DownloadProgress();
+        internal static string LoadedPlaylist;
         public static MMDevice MediaDevice;
         public static DmoCompressorEffect CompressorEffect;
         public static DmoWavesReverbEffect WavesReverbEffect;
