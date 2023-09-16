@@ -481,7 +481,13 @@ namespace YAMP_alpha
 
         private void pictureBox1_DoubleClick(object sender, EventArgs e)
         {
-            visualisation = new GraphVisualization();
+            if (visualisation == null)
+            {
+                visualisation = new GraphVisualization()
+                {
+                    RenderChannel = Channel.Both
+                };
+            }
             visualizer.Enabled = !visualizer.Enabled;
             if (visualizer.Enabled)
             {
