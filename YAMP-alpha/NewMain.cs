@@ -14,7 +14,7 @@ namespace YAMP_alpha
         {
             InitializeComponent();
             int ClientTop = RectangleToScreen(ClientRectangle).Top;
-            int height = Height - pictureBox1.Height;
+            int height = Height - CoverImageBox.Height;
             MinimumSize = new Size(387, height);
         }
 
@@ -89,9 +89,39 @@ namespace YAMP_alpha
             if (YAMPVars.CORE.CurrentTrack != null && YAMPVars.CORE.PlayerSource != null)
             {
                 UpdateTrackers();
-                pictureBox1.BackgroundImage = YAMPVars.CORE.GetTrackCover();
+                Image cover = YAMPVars.CORE.GetTrackCover();
+                CoverImageBox.BackgroundImage = cover;
+                ResizePlayer(cover, 0.5F);
                 Lbl_PlayerLabel.Text = string.Format(">  {0}", YAMPVars.CORE.CurrentTrack.Title);
                 Lbl_Duration.Text = TrackDurationText();
+            }
+        }
+
+        private void ResizePlayer(Image cover = null, float percent = 1F)
+        {
+            if (cover != null)
+            {
+                int width = (int)(cover.Width * percent);
+                int Border = Width - ClientRectangle.Width;
+                Height = (int)(cover.Height * percent) + (ClientRectangle.Height - CoverImageBox.Height + (Height - ClientRectangle.Height));
+                if (Width > width)
+                {
+                    Width = Width - (Width - width);
+                }
+                else
+                {
+                    Image img = CoverImageBox.BackgroundImage;
+                    Width = width + Border;
+                    //if (CoverImageBox.ClientRectangle.Width < Width)
+                    //{
+                    //    Width -= Width - CoverImageBox.ClientRectangle.Width;
+                    //}
+                }
+                //if (CoverImageBox.ClientRectangle.Height<CoverImageBox.Height)
+                //{
+                //    Height -= CoverImageBox.Height - CoverImageBox.ClientRectangle.Height;
+                //}
+                //Width = (int)(cover.Width * percent) + (Width - ClientRectangle.Width);//) - (Width - CoverImageBox.Width);
             }
         }
 
@@ -223,7 +253,7 @@ namespace YAMP_alpha
                     YAMPVars.TrackList.Add(YAMPVars.CORE.CurrentTrack);
                     if (YAMPVars.CORE.CurrentTrack.Covers.Count > 0)
                     {
-                        pictureBox1.BackgroundImage = YAMPVars.CORE.CurrentTrack.Covers[0];
+                        CoverImageBox.BackgroundImage = YAMPVars.CORE.CurrentTrack.Covers[0];
                     }
                 }
             }
@@ -486,13 +516,13 @@ namespace YAMP_alpha
             if (visualizer.Enabled)
             {
                 YAMPVars.SingleBlockNotificationStream.SingleBlockRead += SingleBlockNotificationStream_SingleBlockRead;
-                pictureBox1.BackgroundImage = null;
+                CoverImageBox.BackgroundImage = null;
             }
             else
             {
                 visualisation = null;
                 YAMPVars.SingleBlockNotificationStream.SingleBlockRead -= SingleBlockNotificationStream_SingleBlockRead;
-                pictureBox1.BackgroundImage = YAMPVars.CORE.CurrentTrack.Covers[0];
+                CoverImageBox.BackgroundImage = YAMPVars.CORE.CurrentTrack.Covers[0];
             }
 
         }
@@ -504,12 +534,17 @@ namespace YAMP_alpha
 
         private void visualizer_Tick(object sender, EventArgs e)
         {
-            var image = pictureBox1.BackgroundImage;
-            pictureBox1.BackgroundImage = visualisation.Draw(pictureBox1.Width, pictureBox1.Height);
+            var image = CoverImageBox.BackgroundImage;
+            CoverImageBox.BackgroundImage = visualisation.Draw(CoverImageBox.Width, CoverImageBox.Height);
             if (image != null)
             {
                 image.Dispose();
             }
+        }
+
+        private void NewMain_SizeChanged(object sender, EventArgs e)
+        {
+            Text = Size.ToString();
         }
     }
 }

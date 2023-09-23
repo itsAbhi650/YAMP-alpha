@@ -105,7 +105,7 @@
             // 
             // pictureBox1
             // 
-            this.pictureBox1.Image = global::YAMP_alpha.Properties.Resources.msg_warning_0;
+            this.pictureBox1.Image = global::YAMP_alpha.Properties.Resources.WarningIcon;
             this.pictureBox1.Location = new System.Drawing.Point(16, 33);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(32, 32);

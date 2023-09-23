@@ -117,11 +117,27 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="Radio" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Radio.ico;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="Radio" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
+        YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAADHSURBVDhPnVEJDsMwCOPpeVp/ltkGEkKrqZsllyPYOWoV
+        Y4w5hk0DmUd7AQ31Mh6QYE6Itwm6a7CLjppi4rouF8PJDRDDRAW2YMrImn0hDbi7hKdYg2pA6LPNQIPr
+        6GHSDAp6rQYIwSEmmcukotemuzNuUuR8+Bu9xlZ6f98xBL9wPwzzNCO8VqZvmq+H5Lc2GXmdtfhgmNdN
+        IMdNQ0wyJ3OwGyZLb6Ma+SNuw1yrxpHfwYXT7CvfIQ3j2LnBe/QT/W1wnsDsAxJxWIciDEl6AAAAAElF
+        TkSuQmCC
+</value>
   </data>
-  <data name="msg_warning-0" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\msg_warning-0.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="WarningIcon" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6
+        JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAB3RJTUUH4gYaACov4wajAwAAASBJREFU
+        WEe9kwkOwyAMBHk6T8vPUi+JKwcMmMMgjarCpp4saphZMYabebfOLQy974fruiBwTkIOzyVijP4imgCg
+        oyTgKlEbDmQLbhItAUARP4HecODagkUAUHS/gHU4cGkhFxD//QS+y3PsbRPQ3p62C+T51hZmBDizLFC7
+        ezoqyDNbWlgR4Ny0QG04oOMCLbfUQksAZxT5oOUAzoYFWsNB728omWqhJwAo9kc7lyBjFrAMB3wNlvxQ
+        C1YB/tFW/RJkuwLW4Qw9ou5rmFoYFRiFRtQFRofzGwHrNTRbmKlfomU0kC0EZqqnxz5oGQ21hRmBmStg
+        8MyywApSIEmcFMivIAmcakEb/hfAggR9uJIP/wjw0kJevCPLpYV380wK4Qfk/psBkBkFDAAAAABJRU5E
+        rkJggg==
+</value>
   </data>
 </root>

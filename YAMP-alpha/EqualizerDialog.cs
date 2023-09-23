@@ -46,25 +46,28 @@ namespace YAMP_alpha
         public EqualizerDialog()
         {
             InitializeComponent();
+            formsPlot1.Plot.Frameless(true);
+            formsPlot1.Plot.Margins(0);
         }
 
         private void EqualizerDialog_Load(object sender, EventArgs e)
         {
-            formsPlot1.Plot.Frameless(true);
-            formsPlot1.Plot.Margins(0);
             SpectroBitmap = new Bitmap(2140, 702);
             CmbBx_ColMap.DataSource = Colormap.GetColormapNames();
             CmbBx_RotateGraph.DataSource = Enum.GetNames(typeof(RotateFlipType)).Select(x => x.Remove(0, "Rotate".Length)).ToArray();
             CmbBx_ImgMode.DataSource = Enum.GetNames(typeof(PictureBoxSizeMode));
+            CmbBx_FftSize.DataSource = Enum.GetNames(typeof(FftSize));
+            CmbBx_FftSize.SelectedItem = "Fft4096";
+            CmbBx_FftSize.SelectedIndexChanged += CmbBx_FftSize_SelectedIndexChanged;
             if (YAMPVars.CORE != null && YAMPVars.CORE.PlayerSource != null)
             {
                 SampleRate = YAMPVars.CORE.PlayerSource.WaveFormat.SampleRate;
                 ChannelCount = YAMPVars.CORE.PlayerSource.WaveFormat.Channels;
                 YAMPVars.NotificationSource.BlockRead += NotificationSource_BlockRead;
                 YAMPVars.SingleBlockNotificationStream.SingleBlockRead += SingleBlockNotificationStream_SingleBlockRead;
-                YAMPVars.FftProvider = new FftProvider(ChannelCount, FftSize.Fft4096);
+                YAMPVars.FftProvider = new FftProvider(ChannelCount, (FftSize)Enum.Parse(typeof(FftSize), CmbBx_FftSize.SelectedItem.ToString()));
                 FFTSIZE = YAMPVars.FftProvider.FftSize;
-                SpectroScott = new SpectrogramGenerator(SampleRate, 4096, 512) { OffsetHz = 20 };
+                SpectroScott = new SpectrogramGenerator(SampleRate, (int)FFTSIZE, 512) { OffsetHz = 20 };
 
                 pictureBox1.Height = SpectroScott.Height;
                 SpectroScott.SetFixedWidth(Pb_SpectrogramAdv.Width);
@@ -195,7 +198,7 @@ namespace YAMP_alpha
             bool isNewDataAvailable = YAMPVars.FftProvider.IsNewDataAvailable;
             if (isNewDataAvailable)
             {
-                buffer = new float[(int)YAMPVars.FftProvider.FftSize];
+                buffer = new float[4096];
                 YAMPVars.FftProvider.GetFftData(buffer);
                 double[] DoubleBuffer = Array.ConvertAll(buffer, (float x) => (double)x);
                 double[] zeropadded = Pad.ZeroPad(DoubleBuffer);
@@ -219,8 +222,9 @@ namespace YAMP_alpha
                         Bitmp.RotateFlip((RotateFlipType)Enum.Parse(typeof(RotateFlipType), "Rotate" + CmbBx_RotateGraph.SelectedItem.ToString()));
                         Pb_SpectrogramAdv.Image = Bitmp;
                     }
-                    formsPlot1.Render(false, false);
+                    formsPlot1.Plot.AxisAutoX();
                     formsPlot1.Plot.AxisAutoY();
+                    formsPlot1.Render(false, false);
                 }
             }
         }
@@ -261,6 +265,11 @@ namespace YAMP_alpha
         private void NUD_OffHz_ValueChanged(object sender, EventArgs e)
         {
             SpectroScott.OffsetHz = (int)NUD_OffHz.Value;
+        }
+
+        private void CmbBx_FftSize_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            YAMPVars.FftProvider = new FftProvider(ChannelCount, (FftSize)Enum.Parse(typeof(FftSize), CmbBx_FftSize.SelectedItem.ToString()));
         }
     }
 }

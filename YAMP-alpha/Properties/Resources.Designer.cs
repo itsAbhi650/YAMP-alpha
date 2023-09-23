@@ -63,9 +63,9 @@ namespace YAMP_alpha.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap msg_warning_0 {
+        internal static System.Drawing.Bitmap Radio {
             get {
-                object obj = ResourceManager.GetObject("msg_warning-0", resourceCulture);
+                object obj = ResourceManager.GetObject("Radio", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -73,9 +73,9 @@ namespace YAMP_alpha.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap Radio {
+        internal static System.Drawing.Bitmap WarningIcon {
             get {
-                object obj = ResourceManager.GetObject("Radio", resourceCulture);
+                object obj = ResourceManager.GetObject("WarningIcon", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

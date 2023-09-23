@@ -79,7 +79,7 @@
             this.PlayTimer = new System.Windows.Forms.Timer(this.components);
             this.waveformPainter1 = new NAudio.Gui.WaveformPainter();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.CoverImageBox = new System.Windows.Forms.PictureBox();
             this.Pnl_Extras = new System.Windows.Forms.Panel();
             this.Btn_PosLoop = new System.Windows.Forms.Button();
             this.Btn_ChannelPan = new System.Windows.Forms.Button();
@@ -95,7 +95,7 @@
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.CoverImageBox)).BeginInit();
             this.Pnl_Extras.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -559,40 +559,41 @@
             this.waveformPainter1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.waveformPainter1.Location = new System.Drawing.Point(0, 0);
             this.waveformPainter1.Name = "waveformPainter1";
-            this.waveformPainter1.Size = new System.Drawing.Size(384, 28);
+            this.waveformPainter1.Size = new System.Drawing.Size(384, 33);
             this.waveformPainter1.TabIndex = 3;
             this.waveformPainter1.Text = "waveformPainter1";
             // 
             // splitContainer1
             // 
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer1.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
             this.splitContainer1.Location = new System.Drawing.Point(0, 19);
             this.splitContainer1.Name = "splitContainer1";
             this.splitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
             // 
             // splitContainer1.Panel1
             // 
-            this.splitContainer1.Panel1.Controls.Add(this.pictureBox1);
+            this.splitContainer1.Panel1.Controls.Add(this.CoverImageBox);
             // 
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.waveformPainter1);
             this.splitContainer1.Size = new System.Drawing.Size(384, 344);
-            this.splitContainer1.SplitterDistance = 312;
+            this.splitContainer1.SplitterDistance = 307;
             this.splitContainer1.TabIndex = 4;
             // 
-            // pictureBox1
+            // CoverImageBox
             // 
-            this.pictureBox1.BackColor = System.Drawing.Color.Black;
-            this.pictureBox1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pictureBox1.Location = new System.Drawing.Point(0, 0);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(384, 312);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
-            this.pictureBox1.TabIndex = 2;
-            this.pictureBox1.TabStop = false;
-            this.pictureBox1.DoubleClick += new System.EventHandler(this.pictureBox1_DoubleClick);
+            this.CoverImageBox.BackColor = System.Drawing.Color.Black;
+            this.CoverImageBox.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.CoverImageBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.CoverImageBox.Location = new System.Drawing.Point(0, 0);
+            this.CoverImageBox.Name = "CoverImageBox";
+            this.CoverImageBox.Size = new System.Drawing.Size(384, 307);
+            this.CoverImageBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
+            this.CoverImageBox.TabIndex = 2;
+            this.CoverImageBox.TabStop = false;
+            this.CoverImageBox.DoubleClick += new System.EventHandler(this.pictureBox1_DoubleClick);
             // 
             // Pnl_Extras
             // 
@@ -679,6 +680,7 @@
             this.Text = "NewMain";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.NewMain_FormClosing);
             this.Load += new System.EventHandler(this.NewMain_Load);
+            this.SizeChanged += new System.EventHandler(this.NewMain_SizeChanged);
             this.panel1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.VolumeTracker)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.DurationTracker)).EndInit();
@@ -690,7 +692,7 @@
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.CoverImageBox)).EndInit();
             this.Pnl_Extras.ResumeLayout(false);
             this.Pnl_Extras.PerformLayout();
             this.ResumeLayout(false);
@@ -707,7 +709,7 @@
         private System.Windows.Forms.ToolStripMenuItem LoadDirStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator;
         private System.Windows.Forms.ToolStripMenuItem ExitStripMenuItem;
-        private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.PictureBox CoverImageBox;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button Btn_PlayNext;
         private System.Windows.Forms.Button Btn_SkipSecFwrd;
