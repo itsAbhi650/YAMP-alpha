@@ -45,6 +45,7 @@
     <WarningLevel>4</WarningLevel>
     <UseVSHostingProcess>true</UseVSHostingProcess>
     <Prefer32Bit>false</Prefer32Bit>
+    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -54,6 +55,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject>
@@ -248,6 +250,13 @@
       <DependentUpon>GargleEffectDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="GraphVisualization.cs" />
+    <Compile Include="LyricsConfig.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LyricsConfig.Designer.cs">
+      <DependentUpon>LyricsConfig.cs</DependentUpon>
+    </Compile>
+    <Compile Include="LyricsHelper.cs" />
     <Compile Include="MediaInfoDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -293,6 +302,7 @@
     <Compile Include="SignalFilterDialog.Designer.cs">
       <DependentUpon>SignalFilterDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="SizeExtensions.cs" />
     <Compile Include="StreamDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -334,6 +344,7 @@
       <DependentUpon>WavesReverbEffectDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="YAMP-Core.cs" />
+    <Compile Include="YAMPEnums.cs" />
     <Compile Include="YAMPlaylistDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -384,6 +395,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="GargleEffectDialog.resx">
       <DependentUpon>GargleEffectDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="LyricsConfig.resx">
+      <DependentUpon>LyricsConfig.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MediaInfoDialog.resx">
       <DependentUpon>MediaInfoDialog.cs</DependentUpon>

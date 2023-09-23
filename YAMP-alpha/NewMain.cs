@@ -2,20 +2,50 @@
 using Microsoft.VisualBasic;
 using System;
 using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace YAMP_alpha
 {
     public partial class NewMain : Form
     {
+        YAMPEnums.PanelMode PanelMode = YAMPEnums.PanelMode.Cover;
+        private static readonly Regex TimestampRegex = new Regex(@"^(?'minutes'\d+):(?'seconds'\d+(\.\d+)?)$");
         GraphVisualization visualisation = null;
         private bool PlayNext;
+        private string _curlyrln;
+        private event EventHandler LyricLineChanged;
+        private string CurrentLyricLine
+        {
+            get { return _curlyrln; }
+            set
+            {
+                if (_curlyrln != value)
+                {
+                    _curlyrln = value;
+                    LyricLineChanged?.Invoke(value, EventArgs.Empty);
+                }
+            }
+        }
+
         public NewMain()
         {
             InitializeComponent();
             int ClientTop = RectangleToScreen(ClientRectangle).Top;
             int height = Height - CoverImageBox.Height;
-            MinimumSize = new Size(387, height);
+            MinimumSize = new Size(400, height);
+        }
+
+        private void NotificationSource_BlockRead(object sender, EventArgs e)
+        {
+            if (PanelMode == YAMPEnums.PanelMode.Lyrics)
+            {
+                var TotalSeconds = Extensions.GetPosition(YAMPVars.CORE.PlayerSource).TotalSeconds;
+                string LyricLine = YAMPVars.CORE.CurrentTrack.Lyrics?.LastOrDefault(x => x.Key < TotalSeconds).Value;
+                CurrentLyricLine = LyricLine;
+            }
         }
 
         private void UpdateTrackers()
@@ -91,32 +121,107 @@ namespace YAMP_alpha
                 UpdateTrackers();
                 Image cover = YAMPVars.CORE.GetTrackCover();
                 CoverImageBox.BackgroundImage = cover;
-                ResizePlayer(cover, 0.5F);
+                ResizePlayer(cover);
                 Lbl_PlayerLabel.Text = string.Format(">  {0}", YAMPVars.CORE.CurrentTrack.Title);
                 Lbl_Duration.Text = TrackDurationText();
             }
         }
 
-        private void ResizePlayer(Image cover = null, float percent = 1F)
+        private int GetAdditionalPlayerHeight()
+        {
+            return ClientRectangle.Height - CoverImageBox.Height + (Height - ClientRectangle.Height);
+        }
+
+        private void ParseLRC(string path)
+        {
+            var Lines = File.ReadAllLines(path);
+            YAMPVars.TrackList[0].Lyrics = new System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<double, string>>();
+            foreach (var line in Lines)
+            {
+
+                int TimeStampEnd = line.IndexOf(']');
+                LyricsHelper.TryParseLrcString(line, 1, TimeStampEnd - 1, out TimeSpan res);
+                YAMPVars.TrackList[0].Lyrics.Add(new System.Collections.Generic.KeyValuePair<double, string>(res.TotalSeconds, line.Substring(TimeStampEnd + 1)));
+            }
+        }
+
+        private void ResizePlayer(Image cover = null)
         {
             if (cover != null)
             {
-                int width = (int)(cover.Width * percent);
                 int Border = Width - ClientRectangle.Width;
-                Height = (int)(cover.Height * percent) + (ClientRectangle.Height - CoverImageBox.Height + (Height - ClientRectangle.Height));
-                if (Width > width)
+                double dImageAR = cover.Width / cover.Height;
+                int _width = ClientRectangle.Width;
+                int _height = ClientRectangle.Height;
+                double dImgWidth = _height * dImageAR;
+                double dImgHeight;
+                if (_width < dImgWidth)
                 {
-                    Width = Width - (Width - width);
+                    dImgWidth = _width;
+                    dImgHeight = dImgWidth / dImageAR;
                 }
                 else
                 {
-                    Image img = CoverImageBox.BackgroundImage;
-                    Width = width + Border;
-                    //if (CoverImageBox.ClientRectangle.Width < Width)
-                    //{
-                    //    Width -= Width - CoverImageBox.ClientRectangle.Width;
-                    //}
+                    dImgHeight = _height;
                 }
+                Size newSize = new Size((int)dImgWidth + Border, (int)dImgHeight + GetAdditionalPlayerHeight());
+                Size = new Size((int)dImgWidth + Border, (int)dImgHeight + GetAdditionalPlayerHeight());
+                //GetClientRect(r);
+                //int width = r.Width();
+                //int height = r.Height();
+                //if (!m_bCustomImgLoaded)
+                //{
+                //    // Limit logo size
+                //    // TODO: Use vector logo to preserve quality and remove limit.
+                //    width = std::min(img.GetWidth(), width);
+                //    height = std::min(img.GetHeight(), height);
+                //}
+
+                //int height = (int)Math.Floor(cover.Height * percent);
+                //if (height<MinimumSize.Height)
+                //{
+                //    height = (int)(MinimumSize.Height * 1.25F);
+                //}
+                //int width = (int)Math.Floor(cover.Width * percent);
+                //if (width<MinimumSize.Width)
+                //{
+                //    width = (int)(MinimumSize.Width * 1.25F);
+                //}
+                //int coverwidthdiff = width - CoverImageBox.ClientSize.Width;
+                //width = (coverwidthdiff > 0 ? width + (coverwidthdiff) : coverwidthdiff < 0 ? width - (coverwidthdiff) : width);
+                ////width = (int)MinimumSize.
+                //Size newSize = new Size(width + Border, height + AdditionalPlayerHeight);
+                //Size diffSize = newSize.GetDifference(MinimumSize, out SizeExtensions.Difference diff);
+                //switch (diff)
+                //{   
+                //    case SizeExtensions.Difference.Equal:
+                //    case SizeExtensions.Difference.Bigger:
+                //        Size = newSize;
+                //        break;
+                //    case SizeExtensions.Difference.Smaller:
+                //        width = (int)Math.Floor(cover.Width * percent)+100;
+                //        coverwidthdiff = width - CoverImageBox.ClientSize.Width;
+                //        width = (coverwidthdiff > 0 ? width + (coverwidthdiff) : coverwidthdiff < 0 ? width - (coverwidthdiff) : width) + Border;
+                //        height = (width - Border) + AdditionalPlayerHeight;
+                //        newSize = new Size(width, height);
+                //        Size = newSize;
+                //        break;
+                //    default:
+                //        break;
+                //}
+                //if (Width > width)
+                //{
+                //    Width = Width - (Width - width);
+                //}
+                //else
+                //{
+                //    Image img = CoverImageBox.BackgroundImage;
+                //    Width = width + Border;
+                //    //if (CoverImageBox.ClientRectangle.Width < Width)
+                //    //{
+                //    //    Width -= Width - CoverImageBox.ClientRectangle.Width;
+                //    //}
+                //}
                 //if (CoverImageBox.ClientRectangle.Height<CoverImageBox.Height)
                 //{
                 //    Height -= CoverImageBox.Height - CoverImageBox.ClientRectangle.Height;
@@ -511,20 +616,55 @@ namespace YAMP_alpha
 
         private void pictureBox1_DoubleClick(object sender, EventArgs e)
         {
-            visualisation = new GraphVisualization();
-            visualizer.Enabled = !visualizer.Enabled;
-            if (visualizer.Enabled)
-            {
-                YAMPVars.SingleBlockNotificationStream.SingleBlockRead += SingleBlockNotificationStream_SingleBlockRead;
-                CoverImageBox.BackgroundImage = null;
-            }
-            else
-            {
-                visualisation = null;
-                YAMPVars.SingleBlockNotificationStream.SingleBlockRead -= SingleBlockNotificationStream_SingleBlockRead;
-                CoverImageBox.BackgroundImage = YAMPVars.CORE.CurrentTrack.Covers[0];
-            }
+            PanelMode = Enum.IsDefined(typeof(YAMPEnums.PanelMode), (int)PanelMode + 1) ? (YAMPEnums.PanelMode)((int)PanelMode + 1) : 0;
+            UpdatePanel(PanelMode);
+        }
 
+        private void UpdatePanel(YAMPEnums.PanelMode Mode)
+        {
+            switch (Mode)
+            {
+                case YAMPEnums.PanelMode.Cover:
+                    YAMPVars.NotificationSource.BlockRead -= NotificationSource_BlockRead;
+                    visualizer.Stop();
+                    visualisation = null;
+                    YAMPVars.SingleBlockNotificationStream.SingleBlockRead -= SingleBlockNotificationStream_SingleBlockRead;
+                    CoverImageBox.Paint -= CoverImageBox_Paint;
+                    CoverImageBox.BackgroundImage = YAMPVars.CORE.CurrentTrack.Covers[0];
+                    break;
+                case YAMPEnums.PanelMode.Spectrum:
+                    YAMPVars.NotificationSource.BlockRead -= NotificationSource_BlockRead;
+                    visualisation = new GraphVisualization();
+                    YAMPVars.SingleBlockNotificationStream.SingleBlockRead += SingleBlockNotificationStream_SingleBlockRead;
+                    CoverImageBox.Paint -= CoverImageBox_Paint;
+                    CoverImageBox.BackgroundImage = null;
+                    visualizer.Start();
+                    break;
+                case YAMPEnums.PanelMode.Lyrics:
+                    visualizer.Stop();
+                    visualisation = null;
+                    YAMPVars.SingleBlockNotificationStream.SingleBlockRead -= SingleBlockNotificationStream_SingleBlockRead;
+                    CoverImageBox.BackgroundImage = null;
+                    CoverImageBox.Paint += CoverImageBox_Paint;
+                    LyricLineChanged += NewMain_LyricLineChanged;
+                    YAMPVars.NotificationSource.BlockRead += NotificationSource_BlockRead;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void NewMain_LyricLineChanged(object sender, EventArgs e)
+        {
+            CoverImageBox.Refresh();
+        }
+
+        private void CoverImageBox_Paint(object sender, PaintEventArgs e)
+        {
+            if (PanelMode == YAMPEnums.PanelMode.Lyrics)
+            {
+                e.Graphics.DrawString(CurrentLyricLine, LyricsHelper.LyricsFont, LyricsHelper.LyricsWriterBrush, new Rectangle(0, 0, CoverImageBox.Width, CoverImageBox.Height), new StringFormat() { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
+            }
         }
 
         private void SingleBlockNotificationStream_SingleBlockRead(object sender, CSCore.Streams.SingleBlockReadEventArgs e)
@@ -544,7 +684,27 @@ namespace YAMP_alpha
 
         private void NewMain_SizeChanged(object sender, EventArgs e)
         {
-            Text = Size.ToString();
+            Text = CoverImageBox.ClientSize.ToString();
+        }
+
+        private void lyricsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (OpenFileDialog OFD = new OpenFileDialog())
+            {
+                if (OFD.ShowDialog() == DialogResult.OK)
+                {
+                    ParseLRC(OFD.FileName);
+                }
+            }
+        }
+
+        private void lyricsToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            using (LyricsConfig LCDiag = new LyricsConfig())
+            {
+                LCDiag.ShowDialog();
+                CoverImageBox.Refresh();
+            }
         }
     }
 }

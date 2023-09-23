@@ -17,6 +17,7 @@ namespace YAMP_alpha
         public string AlbumArtist { get; }
         public string Composer { get; }
         public string Genre { get; }
+        public List<KeyValuePair<double, string>> Lyrics { get; set; }
         public string DiskNumber { get; }
         public string Comment { get; }
         public string Path { get { return File.FullName; } }
