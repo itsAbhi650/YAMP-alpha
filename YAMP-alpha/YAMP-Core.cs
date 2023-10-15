@@ -455,12 +455,12 @@ namespace YAMP_alpha
         //    return to;
         //}
 
-        public void ReinitializePlayer()
+        public void ResetPlayer()
         {
             ReleasePlayer();
             Player = new CSCore.SoundOut.WasapiOut();
-            LoadFile(PlayingFile);
-            InitializePlayer();
+            //LoadFile(PlayingFile);
+            //InitializePlayer();
         }
 
         public bool PlayerInitialized { get { return Player.WaveSource != null; } }

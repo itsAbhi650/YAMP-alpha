@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KoenZomers.OneDrive.Api.Entities;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
@@ -383,6 +384,7 @@ namespace YAMP_alpha
                     {
                         Stream plstr = new FileStream(OFD.FileName, FileMode.Open);
                         ValidatePlaylist(plstr);
+                        ((FileStream)plstr).Close();
                         xdoc.Load(OFD.FileName);
                         string[] Tracks = new string[xdoc.DocumentElement.ChildNodes.Count];
                         for (int i = 0; i < Tracks.Length; i++)
@@ -426,6 +428,33 @@ namespace YAMP_alpha
         private void YAMPlaylistDialog_Load(object sender, EventArgs e)
         {
             UpdateCurrentPlayingRowStyle();
+        }
+
+        private async void oneDriveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string SaveTo = System.Configuration.ConfigurationManager.AppSettings["CloudDownloadLocation"];
+            List<string> DownloadedTracks = new List<string>();
+            if (YAMPVars.OneDriveApi != null && YAMPVars.OneDriveApi.AccessTokenValidUntil > DateTime.Now)
+            {
+                var RootItem = await YAMPVars.OneDriveApi.GetDriveRoot();
+                //var FolderFacet = RootItem.Folder;
+                foreach (var item in await YAMPVars.OneDriveApi.GetAllChildrenByParentItem(RootItem))
+                {
+                    var AudioFacet = item.Audio;
+                    if (AudioFacet != null)
+                    {
+                        bool isDownloaded = await YAMPVars.OneDriveApi.DownloadItem(item, SaveTo);
+                        if (isDownloaded)
+                        {
+                            DownloadedTracks.Add(SaveTo + item.Name);
+                        }
+                    }
+                }
+                if (DownloadedTracks.Count > 0)
+                {
+                    InsertTracks(DownloadedTracks.ToArray());
+                }
+            }
         }
     }
 }

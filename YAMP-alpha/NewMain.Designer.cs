@@ -76,6 +76,9 @@
             this.audioCutterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.signalFilteringToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tagEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.lyricsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.cloudToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.oneDriveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.lyricsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.PlayTimer = new System.Windows.Forms.Timer(this.components);
             this.waveformPainter1 = new NAudio.Gui.WaveformPainter();
@@ -87,8 +90,6 @@
             this.Btn_ToggleFade = new System.Windows.Forms.CheckBox();
             this.CB_ToggleTrackLoop = new System.Windows.Forms.CheckBox();
             this.visualizer = new System.Windows.Forms.Timer(this.components);
-            this.LyricTimer = new System.Windows.Forms.Timer(this.components);
-            this.lyricsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.VolumeTracker)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DurationTracker)).BeginInit();
@@ -347,7 +348,7 @@
             this.LoadFileStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("LoadFileStripMenuItem.Image")));
             this.LoadFileStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.LoadFileStripMenuItem.Name = "LoadFileStripMenuItem";
-            this.LoadFileStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.LoadFileStripMenuItem.Size = new System.Drawing.Size(151, 22);
             this.LoadFileStripMenuItem.Text = "Load File";
             this.LoadFileStripMenuItem.Click += new System.EventHandler(this.LoadFileStripMenuItem_Click);
             // 
@@ -356,7 +357,7 @@
             this.LoadDirStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("LoadDirStripMenuItem.Image")));
             this.LoadDirStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.LoadDirStripMenuItem.Name = "LoadDirStripMenuItem";
-            this.LoadDirStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.LoadDirStripMenuItem.Size = new System.Drawing.Size(151, 22);
             this.LoadDirStripMenuItem.Text = "Load Directory";
             this.LoadDirStripMenuItem.Click += new System.EventHandler(this.LoadDirStripMenuItem_Click);
             // 
@@ -365,19 +366,19 @@
             this.streamToolStripMenuItem.Image = global::YAMP_alpha.Properties.Resources.Radio;
             this.streamToolStripMenuItem.Name = "streamToolStripMenuItem";
             this.streamToolStripMenuItem.ShowShortcutKeys = false;
-            this.streamToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.streamToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
             this.streamToolStripMenuItem.Text = "Stream";
             this.streamToolStripMenuItem.Click += new System.EventHandler(this.streamToolStripMenuItem_Click);
             // 
             // toolStripSeparator
             // 
             this.toolStripSeparator.Name = "toolStripSeparator";
-            this.toolStripSeparator.Size = new System.Drawing.Size(177, 6);
+            this.toolStripSeparator.Size = new System.Drawing.Size(148, 6);
             // 
             // ExitStripMenuItem
             // 
             this.ExitStripMenuItem.Name = "ExitStripMenuItem";
-            this.ExitStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.ExitStripMenuItem.Size = new System.Drawing.Size(151, 22);
             this.ExitStripMenuItem.Text = "E&xit";
             // 
             // viewToolStripMenuItem
@@ -438,63 +439,63 @@
             // pitchShifterToolStripMenuItem
             // 
             this.pitchShifterToolStripMenuItem.Name = "pitchShifterToolStripMenuItem";
-            this.pitchShifterToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.pitchShifterToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.pitchShifterToolStripMenuItem.Text = "Pitch Shifter";
             this.pitchShifterToolStripMenuItem.Click += new System.EventHandler(this.pitchShifterToolStripMenuItem_Click);
             // 
             // echoToolStripMenuItem
             // 
             this.echoToolStripMenuItem.Name = "echoToolStripMenuItem";
-            this.echoToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.echoToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.echoToolStripMenuItem.Text = "Echo";
             this.echoToolStripMenuItem.Click += new System.EventHandler(this.echoToolStripMenuItem_Click);
             // 
             // gargleEffectToolStripMenuItem
             // 
             this.gargleEffectToolStripMenuItem.Name = "gargleEffectToolStripMenuItem";
-            this.gargleEffectToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.gargleEffectToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.gargleEffectToolStripMenuItem.Text = "Gargle";
             this.gargleEffectToolStripMenuItem.Click += new System.EventHandler(this.gargleEffectToolStripMenuItem_Click);
             // 
             // flangerToolStripMenuItem
             // 
             this.flangerToolStripMenuItem.Name = "flangerToolStripMenuItem";
-            this.flangerToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.flangerToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.flangerToolStripMenuItem.Text = "Flanger";
             this.flangerToolStripMenuItem.Click += new System.EventHandler(this.flangerToolStripMenuItem_Click);
             // 
             // chorusToolStripMenuItem
             // 
             this.chorusToolStripMenuItem.Name = "chorusToolStripMenuItem";
-            this.chorusToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.chorusToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.chorusToolStripMenuItem.Text = "Chorus";
             this.chorusToolStripMenuItem.Click += new System.EventHandler(this.chorusToolStripMenuItem_Click);
             // 
             // compressorToolStripMenuItem
             // 
             this.compressorToolStripMenuItem.Name = "compressorToolStripMenuItem";
-            this.compressorToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.compressorToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.compressorToolStripMenuItem.Text = "Compressor";
             this.compressorToolStripMenuItem.Click += new System.EventHandler(this.compressorToolStripMenuItem_Click);
             // 
             // wavesReverbToolStripMenuItem
             // 
             this.wavesReverbToolStripMenuItem.Name = "wavesReverbToolStripMenuItem";
-            this.wavesReverbToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.wavesReverbToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.wavesReverbToolStripMenuItem.Text = "Waves Reverb";
             this.wavesReverbToolStripMenuItem.Click += new System.EventHandler(this.wavesReverbToolStripMenuItem_Click);
             // 
             // equalizerToolStripMenuItem
             // 
             this.equalizerToolStripMenuItem.Name = "equalizerToolStripMenuItem";
-            this.equalizerToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.equalizerToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.equalizerToolStripMenuItem.Text = "Equalizer";
             this.equalizerToolStripMenuItem.Click += new System.EventHandler(this.equalizerToolStripMenuItem_Click);
             // 
             // distortionToolStripMenuItem
             // 
             this.distortionToolStripMenuItem.Name = "distortionToolStripMenuItem";
-            this.distortionToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.distortionToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.distortionToolStripMenuItem.Text = "Distortion";
             this.distortionToolStripMenuItem.Click += new System.EventHandler(this.distortionToolStripMenuItem_Click);
             // 
@@ -505,7 +506,8 @@
             this.audioCutterToolStripMenuItem,
             this.signalFilteringToolStripMenuItem,
             this.tagEditorToolStripMenuItem,
-            this.lyricsToolStripMenuItem1});
+            this.lyricsToolStripMenuItem1,
+            this.cloudToolStripMenuItem});
             this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
             this.toolsToolStripMenuItem.Size = new System.Drawing.Size(46, 19);
             this.toolsToolStripMenuItem.Text = "Tools";
@@ -553,6 +555,28 @@
             this.tagEditorToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.tagEditorToolStripMenuItem.Text = "Tag Editor";
             this.tagEditorToolStripMenuItem.Click += new System.EventHandler(this.tagEditorToolStripMenuItem_Click);
+            // 
+            // lyricsToolStripMenuItem1
+            // 
+            this.lyricsToolStripMenuItem1.Name = "lyricsToolStripMenuItem1";
+            this.lyricsToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            this.lyricsToolStripMenuItem1.Text = "Lyrics Options";
+            this.lyricsToolStripMenuItem1.Click += new System.EventHandler(this.lyricsToolStripMenuItem1_Click);
+            // 
+            // cloudToolStripMenuItem
+            // 
+            this.cloudToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.oneDriveToolStripMenuItem});
+            this.cloudToolStripMenuItem.Name = "cloudToolStripMenuItem";
+            this.cloudToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.cloudToolStripMenuItem.Text = "Cloud";
+            // 
+            // oneDriveToolStripMenuItem
+            // 
+            this.oneDriveToolStripMenuItem.Name = "oneDriveToolStripMenuItem";
+            this.oneDriveToolStripMenuItem.Size = new System.Drawing.Size(123, 22);
+            this.oneDriveToolStripMenuItem.Text = "OneDrive";
+            this.oneDriveToolStripMenuItem.Click += new System.EventHandler(this.oneDriveToolStripMenuItem_Click);
             // 
             // lyricsToolStripMenuItem
             // 
@@ -676,13 +700,6 @@
             this.visualizer.Interval = 20;
             this.visualizer.Tick += new System.EventHandler(this.visualizer_Tick);
             // 
-            // lyricsToolStripMenuItem1
-            // 
-            this.lyricsToolStripMenuItem1.Name = "lyricsToolStripMenuItem1";
-            this.lyricsToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
-            this.lyricsToolStripMenuItem1.Text = "Lyrics Options";
-            this.lyricsToolStripMenuItem1.Click += new System.EventHandler(this.lyricsToolStripMenuItem1_Click);
-            // 
             // NewMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -696,7 +713,7 @@
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "NewMain";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "NewMain";
+            this.Text = "YAMP-Alpha";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.NewMain_FormClosing);
             this.Load += new System.EventHandler(this.NewMain_Load);
             this.SizeChanged += new System.EventHandler(this.NewMain_SizeChanged);
@@ -776,8 +793,9 @@
         private System.Windows.Forms.ToolStripMenuItem signalFilteringToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem tagEditorToolStripMenuItem;
         private System.Windows.Forms.Timer visualizer;
-        private System.Windows.Forms.Timer LyricTimer;
         private System.Windows.Forms.ToolStripMenuItem lyricsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem lyricsToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem cloudToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem oneDriveToolStripMenuItem;
     }
 }

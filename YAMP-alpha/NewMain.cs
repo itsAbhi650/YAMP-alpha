@@ -15,7 +15,9 @@ namespace YAMP_alpha
         private static readonly Regex TimestampRegex = new Regex(@"^(?'minutes'\d+):(?'seconds'\d+(\.\d+)?)$");
         GraphVisualization visualisation = null;
         private bool PlayNext;
-        private string _curlyrln;
+        private string _curlyrln="";
+        private bool RefreshBrushes;
+
         private event EventHandler LyricLineChanged;
         private string CurrentLyricLine
         {
@@ -44,6 +46,7 @@ namespace YAMP_alpha
             {
                 var TotalSeconds = Extensions.GetPosition(YAMPVars.CORE.PlayerSource).TotalSeconds;
                 string LyricLine = YAMPVars.CORE.CurrentTrack.Lyrics?.LastOrDefault(x => x.Key < TotalSeconds).Value;
+
                 CurrentLyricLine = LyricLine;
             }
         }
@@ -350,7 +353,7 @@ namespace YAMP_alpha
             {
                 if (OPD.ShowDialog() == DialogResult.OK)
                 {
-                    YAMPVars.CORE.ReleasePlayer();
+                    YAMPVars.CORE.ResetPlayer();
                     TrackInfo Track = new TrackInfo(OPD.FileName);
                     YAMPVars.CORE.InitializePlayer(Track.Path);
                     YAMPVars.CORE.CurrentTrack = Track;
@@ -616,8 +619,11 @@ namespace YAMP_alpha
 
         private void pictureBox1_DoubleClick(object sender, EventArgs e)
         {
-            PanelMode = Enum.IsDefined(typeof(YAMPEnums.PanelMode), (int)PanelMode + 1) ? (YAMPEnums.PanelMode)((int)PanelMode + 1) : 0;
-            UpdatePanel(PanelMode);
+            if (YAMPVars.CORE.PlayerInitialized)
+            {
+                PanelMode = Enum.IsDefined(typeof(YAMPEnums.PanelMode), (int)PanelMode + 1) ? (YAMPEnums.PanelMode)((int)PanelMode + 1) : 0;
+                UpdatePanel(PanelMode);
+            }
         }
 
         private void UpdatePanel(YAMPEnums.PanelMode Mode)
@@ -663,7 +669,22 @@ namespace YAMP_alpha
         {
             if (PanelMode == YAMPEnums.PanelMode.Lyrics)
             {
-                e.Graphics.DrawString(CurrentLyricLine, LyricsHelper.LyricsFont, LyricsHelper.LyricsWriterBrush, new Rectangle(0, 0, CoverImageBox.Width, CoverImageBox.Height), new StringFormat() { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
+                var LyricsRect = LyricsHelper.UpdateLyricRect(CurrentLyricLine, CoverImageBox.DisplayRectangle, LyricsHelper.LyricsFont);
+                if (RefreshBrushes)
+                {
+                    LyricsHelper.UpdateLyricsWriterBrush(LyricsHelper.GetTextRectangle(CoverImageBox.DisplayRectangle, CurrentLyricLine, LyricsHelper.LyricsFont));
+                    LyricsHelper.UpdateLyricsBorderBrush(LyricsHelper.UpdateLyricRect(CurrentLyricLine, CoverImageBox.DisplayRectangle, LyricsHelper.LyricsFont));
+                    LyricsHelper.UpdateLyricsHighlightBrush(ref LyricsHelper.LyricsHighlightBrush, LyricsRect, LyricsHelper.EnableLyricsHighlightGradient);
+                }
+                if (LyricsHelper.EnableLyricsHighlight)
+                {
+                    e.Graphics.FillRectangle(LyricsHelper.LyricsHighlightBrush, LyricsRect);
+                }
+                if (LyricsHelper.EnableLyricsBorder)
+                {
+                    e.Graphics.DrawRectangle(new Pen(LyricsHelper.LyricsBorderBrush), LyricsRect);
+                }
+                e.Graphics.DrawString(CurrentLyricLine, LyricsHelper.LyricsFont, LyricsHelper.LyricsWriterBrush, CoverImageBox.DisplayRectangle, new StringFormat() { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
             }
         }
 
@@ -684,7 +705,7 @@ namespace YAMP_alpha
 
         private void NewMain_SizeChanged(object sender, EventArgs e)
         {
-            Text = CoverImageBox.ClientSize.ToString();
+         
         }
 
         private void lyricsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -702,8 +723,21 @@ namespace YAMP_alpha
         {
             using (LyricsConfig LCDiag = new LyricsConfig())
             {
+                RefreshBrushes = false;
                 LCDiag.ShowDialog();
+                //LyricsHelper.UpdateLyricsBorderBrush(LyricsHelper.UpdateLyricRect(CurrentLyricLine, CoverImageBox.DisplayRectangle, LyricsHelper.LyricsFont));
+                //LyricsHelper.UpdateLyricsWriterBrushArea(DisplayRectangle);
+                //LyricsHelper.UpdateLyricsBorderBrush(DisplayRectangle);
+                RefreshBrushes = true;
                 CoverImageBox.Refresh();
+            }
+        }
+
+        private void oneDriveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (OneDriveIntegrationDialog ODID = new OneDriveIntegrationDialog())
+            {
+                ODID.ShowDialog();
             }
         }
     }
