@@ -10,11 +10,24 @@ namespace YAMP_alpha
     public class GraphVisualization
     {
         private readonly List<float> _left = new List<float>();
-        private readonly List<float> _right = new List<float>(); 
+        private readonly List<float> _right = new List<float>();
+        public bool DrawLeftChannel { get; set; } = true;
+        public bool DrawRightChannel { get; set; } = true;
 
         private readonly object _lockObj = new object();
 
         public bool HasSample => _left.Count > 0 && _right.Count > 0;
+
+        public GraphVisualization()
+        {
+
+        }
+
+        public GraphVisualization(bool DrawLeftSpectrum, bool DrawRightSpectrum)
+        {
+            DrawLeftChannel = DrawLeftSpectrum;
+            DrawRightChannel = DrawRightChannel;
+        }
 
         public void AddSamples(float left, float right)
         {
@@ -46,9 +59,15 @@ namespace YAMP_alpha
             var samplesRight = GetSamplesToDraw(_right, width / pixelsPerSample).ToArray();
 
             //left channel:
-            graphics.DrawLines(new Pen(Color.DeepSkyBlue, 1), GetPoints(samplesLeft, pixelsPerSample, width, height).ToArray());
+            if (DrawLeftChannel)
+            {
+                graphics.DrawLines(new Pen(Color.DeepSkyBlue, 1), GetPoints(samplesLeft, pixelsPerSample, width, height).ToArray());
+            }
             //right channel:
-            graphics.DrawLines(new Pen(Color.FromArgb(150, Color.Red), 0.5f), GetPoints(samplesRight, pixelsPerSample, width, height).ToArray());
+            if (DrawRightChannel)
+            {
+                graphics.DrawLines(new Pen(Color.FromArgb(150, Color.Red), 0.5f), GetPoints(samplesRight, pixelsPerSample, width, height).ToArray());
+            }
         }
 
         private IEnumerable<Point> GetPoints(float[] samples, int pixelsPerSample, int width, int height)

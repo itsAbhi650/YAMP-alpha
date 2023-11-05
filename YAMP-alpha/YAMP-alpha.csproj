@@ -314,7 +314,6 @@
     <Compile Include="SignalFilterDialog.Designer.cs">
       <DependentUpon>SignalFilterDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="SizeExtensions.cs" />
     <Compile Include="StreamDialog.cs">
       <SubType>Form</SubType>
     </Compile>

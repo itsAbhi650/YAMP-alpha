@@ -124,7 +124,10 @@ namespace YAMP_alpha
             SaveFileDialog SFD = new SaveFileDialog() { Filter = "mp3 files (*.mp3)|*.mp3|m4a files (*.m4a)|*.m4a|wav files (*.wav)|*.wav" };
             if (SFD.ShowDialog() == DialogResult.OK)
             {
-                await Encoder.TrackCutAsync(TrackPathBox.Text, SFD.FileName, TrackSeekBar.ValueLeft, TrackSeekBar.ValueRight, Cb_RetainTags.Checked, new Progress<int>(per => { StatusProgress.Value = per; }));
+                string FromFilePath = TrackPathBox.Text;
+                string ToFilePath = SFD.FileName;
+                File.Delete(ToFilePath); //Deleting an already existing file with same name (if any).
+                await Encoder.TrackCutAsync(FromFilePath, ToFilePath, TrackSeekBar.ValueLeft, TrackSeekBar.ValueRight, Cb_RetainTags.Checked, new Progress<int>(per => { StatusProgress.Value = per; }));
             }
         }
 

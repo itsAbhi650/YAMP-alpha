@@ -37,6 +37,8 @@ namespace YAMP_alpha
         public static List<TrackInfo> TrackList = new List<TrackInfo>();
         public static string[] ValidBitrates;
         internal static bool PLTRACKFLAG;
+        public static bool DrawLeftChannelSpectrum = true;
+        public static bool DrawRightChannelSpectrum = true;
         internal static LoopStream TrackLoop;
         internal static PanSource ChannelPan;
         internal static PositionLoop TrackPositionLoop;

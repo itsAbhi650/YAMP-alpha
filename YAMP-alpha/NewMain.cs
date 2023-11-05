@@ -38,6 +38,9 @@ namespace YAMP_alpha
             int ClientTop = RectangleToScreen(ClientRectangle).Top;
             int height = Height - CoverImageBox.Height;
             MinimumSize = new Size(400, height);
+            UpdateVisualSpectrumChannelCheck();
+            leftChannelToolStripMenuItem.CheckStateChanged += SpectrumDrawChannel_CheckedChanged;
+            rightChannelToolStripMenuItem.CheckStateChanged += SpectrumDrawChannel_CheckedChanged;
         }
 
         private void NotificationSource_BlockRead(object sender, EventArgs e)
@@ -45,8 +48,13 @@ namespace YAMP_alpha
             if (PanelMode == YAMPEnums.PanelMode.Lyrics)
             {
                 var TotalSeconds = Extensions.GetPosition(YAMPVars.CORE.PlayerSource).TotalSeconds;
-                string LyricLine = YAMPVars.CORE.CurrentTrack.Lyrics?.LastOrDefault(x => x.Key < TotalSeconds).Value;
-
+                if (YAMPVars.CORE.CurrentTrack.Lyrics == null)
+                {
+                    CurrentLyricLine = "No lyrics found. Load a file...";
+                    YAMPVars.NotificationSource.BlockRead -= NotificationSource_BlockRead;
+                    return;
+                }
+                string LyricLine = YAMPVars.CORE.CurrentTrack.Lyrics.LastOrDefault(x => x.Key < TotalSeconds).Value;
                 CurrentLyricLine = LyricLine;
             }
         }
@@ -59,6 +67,12 @@ namespace YAMP_alpha
             {
                 DurationTracker.Maximum = (int)Extensions.GetLength(YAMPVars.CORE.PlayerSource).TotalSeconds;
             }
+        }
+
+        private void UpdateVisualSpectrumChannelCheck()
+        {
+            leftChannelToolStripMenuItem.Checked = YAMPVars.DrawLeftChannelSpectrum;
+            rightChannelToolStripMenuItem.Checked = YAMPVars.DrawRightChannelSpectrum;
         }
 
         private void PlayFromStart(bool FadeTrack = true)
@@ -90,6 +104,8 @@ namespace YAMP_alpha
             {
                 UIRef = this
             };
+            YAMPVars.DrawLeftChannelSpectrum = leftChannelToolStripMenuItem.Checked;
+            YAMPVars.DrawRightChannelSpectrum = rightChannelToolStripMenuItem.Checked;
             YAMPVars.CORE.TrackChanged += CORE_TrackChanged;
             YAMPVars.CORE.Player.Stopped += Player_Stopped;
         }
@@ -167,7 +183,6 @@ namespace YAMP_alpha
                 {
                     dImgHeight = _height;
                 }
-                Size newSize = new Size((int)dImgWidth + Border, (int)dImgHeight + GetAdditionalPlayerHeight());
                 Size = new Size((int)dImgWidth + Border, (int)dImgHeight + GetAdditionalPlayerHeight());
                 //GetClientRect(r);
                 //int width = r.Width();
@@ -636,11 +651,13 @@ namespace YAMP_alpha
                     visualisation = null;
                     YAMPVars.SingleBlockNotificationStream.SingleBlockRead -= SingleBlockNotificationStream_SingleBlockRead;
                     CoverImageBox.Paint -= CoverImageBox_Paint;
-                    CoverImageBox.BackgroundImage = YAMPVars.CORE.CurrentTrack.Covers[0];
+                    CoverImageBox.BackgroundImage = YAMPVars.CORE.CurrentTrack.Covers.Count > 0 ? YAMPVars.CORE.CurrentTrack.Covers[0] : null;
                     break;
                 case YAMPEnums.PanelMode.Spectrum:
                     YAMPVars.NotificationSource.BlockRead -= NotificationSource_BlockRead;
-                    visualisation = new GraphVisualization();
+                    leftChannelToolStripMenuItem.Checked = YAMPVars.DrawLeftChannelSpectrum;
+                    rightChannelToolStripMenuItem.Checked = YAMPVars.DrawRightChannelSpectrum;
+                    visualisation = new GraphVisualization(YAMPVars.DrawLeftChannelSpectrum, YAMPVars.DrawRightChannelSpectrum);
                     YAMPVars.SingleBlockNotificationStream.SingleBlockRead += SingleBlockNotificationStream_SingleBlockRead;
                     CoverImageBox.Paint -= CoverImageBox_Paint;
                     CoverImageBox.BackgroundImage = null;
@@ -715,6 +732,10 @@ namespace YAMP_alpha
                 if (OFD.ShowDialog() == DialogResult.OK)
                 {
                     ParseLRC(OFD.FileName);
+                    if (PanelMode== YAMPEnums.PanelMode.Lyrics)
+                    {
+                        YAMPVars.NotificationSource.BlockRead += NotificationSource_BlockRead;
+                    }
                 }
             }
         }
@@ -740,5 +761,16 @@ namespace YAMP_alpha
                 ODID.ShowDialog();
             }
         }
+
+        private void SpectrumDrawChannel_CheckedChanged(object sender, EventArgs e)
+        {
+            if (visualisation != null)
+            {
+                var menuItem = sender as ToolStripMenuItem;
+                visualisation.DrawLeftChannel = leftChannelToolStripMenuItem.Checked;
+                visualisation.DrawRightChannel = rightChannelToolStripMenuItem.Checked;
+            }
+        }
+
     }
 }

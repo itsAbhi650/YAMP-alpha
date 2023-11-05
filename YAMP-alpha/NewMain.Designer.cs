@@ -90,6 +90,10 @@
             this.Btn_ToggleFade = new System.Windows.Forms.CheckBox();
             this.CB_ToggleTrackLoop = new System.Windows.Forms.CheckBox();
             this.visualizer = new System.Windows.Forms.Timer(this.components);
+            this.visualisationsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.spectrumToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.leftChannelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.rightChannelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.VolumeTracker)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DurationTracker)).BeginInit();
@@ -507,7 +511,8 @@
             this.signalFilteringToolStripMenuItem,
             this.tagEditorToolStripMenuItem,
             this.lyricsToolStripMenuItem1,
-            this.cloudToolStripMenuItem});
+            this.cloudToolStripMenuItem,
+            this.visualisationsToolStripMenuItem});
             this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
             this.toolsToolStripMenuItem.Size = new System.Drawing.Size(46, 19);
             this.toolsToolStripMenuItem.Text = "Tools";
@@ -700,6 +705,39 @@
             this.visualizer.Interval = 20;
             this.visualizer.Tick += new System.EventHandler(this.visualizer_Tick);
             // 
+            // visualisationsToolStripMenuItem
+            // 
+            this.visualisationsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.spectrumToolStripMenuItem});
+            this.visualisationsToolStripMenuItem.Name = "visualisationsToolStripMenuItem";
+            this.visualisationsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.visualisationsToolStripMenuItem.Text = "Visualisations";
+            // 
+            // spectrumToolStripMenuItem
+            // 
+            this.spectrumToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.leftChannelToolStripMenuItem,
+            this.rightChannelToolStripMenuItem});
+            this.spectrumToolStripMenuItem.Name = "spectrumToolStripMenuItem";
+            this.spectrumToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.spectrumToolStripMenuItem.Text = "Spectrum";
+            // 
+            // leftChannelToolStripMenuItem
+            // 
+            this.leftChannelToolStripMenuItem.CheckOnClick = true;
+            this.leftChannelToolStripMenuItem.Name = "leftChannelToolStripMenuItem";
+            this.leftChannelToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.leftChannelToolStripMenuItem.Tag = "L";
+            this.leftChannelToolStripMenuItem.Text = "Left Channel";
+            // 
+            // rightChannelToolStripMenuItem
+            // 
+            this.rightChannelToolStripMenuItem.CheckOnClick = true;
+            this.rightChannelToolStripMenuItem.Name = "rightChannelToolStripMenuItem";
+            this.rightChannelToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.rightChannelToolStripMenuItem.Tag = "R";
+            this.rightChannelToolStripMenuItem.Text = "Right Channel";
+            // 
             // NewMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -797,5 +835,9 @@
         private System.Windows.Forms.ToolStripMenuItem lyricsToolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem cloudToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem oneDriveToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem visualisationsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem spectrumToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem leftChannelToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem rightChannelToolStripMenuItem;
     }
 }
