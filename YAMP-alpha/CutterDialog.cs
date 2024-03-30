@@ -126,7 +126,6 @@ namespace YAMP_alpha
             {
                 string FromFilePath = TrackPathBox.Text;
                 string ToFilePath = SFD.FileName;
-                File.Delete(ToFilePath); //Deleting an already existing file with same name (if any).
                 await Encoder.TrackCutAsync(FromFilePath, ToFilePath, TrackSeekBar.ValueLeft, TrackSeekBar.ValueRight, Cb_RetainTags.Checked, new Progress<int>(per => { StatusProgress.Value = per; }));
             }
         }

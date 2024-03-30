@@ -140,7 +140,15 @@ namespace YAMP_alpha
 
         public static CSCore.MediaFoundation.MediaFoundationEncoder GetEncoder(string type, WaveFormat Waveformat, string targetFile, int bitRate = 192000)
         {
-            return GetEncoder(type, Waveformat, new FileStream(targetFile, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None), bitRate);
+            FileStream targetStream = null;
+            if (File.Exists(targetFile))
+            {
+                targetStream = File.Open(targetFile, FileMode.Open);
+                targetStream.SetLength(0);
+                targetStream.Close();
+            }
+            targetStream = new FileStream(targetFile, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
+            return GetEncoder(type, Waveformat, targetStream, bitRate);
         }
 
         public static void PerformOperation(CSCore.MediaFoundation.MediaFoundationEncoder encoder, IReadableAudioSource<byte> sourceToEncode, IProgress<int> p = null)
@@ -169,34 +177,6 @@ namespace YAMP_alpha
             encoder.Dispose();
         }
 
-        //Creating a totally new method for track cut. I know super expensive but for now I prefer this only.
-        //public static void PerformOperation(CSCore.MediaFoundation.MediaFoundationEncoder encoder, Stream sourceToEncode, int bufferSize = 192000, IProgress<int> p = null)
-        //{
-        //    bool ResetOnce = true;
-        //    byte[] buffer = new byte[bufferSize];
-        //    while (buffer.Length != 0)
-        //    {
-        //        int readcount = sourceToEncode.Read(buffer, 0, buffer.Length);
-        //        encoder.Write(buffer, 0, buffer.Length);
-        //        if (p != null)
-        //        {
-        //            if (ResetOnce)
-        //            {
-        //                p.Report(0);
-        //                ResetOnce = false;
-        //            }
-        //            float perc = (float)(sourceToEncode.Position / (double)sourceToEncode.Length);
-        //            p.Report((int)Math.Floor(perc * 100));
-        //        }
-        //        if (sourceToEncode.Position + buffer.Length > sourceToEncode.Length)
-        //        {
-        //            buffer = new byte[sourceToEncode.Length - sourceToEncode.Position];
-        //        }
-        //    }
-        //    encoder.Dispose();
-        //}
-
-
         public static int GetSampleRate(string SourcePath)
         {
             if (string.IsNullOrEmpty(SourcePath))
@@ -222,7 +202,7 @@ namespace YAMP_alpha
                 throw new ArgumentNullException("Source file cannot be null or empty");
             }
         }
- 
+
         public static void Resample(string SourcePath, string DestinationPath, int SampleRate, IProgress<int> p = null)
         {
             var resampler = GetEncoder(new FileInfo(SourcePath).Extension, DestinationPath, out IWaveSource source);
@@ -257,16 +237,21 @@ namespace YAMP_alpha
             });
         }
 
+        /// <summary>
+        /// Copy ID3 Tags from Source audio files to Target audio file.
+        /// </summary>
+        /// <param name="CopyFrom"></param>
+        /// <param name="CopyTo"></param>
         public static void TagCopy(string CopyFrom, string CopyTo)
         {
             TagLib.File TagSource = TagLib.File.Create(CopyFrom);
             TagLib.File TagDest = TagLib.File.Create(CopyTo);
-            
+
             try
             {
-                TagSource.Tag.CopyTo(TagDest.Tag, true);
                 if (TagDest.Writeable)
                 {
+                    TagSource.Tag.CopyTo(TagDest.Tag, true);
                     TagDest.Save();
                 }
             }
