@@ -59,13 +59,27 @@ namespace YAMP_alpha
             CmbBx_FftSize.DataSource = Enum.GetNames(typeof(FftSize));
             CmbBx_FftSize.SelectedItem = "Fft4096";
             CmbBx_FftSize.SelectedIndexChanged += CmbBx_FftSize_SelectedIndexChanged;
-            if (YAMPVars.CORE != null && YAMPVars.CORE.PlayerSource != null)
+            
+            if (YAMPVars.CORE == null || YAMPVars.CORE.PlayerSource == null)
+            {
+                MessageBox.Show("Player not initialized. Load a track first.", "Equalizer Error");
+                Close();
+                return;
+            }
+
+            try
             {
                 SampleRate = YAMPVars.CORE.PlayerSource.WaveFormat.SampleRate;
                 ChannelCount = YAMPVars.CORE.PlayerSource.WaveFormat.Channels;
-                YAMPVars.NotificationSource.BlockRead += NotificationSource_BlockRead;
-                YAMPVars.SingleBlockNotificationStream.SingleBlockRead += SingleBlockNotificationStream_SingleBlockRead;
-                YAMPVars.FftProvider = new FftProvider(ChannelCount, (FftSize)Enum.Parse(typeof(FftSize), CmbBx_FftSize.SelectedItem.ToString()));
+                
+                // Only create FftProvider if it doesn't exist or has wrong size
+                // This prevents race condition when dialog is opened multiple times
+                FftSize desiredFftSize = (FftSize)Enum.Parse(typeof(FftSize), CmbBx_FftSize.SelectedItem.ToString());
+                if (YAMPVars.FftProvider == null || YAMPVars.FftProvider.FftSize != desiredFftSize)
+                {
+                    YAMPVars.FftProvider = new FftProvider(ChannelCount, desiredFftSize);
+                }
+                
                 FFTSIZE = YAMPVars.FftProvider.FftSize;
                 SpectroScott = new SpectrogramGenerator(SampleRate, (int)FFTSIZE, 512) { OffsetHz = 20 };
 
@@ -80,6 +94,11 @@ namespace YAMP_alpha
                     IsXLogScale = true,
                     ScalingStrategy = ScalingStrategy.Sqrt
                 };
+                
+                // Subscribe to events - thread-safe subscription
+                YAMPVars.NotificationSource.BlockRead += NotificationSource_BlockRead;
+                YAMPVars.SingleBlockNotificationStream.SingleBlockRead += SingleBlockNotificationStream_SingleBlockRead;
+                
                 GainBand.ValueChanged += GainBand_ValueChanged;
                 splitContainer1.Panel2.Controls.Add(VolBand);
                 splitContainer1.Panel2.Controls.Add(GainBand);
@@ -88,6 +107,7 @@ namespace YAMP_alpha
                 VolBand.ValueChanged += VolBand_ValueChanged;
                 Scope.Start();
                 Spectrogram.Start();
+                
                 for (int i = 0; i < YAMPVars.EqualizerEffect.SampleFilters.Count; i++)
                 {
                     EqualizerFilter item = YAMPVars.EqualizerEffect.SampleFilters[i];
@@ -108,6 +128,11 @@ namespace YAMP_alpha
                 {
                     item.BringToFront();
                 }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error initializing Equalizer: {ex.Message}", "Initialization Error");
+                Close();
             }
         }
 
@@ -269,7 +294,51 @@ namespace YAMP_alpha
 
         private void CmbBx_FftSize_SelectedIndexChanged(object sender, EventArgs e)
         {
-            YAMPVars.FftProvider = new FftProvider(ChannelCount, (FftSize)Enum.Parse(typeof(FftSize), CmbBx_FftSize.SelectedItem.ToString()));
+            // Replace FftProvider only if size actually changed
+            FftSize newSize = (FftSize)Enum.Parse(typeof(FftSize), CmbBx_FftSize.SelectedItem.ToString());
+            if (YAMPVars.FftProvider == null || YAMPVars.FftProvider.FftSize != newSize)
+            {
+                YAMPVars.FftProvider = new FftProvider(ChannelCount, newSize);
+            }
+        }
+
+        private void EqualizerDialog_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            try
+            {
+                // Stop timers first
+                Scope.Stop();
+                Spectrogram.Stop();
+
+                // Unsubscribe from audio events to prevent memory leaks and thread issues
+                if (YAMPVars.NotificationSource != null)
+                {
+                    YAMPVars.NotificationSource.BlockRead -= NotificationSource_BlockRead;
+                }
+
+                if (YAMPVars.SingleBlockNotificationStream != null)
+                {
+                    YAMPVars.SingleBlockNotificationStream.SingleBlockRead -= SingleBlockNotificationStream_SingleBlockRead;
+                }
+
+                // Unsubscribe from UI event handlers
+                GainBand.ValueChanged -= GainBand_ValueChanged;
+                VolBand.ValueChanged -= VolBand_ValueChanged;
+                
+                foreach (EQBand band in splitContainer1.Panel2.Controls.OfType<EQBand>())
+                {
+                    band.ValueChanged -= EQBAND_ValueChanged;
+                    band.DoubleClick -= EQBAND_DoubleClick;
+                }
+
+                // Dispose bitmap resources
+                SpectroBitmap?.Dispose();
+                Pb_SpectrogramAdv.Image?.Dispose();
+            }
+            catch
+            {
+                // Swallow cleanup errors to allow form to close
+            }
         }
     }
 }

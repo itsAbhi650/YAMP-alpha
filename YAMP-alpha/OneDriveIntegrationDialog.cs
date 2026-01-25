@@ -1,4 +1,4 @@
-﻿using KoenZomers.OneDrive.Api;
+﻿//using KoenZomers.OneDrive.Api;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -21,14 +21,14 @@ namespace YAMP_alpha
         public OneDriveIntegrationDialog()
         {
             InitializeComponent();
-            _configuration = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-            if (YAMPVars.OneDriveApi == null)
-            {
-                InitiateOneDriveApi();
-            }
-            // First sign the current user out to make sure he/she needs to authenticate again
-            var signoutUri = YAMPVars.OneDriveApi.GetSignOutUri();
-            AuthenticationBrowser.Navigate(signoutUri);
+            //_configuration = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            //if (YAMPVars.OneDriveApi == null)
+            //{
+            //    InitiateOneDriveApi();
+            //}
+            //// First sign the current user out to make sure he/she needs to authenticate again
+            //var signoutUri = YAMPVars.OneDriveApi.GetSignOutUri();
+            //AuthenticationBrowser.Navigate(signoutUri);
         }
 
         /// <summary>
@@ -37,12 +37,12 @@ namespace YAMP_alpha
         private void InitiateOneDriveApi()
         {
             // Define the type of OneDrive API to instantiate based on the dropdown list selection
-            YAMPVars.OneDriveApi = new OneDriveConsumerApi(_configuration.AppSettings.Settings["OneDriveConsumerApiClientID"].Value, _configuration.AppSettings.Settings["OneDriveConsumerApiClientSecret"].Value);
-            if (!string.IsNullOrEmpty(_configuration.AppSettings.Settings["OneDriveConsumerApiRedirectUri"].Value))
-            {
-                YAMPVars.OneDriveApi.AuthenticationRedirectUrl = _configuration.AppSettings.Settings["OneDriveConsumerApiRedirectUri"].Value;
-            }
-            YAMPVars.OneDriveApi.ProxyConfiguration = null;
+            //YAMPVars.OneDriveApi = new OneDriveConsumerApi(_configuration.AppSettings.Settings["OneDriveConsumerApiClientID"].Value, _configuration.AppSettings.Settings["OneDriveConsumerApiClientSecret"].Value);
+            //if (!string.IsNullOrEmpty(_configuration.AppSettings.Settings["OneDriveConsumerApiRedirectUri"].Value))
+            //{
+            //    YAMPVars.OneDriveApi.AuthenticationRedirectUrl = _configuration.AppSettings.Settings["OneDriveConsumerApiRedirectUri"].Value;
+            //}
+            //YAMPVars.OneDriveApi.ProxyConfiguration = null;
         }
 
         private async void AuthenticationBrowser_Navigated(object sender, WebBrowserNavigatedEventArgs e)
@@ -51,25 +51,25 @@ namespace YAMP_alpha
             CurrentUrlTextBox.Text = e.Url.ToString();
 
             // Check if the current URL contains the authorization token
-            AuthorizationCodeTextBox.Text = YAMPVars.OneDriveApi.GetAuthorizationTokenFromUrl(e.Url.ToString());
+            //AuthorizationCodeTextBox.Text = YAMPVars.OneDriveApi.GetAuthorizationTokenFromUrl(e.Url.ToString());
 
-            AuthToken = AuthorizationCodeTextBox.Text;
-            if (!string.IsNullOrEmpty(AuthToken))
-            {
-                await YAMPVars.OneDriveApi.GetAccessToken();
-                if (YAMPVars.OneDriveApi.AccessToken != null)
-                {
-                    AccessToken = YAMPVars.OneDriveApi.AccessToken.AccessToken;
-                    RefreshToken = YAMPVars.OneDriveApi.AccessToken.RefreshToken;
-                    _configuration.AppSettings.Settings["OneDriveApiRefreshToken"].Value = RefreshToken;
-                    _configuration.Save(ConfigurationSaveMode.Modified);
-                    return;
-                }
-            }
-            if (CurrentUrlTextBox.Text.StartsWith(YAMPVars.OneDriveApi.SignoutUri))
-            {
-                AuthenticationBrowser.Navigate(YAMPVars.OneDriveApi.GetAuthenticationUri());
-            }
+            //AuthToken = AuthorizationCodeTextBox.Text;
+            //if (!string.IsNullOrEmpty(AuthToken))
+            //{
+            //    await YAMPVars.OneDriveApi.GetAccessToken();
+            //    if (YAMPVars.OneDriveApi.AccessToken != null)
+            //    {
+            //        AccessToken = YAMPVars.OneDriveApi.AccessToken.AccessToken;
+            //        RefreshToken = YAMPVars.OneDriveApi.AccessToken.RefreshToken;
+            //        _configuration.AppSettings.Settings["OneDriveApiRefreshToken"].Value = RefreshToken;
+            //        _configuration.Save(ConfigurationSaveMode.Modified);
+            //        return;
+            //    }
+            //}
+            //if (CurrentUrlTextBox.Text.StartsWith(YAMPVars.OneDriveApi.SignoutUri))
+            //{
+            //    AuthenticationBrowser.Navigate(YAMPVars.OneDriveApi.GetAuthenticationUri());
+            //}
         }
 
         private void button1_Click(object sender, EventArgs e)

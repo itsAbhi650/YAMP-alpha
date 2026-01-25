@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(NewMain));
             this.panel1 = new System.Windows.Forms.Panel();
             this.Btn_ToggleExtras = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
@@ -79,10 +78,12 @@
             this.lyricsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.cloudToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.oneDriveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.visualisationsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.spectrumToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.leftChannelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.rightChannelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.lyricsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.PlayTimer = new System.Windows.Forms.Timer(this.components);
-            this.waveformPainter1 = new NAudio.Gui.WaveformPainter();
-            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.CoverImageBox = new System.Windows.Forms.PictureBox();
             this.Pnl_Extras = new System.Windows.Forms.Panel();
             this.Btn_PosLoop = new System.Windows.Forms.Button();
@@ -90,19 +91,11 @@
             this.Btn_ToggleFade = new System.Windows.Forms.CheckBox();
             this.CB_ToggleTrackLoop = new System.Windows.Forms.CheckBox();
             this.visualizer = new System.Windows.Forms.Timer(this.components);
-            this.visualisationsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.spectrumToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.leftChannelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.rightChannelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.VolumeTracker)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DurationTracker)).BeginInit();
             this.Pnl_PlayerFooter.SuspendLayout();
             this.menuStrip1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
-            this.splitContainer1.Panel1.SuspendLayout();
-            this.splitContainer1.Panel2.SuspendLayout();
-            this.splitContainer1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.CoverImageBox)).BeginInit();
             this.Pnl_Extras.SuspendLayout();
             this.SuspendLayout();
@@ -349,7 +342,6 @@
             // 
             // LoadFileStripMenuItem
             // 
-            this.LoadFileStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("LoadFileStripMenuItem.Image")));
             this.LoadFileStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.LoadFileStripMenuItem.Name = "LoadFileStripMenuItem";
             this.LoadFileStripMenuItem.Size = new System.Drawing.Size(151, 22);
@@ -358,7 +350,6 @@
             // 
             // LoadDirStripMenuItem
             // 
-            this.LoadDirStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("LoadDirStripMenuItem.Image")));
             this.LoadDirStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.LoadDirStripMenuItem.Name = "LoadDirStripMenuItem";
             this.LoadDirStripMenuItem.Size = new System.Drawing.Size(151, 22);
@@ -367,7 +358,6 @@
             // 
             // streamToolStripMenuItem
             // 
-            this.streamToolStripMenuItem.Image = global::YAMP_alpha.Properties.Resources.Radio;
             this.streamToolStripMenuItem.Name = "streamToolStripMenuItem";
             this.streamToolStripMenuItem.ShowShortcutKeys = false;
             this.streamToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
@@ -514,7 +504,7 @@
             this.cloudToolStripMenuItem,
             this.visualisationsToolStripMenuItem});
             this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
-            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(46, 19);
+            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(47, 19);
             this.toolsToolStripMenuItem.Text = "Tools";
             // 
             // changeSampleRateToolStripMenuItem
@@ -523,7 +513,7 @@
             this.sampleRateToolStripMenuItem,
             this.bitRateToolStripMenuItem});
             this.changeSampleRateToolStripMenuItem.Name = "changeSampleRateToolStripMenuItem";
-            this.changeSampleRateToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.changeSampleRateToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.changeSampleRateToolStripMenuItem.Text = "Change";
             // 
             // sampleRateToolStripMenuItem
@@ -543,28 +533,28 @@
             // audioCutterToolStripMenuItem
             // 
             this.audioCutterToolStripMenuItem.Name = "audioCutterToolStripMenuItem";
-            this.audioCutterToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.audioCutterToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.audioCutterToolStripMenuItem.Text = "Audio Cutter";
             this.audioCutterToolStripMenuItem.Click += new System.EventHandler(this.audioCutterToolStripMenuItem_Click);
             // 
             // signalFilteringToolStripMenuItem
             // 
             this.signalFilteringToolStripMenuItem.Name = "signalFilteringToolStripMenuItem";
-            this.signalFilteringToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.signalFilteringToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.signalFilteringToolStripMenuItem.Text = "Signal Filtering";
             this.signalFilteringToolStripMenuItem.Click += new System.EventHandler(this.signalFilteringToolStripMenuItem_Click);
             // 
             // tagEditorToolStripMenuItem
             // 
             this.tagEditorToolStripMenuItem.Name = "tagEditorToolStripMenuItem";
-            this.tagEditorToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.tagEditorToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.tagEditorToolStripMenuItem.Text = "Tag Editor";
             this.tagEditorToolStripMenuItem.Click += new System.EventHandler(this.tagEditorToolStripMenuItem_Click);
             // 
             // lyricsToolStripMenuItem1
             // 
             this.lyricsToolStripMenuItem1.Name = "lyricsToolStripMenuItem1";
-            this.lyricsToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            this.lyricsToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
             this.lyricsToolStripMenuItem1.Text = "Lyrics Options";
             this.lyricsToolStripMenuItem1.Click += new System.EventHandler(this.lyricsToolStripMenuItem1_Click);
             // 
@@ -573,7 +563,7 @@
             this.cloudToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.oneDriveToolStripMenuItem});
             this.cloudToolStripMenuItem.Name = "cloudToolStripMenuItem";
-            this.cloudToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.cloudToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.cloudToolStripMenuItem.Text = "Cloud";
             // 
             // oneDriveToolStripMenuItem
@@ -582,6 +572,39 @@
             this.oneDriveToolStripMenuItem.Size = new System.Drawing.Size(123, 22);
             this.oneDriveToolStripMenuItem.Text = "OneDrive";
             this.oneDriveToolStripMenuItem.Click += new System.EventHandler(this.oneDriveToolStripMenuItem_Click);
+            // 
+            // visualisationsToolStripMenuItem
+            // 
+            this.visualisationsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.spectrumToolStripMenuItem});
+            this.visualisationsToolStripMenuItem.Name = "visualisationsToolStripMenuItem";
+            this.visualisationsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.visualisationsToolStripMenuItem.Text = "Visualisations";
+            // 
+            // spectrumToolStripMenuItem
+            // 
+            this.spectrumToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.leftChannelToolStripMenuItem,
+            this.rightChannelToolStripMenuItem});
+            this.spectrumToolStripMenuItem.Name = "spectrumToolStripMenuItem";
+            this.spectrumToolStripMenuItem.Size = new System.Drawing.Size(125, 22);
+            this.spectrumToolStripMenuItem.Text = "Spectrum";
+            // 
+            // leftChannelToolStripMenuItem
+            // 
+            this.leftChannelToolStripMenuItem.CheckOnClick = true;
+            this.leftChannelToolStripMenuItem.Name = "leftChannelToolStripMenuItem";
+            this.leftChannelToolStripMenuItem.Size = new System.Drawing.Size(149, 22);
+            this.leftChannelToolStripMenuItem.Tag = "L";
+            this.leftChannelToolStripMenuItem.Text = "Left Channel";
+            // 
+            // rightChannelToolStripMenuItem
+            // 
+            this.rightChannelToolStripMenuItem.CheckOnClick = true;
+            this.rightChannelToolStripMenuItem.Name = "rightChannelToolStripMenuItem";
+            this.rightChannelToolStripMenuItem.Size = new System.Drawing.Size(149, 22);
+            this.rightChannelToolStripMenuItem.Tag = "R";
+            this.rightChannelToolStripMenuItem.Text = "Right Channel";
             // 
             // lyricsToolStripMenuItem
             // 
@@ -594,43 +617,14 @@
             // 
             this.PlayTimer.Tick += new System.EventHandler(this.PlayTimer_Tick);
             // 
-            // waveformPainter1
-            // 
-            this.waveformPainter1.BackColor = System.Drawing.SystemColors.ActiveBorder;
-            this.waveformPainter1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.waveformPainter1.Location = new System.Drawing.Point(0, 0);
-            this.waveformPainter1.Name = "waveformPainter1";
-            this.waveformPainter1.Size = new System.Drawing.Size(383, 33);
-            this.waveformPainter1.TabIndex = 3;
-            this.waveformPainter1.Text = "waveformPainter1";
-            // 
-            // splitContainer1
-            // 
-            this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainer1.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
-            this.splitContainer1.Location = new System.Drawing.Point(0, 19);
-            this.splitContainer1.Name = "splitContainer1";
-            this.splitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
-            // 
-            // splitContainer1.Panel1
-            // 
-            this.splitContainer1.Panel1.Controls.Add(this.CoverImageBox);
-            // 
-            // splitContainer1.Panel2
-            // 
-            this.splitContainer1.Panel2.Controls.Add(this.waveformPainter1);
-            this.splitContainer1.Size = new System.Drawing.Size(383, 344);
-            this.splitContainer1.SplitterDistance = 307;
-            this.splitContainer1.TabIndex = 4;
-            // 
             // CoverImageBox
             // 
             this.CoverImageBox.BackColor = System.Drawing.Color.Black;
             this.CoverImageBox.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.CoverImageBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.CoverImageBox.Location = new System.Drawing.Point(0, 0);
+            this.CoverImageBox.Location = new System.Drawing.Point(0, 19);
             this.CoverImageBox.Name = "CoverImageBox";
-            this.CoverImageBox.Size = new System.Drawing.Size(383, 307);
+            this.CoverImageBox.Size = new System.Drawing.Size(383, 344);
             this.CoverImageBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
             this.CoverImageBox.TabIndex = 2;
             this.CoverImageBox.TabStop = false;
@@ -705,45 +699,12 @@
             this.visualizer.Interval = 20;
             this.visualizer.Tick += new System.EventHandler(this.visualizer_Tick);
             // 
-            // visualisationsToolStripMenuItem
-            // 
-            this.visualisationsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.spectrumToolStripMenuItem});
-            this.visualisationsToolStripMenuItem.Name = "visualisationsToolStripMenuItem";
-            this.visualisationsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.visualisationsToolStripMenuItem.Text = "Visualisations";
-            // 
-            // spectrumToolStripMenuItem
-            // 
-            this.spectrumToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.leftChannelToolStripMenuItem,
-            this.rightChannelToolStripMenuItem});
-            this.spectrumToolStripMenuItem.Name = "spectrumToolStripMenuItem";
-            this.spectrumToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.spectrumToolStripMenuItem.Text = "Spectrum";
-            // 
-            // leftChannelToolStripMenuItem
-            // 
-            this.leftChannelToolStripMenuItem.CheckOnClick = true;
-            this.leftChannelToolStripMenuItem.Name = "leftChannelToolStripMenuItem";
-            this.leftChannelToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.leftChannelToolStripMenuItem.Tag = "L";
-            this.leftChannelToolStripMenuItem.Text = "Left Channel";
-            // 
-            // rightChannelToolStripMenuItem
-            // 
-            this.rightChannelToolStripMenuItem.CheckOnClick = true;
-            this.rightChannelToolStripMenuItem.Name = "rightChannelToolStripMenuItem";
-            this.rightChannelToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.rightChannelToolStripMenuItem.Tag = "R";
-            this.rightChannelToolStripMenuItem.Text = "Right Channel";
-            // 
             // NewMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(383, 492);
-            this.Controls.Add(this.splitContainer1);
+            this.Controls.Add(this.CoverImageBox);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.Pnl_Extras);
             this.Controls.Add(this.Pnl_PlayerFooter);
@@ -761,15 +722,11 @@
             this.Pnl_PlayerFooter.ResumeLayout(false);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
-            this.splitContainer1.Panel1.ResumeLayout(false);
-            this.splitContainer1.Panel1.PerformLayout();
-            this.splitContainer1.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
-            this.splitContainer1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.CoverImageBox)).EndInit();
             this.Pnl_Extras.ResumeLayout(false);
             this.Pnl_Extras.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -810,8 +767,6 @@
         private System.Windows.Forms.ToolStripMenuItem toolsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem changeSampleRateToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem waveformNAudioToolStripMenuItem;
-        private NAudio.Gui.WaveformPainter waveformPainter1;
-        private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.ToolStripMenuItem vUMeterToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem equalizerToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem playlistToolStripMenuItem;

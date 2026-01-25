@@ -1,10 +1,11 @@
-﻿using KoenZomers.OneDrive.Api.Entities;
+﻿//using KoenZomers.OneDrive.Api.Entities;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.Xml.Schema;
 
@@ -33,6 +34,8 @@ namespace YAMP_alpha
             }
         }
 
+
+
         public YAMPlaylistDialog()
         {
             InitializeComponent();
@@ -42,6 +45,7 @@ namespace YAMP_alpha
                 LoadedPlaylist = YAMPVars.LoadedPlaylist;
                 Text = "Playlist: " + new FileInfo(LoadedPlaylist).Name;
             }
+
             if (PlaylistSource == null)
             {
                 PlaylistSource = new BindingSource
@@ -49,29 +53,44 @@ namespace YAMP_alpha
                     DataSource = YAMPVars.TrackList
                 };
             }
+
             dataGridView1.DataSource = PlaylistSource;
             dataGridView1.Columns["Duration"].AutoSizeMode = DataGridViewAutoSizeColumnMode.ColumnHeader;
 
-            DataGridViewButtonColumn DGVBC = new DataGridViewButtonColumn()
+            // Info button column
+            DataGridViewButtonColumn DGVBC_Info = new DataGridViewButtonColumn()
             {
                 HeaderText = "Info",
                 Text = "i",
                 UseColumnTextForButtonValue = true,
                 Name = "clm_MediaInfo",
-                AutoSizeMode = DataGridViewAutoSizeColumnMode.ColumnHeader
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.ColumnHeader,
+                DisplayIndex = dataGridView1.Columns.Count
             };
-            dataGridView1.Columns.Add(DGVBC);
+            dataGridView1.Columns.Add(DGVBC_Info);
 
+            // Remove button column
+            DataGridViewButtonColumn DGVBC_Remove = new DataGridViewButtonColumn()
+            {
+                HeaderText = "Remove",
+                Text = "X",
+                UseColumnTextForButtonValue = true,
+                Name = "clm_Remove",
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.ColumnHeader,
+                DisplayIndex = dataGridView1.Columns.Count
+            };
+            dataGridView1.Columns.Add(DGVBC_Remove);
 
             foreach (DataGridViewColumn item in dataGridView1.Columns)
             {
-                if (item.HeaderText != "Title" && item.HeaderText != "Duration" && item.HeaderText != "Info")
+                if (item.HeaderText != "Title" && item.HeaderText != "Duration" && item.HeaderText != "Info" && item.HeaderText != "Remove")
                 {
                     item.Visible = false;
                 }
             }
 
-            DGVBC.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            DGVBC_Info.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            DGVBC_Remove.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
         }
 
         private void Btn_info_Click(object sender, EventArgs e)
@@ -117,8 +136,68 @@ namespace YAMP_alpha
         {
             if (e.RowIndex >= 0 && dataGridView1[e.ColumnIndex, e.RowIndex].OwningColumn.GetType() == typeof(DataGridViewButtonColumn))
             {
-                MediaInfoDialog MediaInfo = new MediaInfoDialog(YAMPVars.TrackList[e.RowIndex].File.FullName);
-                MediaInfo.ShowDialog();
+                string columnName = dataGridView1.Columns[e.ColumnIndex].Name;
+
+                if (columnName == "clm_MediaInfo")
+                {
+                    // Show media info dialog
+                    MediaInfoDialog MediaInfo = new MediaInfoDialog(YAMPVars.TrackList[e.RowIndex].File.FullName);
+                    MediaInfo.ShowDialog();
+                }
+                else if (columnName == "clm_Remove")
+                {
+                    // Remove track from playlist
+                    RemoveTrackAt(e.RowIndex);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Removes a track at the specified row index from the playlist
+        /// </summary>
+        /// <param name="rowIndex">The index of the row to remove</param>
+        private void RemoveTrackAt(int rowIndex)
+        {
+            if (rowIndex < 0 || rowIndex >= PlaylistSource.Count)
+                return;
+
+            // Confirm removal
+            string trackTitle = YAMPVars.TrackList[rowIndex].Title;
+            DialogResult result = MessageBox.Show(
+                string.Format("Remove '{0}' from playlist?", trackTitle),
+                "Confirm Removal",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (result == DialogResult.Yes)
+            {
+                PlaylistSource.RemoveAt(rowIndex);
+
+                // Clear selection and refresh
+                dataGridView1.ClearSelection();
+
+                // Select next available row
+                if (PlaylistSource.Count > 0)
+                {
+                    if (rowIndex >= PlaylistSource.Count)
+                    {
+                        dataGridView1.CurrentCell = dataGridView1[0, PlaylistSource.Count - 1];
+                    }
+                    else
+                    {
+                        dataGridView1.CurrentCell = dataGridView1[0, rowIndex];
+                    }
+                    dataGridView1.CurrentCell.Selected = true;
+                }
+                else
+                {
+                    // No tracks left, clear cover image
+                    pictureBox1.Image = null;
+                }
+
+                // Update row styling if current track is affected
+                UpdateCurrentPlayingRowStyle();
+                dataGridView1.RefreshEdit();
             }
         }
 
@@ -136,7 +215,10 @@ namespace YAMP_alpha
 
         private void pictureBox1_DoubleClick(object sender, EventArgs e)
         {
-            new BigArt(pictureBox1.Image).ShowDialog();
+            if (pictureBox1.Image != null)
+            {
+                new BigArt(pictureBox1.Image).ShowDialog();
+            }
         }
 
         private void dataGridView1_DoubleClick(object sender, EventArgs e)
@@ -156,6 +238,7 @@ namespace YAMP_alpha
                 PlaylistSource[SelectedRowIndex] = temptrack;
                 dataGridView1.CurrentCell = dataGridView1[0, NewTrackIndex];
             }
+            UpdateCurrentPlayingRowStyle();
         }
 
         private void listView1_Click(object sender, EventArgs e)
@@ -180,6 +263,13 @@ namespace YAMP_alpha
                     try
                     {
                         TrackInfo Track = new TrackInfo(item.FullName);
+                        if (PlaylistSource == null)
+                        {
+                            PlaylistSource = new BindingSource()
+                            {
+                                DataSource = YAMPVars.TrackList
+                            };
+                        }
                         PlaylistSource.Add(Track);
                     }
                     catch (Exception)
@@ -205,7 +295,7 @@ namespace YAMP_alpha
             if (CPR >= 0)
             {
                 dataGridView1.Rows[CurrentColoredRowIndex].DefaultCellStyle = new DataGridViewCellStyle();
-                dataGridView1.Rows[CPR].DefaultCellStyle.BackColor = Color.Blue;
+                dataGridView1.Rows[CPR].DefaultCellStyle.BackColor = Color.SeaGreen;
                 dataGridView1.Rows[CPR].DefaultCellStyle.ForeColor = Color.White;
                 CurrentColoredRowIndex = CPR;
             }
@@ -282,7 +372,6 @@ namespace YAMP_alpha
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             SaveUpdatePlaylist();
-
         }
 
 
@@ -326,21 +415,21 @@ namespace YAMP_alpha
             {
                 TableName = "Music"
             };
-            for (int i = 1; i < dataGridView1.Columns.Count; i++)
+
+            var TextColumns = dataGridView1.Columns.OfType<DataGridViewTextBoxColumn>()
+                .Select(x => Regex.Replace(x.HeaderText, "[-/, ]", "_"))
+                .Select(y => new DataColumn(y));
+
+            dt.Columns.AddRange(TextColumns.ToArray());
+
+            foreach (DataGridViewRow gridRow in dataGridView1.Rows)
             {
-                string colHeadText = dataGridView1.Columns[i].HeaderText;
-                colHeadText = System.Text.RegularExpressions.Regex.Replace(colHeadText, "[-/, ]", "_");
-                dt.Columns.Add(colHeadText);
-            }
-            foreach (DataGridViewRow item in dataGridView1.Rows)
-            {
-                DataRow dtrow = dt.NewRow();
+                DataRow dtRow = dt.NewRow();
                 for (int i = 0; i < dt.Columns.Count; i++)
                 {
-                    string colName = dt.Columns[i].ColumnName;
-                    dtrow[colName] = item.Cells[colName].EditedFormattedValue.ToString();
+                    dtRow[i] = gridRow.Cells[dt.Columns[i].ColumnName]?.EditedFormattedValue?.ToString() ?? string.Empty;
                 }
-                dt.Rows.Add(dtrow);
+                dt.Rows.Add(dtRow);
             }
 
 
@@ -380,11 +469,12 @@ namespace YAMP_alpha
             {
                 if (OFD.ShowDialog() == DialogResult.OK)
                 {
+                    //Stream plstr = null;
                     try
                     {
-                        Stream plstr = new FileStream(OFD.FileName, FileMode.Open);
-                        ValidatePlaylist(plstr);
-                        ((FileStream)plstr).Close();
+                        //plstr = new FileStream(OFD.FileName, FileMode.Open);
+                        //ValidatePlaylist(plstr);
+                        //plstr.Close();
                         xdoc.Load(OFD.FileName);
                         string[] Tracks = new string[xdoc.DocumentElement.ChildNodes.Count];
                         for (int i = 0; i < Tracks.Length; i++)
@@ -398,13 +488,12 @@ namespace YAMP_alpha
                     {
                         MessageBox.Show("Playlist file seems to be corrupted." + Environment.NewLine + Environment.NewLine + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
+                    finally
+                    {
+                        //plstr?.Close();
+                    }
                 }
             }
-        }
-
-        private void ValidatePlaylistFile(string Filename)
-        {
-            ValidatePlaylist(new FileStream(Filename, FileMode.Open));
         }
 
         private void ValidatePlaylist(Stream s)
@@ -412,6 +501,7 @@ namespace YAMP_alpha
             XmlSchemaSet xSet = new XmlSchemaSet();
 
             System.Xml.Linq.XDocument xDocument = System.Xml.Linq.XDocument.Load(s);
+            var ValidationFile = System.Configuration.ConfigurationManager.AppSettings["PLSchemaFile"];
             xSet.Add("", System.Configuration.ConfigurationManager.AppSettings["PLSchemaFile"]);
             xDocument.Validate(xSet, ValidationEventHandler);
         }
@@ -432,29 +522,29 @@ namespace YAMP_alpha
 
         private async void oneDriveToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            string SaveTo = System.Configuration.ConfigurationManager.AppSettings["CloudDownloadLocation"];
-            List<string> DownloadedTracks = new List<string>();
-            if (YAMPVars.OneDriveApi != null && YAMPVars.OneDriveApi.AccessTokenValidUntil > DateTime.Now)
-            {
-                var RootItem = await YAMPVars.OneDriveApi.GetDriveRoot();
-                //var FolderFacet = RootItem.Folder;
-                foreach (var item in await YAMPVars.OneDriveApi.GetAllChildrenByParentItem(RootItem))
-                {
-                    var AudioFacet = item.Audio;
-                    if (AudioFacet != null)
-                    {
-                        bool isDownloaded = await YAMPVars.OneDriveApi.DownloadItem(item, SaveTo);
-                        if (isDownloaded)
-                        {
-                            DownloadedTracks.Add(SaveTo + item.Name);
-                        }
-                    }
-                }
-                if (DownloadedTracks.Count > 0)
-                {
-                    InsertTracks(DownloadedTracks.ToArray());
-                }
-            }
+            //string SaveTo = System.Configuration.ConfigurationManager.AppSettings["CloudDownloadLocation"];
+            //List<string> DownloadedTracks = new List<string>();
+            //if (YAMPVars.OneDriveApi != null && YAMPVars.OneDriveApi.AccessTokenValidUntil > DateTime.Now)
+            //{
+            //    var RootItem = await YAMPVars.OneDriveApi.GetDriveRoot();
+            //    //var FolderFacet = RootItem.Folder;
+            //    foreach (var item in await YAMPVars.OneDriveApi.GetAllChildrenByParentItem(RootItem))
+            //    {
+            //        var AudioFacet = item.Audio;
+            //        if (AudioFacet != null)
+            //        {
+            //            bool isDownloaded = await YAMPVars.OneDriveApi.DownloadItem(item, SaveTo);
+            //            if (isDownloaded)
+            //            {
+            //                DownloadedTracks.Add(SaveTo + item.Name);
+            //            }
+            //        }
+            //    }
+            //    if (DownloadedTracks.Count > 0)
+            //    {
+            //        InsertTracks(DownloadedTracks.ToArray());
+            //    }
+            //}
         }
     }
 }

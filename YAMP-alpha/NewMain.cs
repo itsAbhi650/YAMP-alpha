@@ -14,8 +14,7 @@ namespace YAMP_alpha
         YAMPEnums.PanelMode PanelMode = YAMPEnums.PanelMode.Cover;
         private static readonly Regex TimestampRegex = new Regex(@"^(?'minutes'\d+):(?'seconds'\d+(\.\d+)?)$");
         GraphVisualization visualisation = null;
-        private bool PlayNext;
-        private string _curlyrln="";
+        private string _curlyrln = "";
         private bool RefreshBrushes;
 
         private event EventHandler LyricLineChanged;
@@ -24,10 +23,14 @@ namespace YAMP_alpha
             get { return _curlyrln; }
             set
             {
-                if (_curlyrln != value)
+                // Only trigger change event if value actually changed
+                // Normalize empty/null to empty string to prevent spurious events
+                string normalizedValue = string.IsNullOrEmpty(value) ? string.Empty : value;
+                
+                if (_curlyrln != normalizedValue)
                 {
-                    _curlyrln = value;
-                    LyricLineChanged?.Invoke(value, EventArgs.Empty);
+                    _curlyrln = normalizedValue;
+                    LyricLineChanged?.Invoke(normalizedValue, EventArgs.Empty);
                 }
             }
         }
@@ -45,17 +48,31 @@ namespace YAMP_alpha
 
         private void NotificationSource_BlockRead(object sender, EventArgs e)
         {
-            if (PanelMode == YAMPEnums.PanelMode.Lyrics)
+            // Only update lyrics if we're in lyrics mode and have valid data
+            if (PanelMode == YAMPEnums.PanelMode.Lyrics && 
+                YAMPVars.CORE?.CurrentTrack?.Lyrics != null &&
+                YAMPVars.CORE.PlayerSource != null)
             {
-                var TotalSeconds = Extensions.GetPosition(YAMPVars.CORE.PlayerSource).TotalSeconds;
-                if (YAMPVars.CORE.CurrentTrack.Lyrics == null)
+                try
                 {
-                    CurrentLyricLine = "No lyrics found. Load a file...";
-                    YAMPVars.NotificationSource.BlockRead -= NotificationSource_BlockRead;
-                    return;
+                    var TotalSeconds = Extensions.GetPosition(YAMPVars.CORE.PlayerSource).TotalSeconds;
+                    string LyricLine = YAMPVars.CORE.CurrentTrack.Lyrics.LastOrDefault(x => x.Key < TotalSeconds).Value;
+                    
+                    // Only set if there's actual lyric text, otherwise don't trigger unnecessary repaints
+                    if (!string.IsNullOrEmpty(LyricLine))
+                    {
+                        CurrentLyricLine = LyricLine;
+                    }
+                    else if (!string.IsNullOrEmpty(CurrentLyricLine))
+                    {
+                        // Only clear if we previously had text (prevents repeated empty->empty refreshes)
+                        CurrentLyricLine = string.Empty;
+                    }
                 }
-                string LyricLine = YAMPVars.CORE.CurrentTrack.Lyrics.LastOrDefault(x => x.Key < TotalSeconds).Value;
-                CurrentLyricLine = LyricLine;
+                catch
+                {
+                    // Silently ignore errors in event handler to prevent exceptions from breaking playback
+                }
             }
         }
 
@@ -78,8 +95,8 @@ namespace YAMP_alpha
         private void PlayFromStart(bool FadeTrack = true)
         {
             DurationTracker.Value = 0;
-            YAMPVars.CORE.Play();
             PlayTimer.Start();
+            YAMPVars.CORE.Play();
             if (YAMPVars.CORE.EnableFade && FadeTrack)
             {
                 YAMPVars.FadeEffect.FadeStrategy.StartFading(0, 1, 5000D);
@@ -112,13 +129,19 @@ namespace YAMP_alpha
 
         private void Player_Stopped(object sender, CSCore.SoundOut.PlaybackStoppedEventArgs e)
         {
-            YAMPVars.CORE.PlayerStopped = true;
+            // Only set PlayerStopped flag if this was NOT a track change
+            // When switching tracks, PlayNextTrackDirected/LoadTrackInfo handle state management
+            if (YAMPVars.CORE.LastStopReason != StopReason.TrackChanging)
+            {
+                YAMPVars.CORE.PlayerStopped = true;
+            }
+            
+            // Handle playlist flag (double-click from playlist to play track)
             if (YAMPVars.PLTRACKFLAG)
             {
                 YAMPVars.PLTRACKFLAG = false;
                 YAMPVars.CORE.PlayerStopped = false;
                 PlayFromStart();
-
             }
         }
 
@@ -138,7 +161,17 @@ namespace YAMP_alpha
             if (YAMPVars.CORE.CurrentTrack != null && YAMPVars.CORE.PlayerSource != null)
             {
                 UpdateTrackers();
+
+                // Get cover image (belongs to TrackInfo, don't dispose)
                 Image cover = YAMPVars.CORE.GetTrackCover();
+
+                // Only dispose the previous background if it was temporary (not a track cover)
+                var prevImage = CoverImageBox.BackgroundImage;
+                if (prevImage != null && !IsTrackCoverImage(prevImage))
+                {
+                    prevImage.Dispose();
+                }
+
                 CoverImageBox.BackgroundImage = cover;
                 ResizePlayer(cover);
                 Lbl_PlayerLabel.Text = string.Format(">  {0}", YAMPVars.CORE.CurrentTrack.Title);
@@ -153,14 +186,44 @@ namespace YAMP_alpha
 
         private void ParseLRC(string path)
         {
-            var Lines = File.ReadAllLines(path);
-            YAMPVars.TrackList[0].Lyrics = new System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<double, string>>();
-            foreach (var line in Lines)
+            // Validate input
+            if (string.IsNullOrWhiteSpace(path))
             {
+                MessageBox.Show("Lyrics file path is empty.", "Parse Error");
+                return;
+            }
 
-                int TimeStampEnd = line.IndexOf(']');
-                LyricsHelper.TryParseLrcString(line, 1, TimeStampEnd - 1, out TimeSpan res);
-                YAMPVars.TrackList[0].Lyrics.Add(new System.Collections.Generic.KeyValuePair<double, string>(res.TotalSeconds, line.Substring(TimeStampEnd + 1)));
+            if (YAMPVars.TrackList == null || YAMPVars.TrackList.Count == 0)
+            {
+                MessageBox.Show("No track loaded. Please load a track first.", "Parse Error");
+                return;
+            }
+
+            try
+            {
+                var Lines = File.ReadAllLines(path);
+                YAMPVars.TrackList[0].Lyrics = new System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<double, string>>();
+                foreach (var line in Lines)
+                {
+                    if (string.IsNullOrWhiteSpace(line))
+                        continue; // Skip empty lines
+
+                    int TimeStampEnd = line.IndexOf(']');
+                    if (TimeStampEnd <= 0)
+                        continue; // Skip lines without valid timestamp
+
+                    if (LyricsHelper.TryParseLrcString(line, 1, TimeStampEnd - 1, out TimeSpan res))
+                    {
+                        YAMPVars.TrackList[0].Lyrics.Add(
+                            new System.Collections.Generic.KeyValuePair<double, string>(
+                                res.TotalSeconds, 
+                                line.Substring(TimeStampEnd + 1)));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error parsing lyrics file: {ex.Message}", "Parse Error");
             }
         }
 
@@ -315,27 +378,31 @@ namespace YAMP_alpha
 
         private void PlayTimer_Tick(object sender, EventArgs e)
         {
-            if (!YAMPVars.CORE.PlayerStopped)
-            {
-                if (!YAMPVars.CORE.NetPlay || YAMPVars.CORE.PlayerSource.CanSeek)
-                {
-                    Lbl_Duration.Text = TrackDurationText();
-                }
-                waveformPainter1.AddMax(YAMPVars.CORE.WaveFormLEFT);
-            }
-            else if (YAMPVars.CORE.PlayerPaused)
+            // Priority 1: Check pause FIRST (was unreachable in old position)
+            if (YAMPVars.CORE.PlayerPaused)
             {
                 PlayTimer.Stop();
+                return;
             }
-            else
+
+            // Priority 2: Check if track finished naturally
+            if (YAMPVars.CORE.PlayerStopped)
             {
-                YAMPVars.CORE.Stop();
                 PlayTimer.Stop();
-                if (YAMPVars.CORE.PlayNextTrackDirected(YAMPVars.CORE.NextTrackDirection) && PlayNext)
+                
+                // Auto-play next track (forward direction only)
+                // If no next track exists, playback stops here
+                if (YAMPVars.CORE.PlayNextTrackDirected(1))
                 {
                     PlayFromStart();
-                    PlayNext = false;
                 }
+                return;
+            }
+
+            // Priority 3: Normal playback - update UI
+            if (!YAMPVars.CORE.NetPlay || YAMPVars.CORE.PlayerSource.CanSeek)
+            {
+                Lbl_Duration.Text = TrackDurationText();
             }
         }
 
@@ -379,22 +446,6 @@ namespace YAMP_alpha
                         CoverImageBox.BackgroundImage = YAMPVars.CORE.CurrentTrack.Covers[0];
                     }
                 }
-            }
-        }
-
-        private void button7_Click(object sender, EventArgs e)
-        {
-            if (DurationTracker.Value + 5000 <= DurationTracker.Maximum)
-            {
-                DurationTracker.Value = DurationTracker.Value + 5000;
-            }
-        }
-
-        private void button6_Click(object sender, EventArgs e)
-        {
-            if (DurationTracker.Value - 5000 >= 0)
-            {
-                DurationTracker.Value = DurationTracker.Value - 5000;
             }
         }
 
@@ -472,23 +523,21 @@ namespace YAMP_alpha
         private void playlistToolStripMenuItem_Click(object sender, EventArgs e)
         {
             YAMPlaylistDialog playlist = new YAMPlaylistDialog();
-            playlist.Show();
+            playlist.ShowDialog(this);
         }
 
         private void Btns_TrackShift_Click(object sender, EventArgs e)
         {
-            if (!YAMPVars.CORE.PlayerStopped)
+            int direction = int.Parse(((Button)sender).Tag.ToString());
+            
+            // Directly play next/previous track
+            // PlayNextTrackDirected already validates boundaries (first/last track, single track, etc.)
+            if (YAMPVars.CORE.PlayNextTrackDirected(direction))
             {
-                YAMPVars.CORE.NextTrackDirection = int.Parse(((Button)sender).Tag.ToString());
-                int DestIndex = 0;
-                if (YAMPVars.CORE.isValidMove(YAMPVars.CORE.NextTrackDirection, out DestIndex))
-                {
-                    DurationTracker.Value = 0;
-                    YAMPVars.CORE.PlayerSource.Position = 0;
-                    YAMPVars.CORE.Player.Stop();
-                    PlayNext = true;
-                }
+                PlayFromStart();
             }
+            // If no track exists in that direction, PlayNextTrackDirected returns false
+            // and nothing happens (stays on current track)
         }
 
         private void BtnSkipSec_Click(object sender, EventArgs e)
@@ -641,45 +690,147 @@ namespace YAMP_alpha
             }
         }
 
-        private void UpdatePanel(YAMPEnums.PanelMode Mode)
+        //private void UpdatePanel(YAMPEnums.PanelMode Mode)
+        //{
+        //    CoverImageBox.BackgroundImage = null;
+        //    switch (Mode)
+        //    {
+        //        case YAMPEnums.PanelMode.Cover:
+        //            YAMPVars.NotificationSource.BlockRead -= NotificationSource_BlockRead;
+        //            visualizer.Stop();
+        //            visualisation = null;
+        //            YAMPVars.SingleBlockNotificationStream.SingleBlockRead -= SingleBlockNotificationStream_SingleBlockRead;
+        //            CoverImageBox.Paint -= CoverImageBox_Paint;
+        //            if (YAMPVars.CORE.CurrentTrack.Covers.Count > 0)
+        //            {
+        //                CoverImageBox.BackgroundImage = YAMPVars.CORE.CurrentTrack.Covers[0];
+        //            }
+        //            break;
+        //        case YAMPEnums.PanelMode.Spectrum:
+        //            YAMPVars.NotificationSource.BlockRead -= NotificationSource_BlockRead;
+        //            leftChannelToolStripMenuItem.Checked = YAMPVars.DrawLeftChannelSpectrum;
+        //            rightChannelToolStripMenuItem.Checked = YAMPVars.DrawRightChannelSpectrum;
+        //            visualisation = new GraphVisualization();
+        //            YAMPVars.SingleBlockNotificationStream.SingleBlockRead += SingleBlockNotificationStream_SingleBlockRead;
+        //            CoverImageBox.Paint -= CoverImageBox_Paint;
+        //            visualizer.Start();
+        //            break;
+        //        case YAMPEnums.PanelMode.Lyrics:
+        //            visualizer.Stop();
+        //            visualisation = null;
+        //            YAMPVars.SingleBlockNotificationStream.SingleBlockRead -= SingleBlockNotificationStream_SingleBlockRead;
+        //            CoverImageBox.Paint += CoverImageBox_Paint;
+        //            LyricLineChanged += NewMain_LyricLineChanged;
+        //            if (YAMPVars.CORE.CurrentTrack.Lyrics == null)
+        //            {
+        //                CurrentLyricLine = "No lyrics found. Load a file...";
+        //                YAMPVars.NotificationSource.BlockRead -= NotificationSource_BlockRead;
+        //                CoverImageBox.Paint -= CoverImageBox_Paint;
+        //            }
+        //            else
+        //                YAMPVars.NotificationSource.BlockRead += NotificationSource_BlockRead;
+        //            break;
+        //        default:
+        //            break;
+        //    }
+        //}
+
+        private void UpdatePanel(YAMPEnums.PanelMode mode)
         {
-            switch (Mode)
+            // Clean up event handlers first
+            YAMPVars.NotificationSource.BlockRead -= NotificationSource_BlockRead;
+            YAMPVars.SingleBlockNotificationStream.SingleBlockRead -= SingleBlockNotificationStream_SingleBlockRead;
+            CoverImageBox.Paint -= CoverImageBox_Paint;
+            LyricLineChanged -= NewMain_LyricLineChanged;
+
+            // Stop visualizer
+            visualizer.Stop();
+            visualisation = null;
+
+            // Only dispose if BackgroundImage is a temporary/generated image, not a reference from TrackInfo
+            var currentBgImage = CoverImageBox.BackgroundImage;
+            if (currentBgImage != null && !IsTrackCoverImage(currentBgImage))
+            {
+                currentBgImage.Dispose();
+            }
+            CoverImageBox.BackgroundImage = null;
+
+            // Set up the new mode
+            switch (mode)
             {
                 case YAMPEnums.PanelMode.Cover:
-                    YAMPVars.NotificationSource.BlockRead -= NotificationSource_BlockRead;
-                    visualizer.Stop();
-                    visualisation = null;
-                    YAMPVars.SingleBlockNotificationStream.SingleBlockRead -= SingleBlockNotificationStream_SingleBlockRead;
-                    CoverImageBox.Paint -= CoverImageBox_Paint;
-                    CoverImageBox.BackgroundImage = YAMPVars.CORE.CurrentTrack.Covers.Count > 0 ? YAMPVars.CORE.CurrentTrack.Covers[0] : null;
+                    SetupCoverMode();
                     break;
+
                 case YAMPEnums.PanelMode.Spectrum:
-                    YAMPVars.NotificationSource.BlockRead -= NotificationSource_BlockRead;
-                    leftChannelToolStripMenuItem.Checked = YAMPVars.DrawLeftChannelSpectrum;
-                    rightChannelToolStripMenuItem.Checked = YAMPVars.DrawRightChannelSpectrum;
-                    visualisation = new GraphVisualization(YAMPVars.DrawLeftChannelSpectrum, YAMPVars.DrawRightChannelSpectrum);
-                    YAMPVars.SingleBlockNotificationStream.SingleBlockRead += SingleBlockNotificationStream_SingleBlockRead;
-                    CoverImageBox.Paint -= CoverImageBox_Paint;
-                    CoverImageBox.BackgroundImage = null;
-                    visualizer.Start();
+                    SetupSpectrumMode();
                     break;
+
                 case YAMPEnums.PanelMode.Lyrics:
-                    visualizer.Stop();
-                    visualisation = null;
-                    YAMPVars.SingleBlockNotificationStream.SingleBlockRead -= SingleBlockNotificationStream_SingleBlockRead;
-                    CoverImageBox.BackgroundImage = null;
-                    CoverImageBox.Paint += CoverImageBox_Paint;
-                    LyricLineChanged += NewMain_LyricLineChanged;
-                    YAMPVars.NotificationSource.BlockRead += NotificationSource_BlockRead;
+                    SetupLyricsMode();
                     break;
-                default:
-                    break;
+            }
+        }
+
+        /// <summary>
+        /// Determines if the given image is a reference from the current track's covers.
+        /// Track cover images should NOT be disposed as they are owned by the TrackInfo object.
+        /// </summary>
+        private bool IsTrackCoverImage(Image image)
+        {
+            if (image == null || YAMPVars.CORE?.CurrentTrack?.Covers == null)
+                return false;
+
+            return YAMPVars.CORE.CurrentTrack.Covers.Any(cover => ReferenceEquals(cover, image));
+        }
+
+        private void SetupCoverMode()
+        {
+            if (YAMPVars.CORE?.CurrentTrack?.Covers != null && YAMPVars.CORE.CurrentTrack.Covers.Count > 0)
+            {
+                // Use the actual track cover (no disposal needed - it belongs to TrackInfo)
+                CoverImageBox.BackgroundImage = YAMPVars.CORE.CurrentTrack.Covers[0];
+            }
+            else
+            {
+                // Create a temporary black background (this one CAN be disposed later)
+                Bitmap bmp = new Bitmap(CoverImageBox.Width, CoverImageBox.Height);
+                using (Graphics gBmp = Graphics.FromImage(bmp))
+                {
+                    gBmp.Clear(Color.Black);
+                }
+                CoverImageBox.BackgroundImage = bmp;
+            }
+        }
+
+        private void SetupSpectrumMode()
+        {
+            leftChannelToolStripMenuItem.Checked = YAMPVars.DrawLeftChannelSpectrum;
+            rightChannelToolStripMenuItem.Checked = YAMPVars.DrawRightChannelSpectrum;
+
+            visualisation = new GraphVisualization();
+            YAMPVars.SingleBlockNotificationStream.SingleBlockRead += SingleBlockNotificationStream_SingleBlockRead;
+            visualizer.Start();
+        }
+
+        private void SetupLyricsMode()
+        {
+            CoverImageBox.Paint += CoverImageBox_Paint;
+            LyricLineChanged += NewMain_LyricLineChanged;
+
+            if (YAMPVars.CORE?.CurrentTrack?.Lyrics != null)
+            {
+                YAMPVars.NotificationSource.BlockRead += NotificationSource_BlockRead;
+            }
+            else
+            {
+                CurrentLyricLine = "No lyrics found. Load a file...";
             }
         }
 
         private void NewMain_LyricLineChanged(object sender, EventArgs e)
         {
-            CoverImageBox.Refresh();
+            ThreadSafeCall(CoverImageBox.Refresh);
         }
 
         private void CoverImageBox_Paint(object sender, PaintEventArgs e)
@@ -687,12 +838,11 @@ namespace YAMP_alpha
             if (PanelMode == YAMPEnums.PanelMode.Lyrics)
             {
                 var LyricsRect = LyricsHelper.UpdateLyricRect(CurrentLyricLine, CoverImageBox.DisplayRectangle, LyricsHelper.LyricsFont);
-                if (RefreshBrushes)
-                {
-                    LyricsHelper.UpdateLyricsWriterBrush(LyricsHelper.GetTextRectangle(CoverImageBox.DisplayRectangle, CurrentLyricLine, LyricsHelper.LyricsFont));
-                    LyricsHelper.UpdateLyricsBorderBrush(LyricsHelper.UpdateLyricRect(CurrentLyricLine, CoverImageBox.DisplayRectangle, LyricsHelper.LyricsFont));
-                    LyricsHelper.UpdateLyricsHighlightBrush(ref LyricsHelper.LyricsHighlightBrush, LyricsRect, LyricsHelper.EnableLyricsHighlightGradient);
-                }
+
+                LyricsHelper.UpdateLyricsWriterBrush(LyricsHelper.GetTextRectangle(CoverImageBox.DisplayRectangle, CurrentLyricLine, LyricsHelper.LyricsFont));
+                LyricsHelper.UpdateLyricsBorderBrush(LyricsHelper.UpdateLyricRect(CurrentLyricLine, CoverImageBox.DisplayRectangle, LyricsHelper.LyricsFont));
+                LyricsHelper.UpdateLyricsHighlightBrush(ref LyricsHelper.LyricsHighlightBrush, LyricsRect, LyricsHelper.EnableLyricsHighlightGradient);
+
                 if (LyricsHelper.EnableLyricsHighlight)
                 {
                     e.Graphics.FillRectangle(LyricsHelper.LyricsHighlightBrush, LyricsRect);
@@ -707,7 +857,7 @@ namespace YAMP_alpha
 
         private void SingleBlockNotificationStream_SingleBlockRead(object sender, CSCore.Streams.SingleBlockReadEventArgs e)
         {
-            visualisation.AddSamples(e.Left, e.Right);
+            visualisation?.AddSamples(e.Left, e.Right);
         }
 
         private void visualizer_Tick(object sender, EventArgs e)
@@ -722,7 +872,7 @@ namespace YAMP_alpha
 
         private void NewMain_SizeChanged(object sender, EventArgs e)
         {
-         
+
         }
 
         private void lyricsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -732,7 +882,7 @@ namespace YAMP_alpha
                 if (OFD.ShowDialog() == DialogResult.OK)
                 {
                     ParseLRC(OFD.FileName);
-                    if (PanelMode== YAMPEnums.PanelMode.Lyrics)
+                    if (PanelMode == YAMPEnums.PanelMode.Lyrics)
                     {
                         YAMPVars.NotificationSource.BlockRead += NotificationSource_BlockRead;
                     }
@@ -767,8 +917,8 @@ namespace YAMP_alpha
             if (visualisation != null)
             {
                 var menuItem = sender as ToolStripMenuItem;
-                visualisation.DrawLeftChannel = leftChannelToolStripMenuItem.Checked;
-                visualisation.DrawRightChannel = rightChannelToolStripMenuItem.Checked;
+                //visualisation.DrawLeftChannel = leftChannelToolStripMenuItem.Checked;
+                //visualisation.DrawRightChannel = rightChannelToolStripMenuItem.Checked;
             }
         }
 

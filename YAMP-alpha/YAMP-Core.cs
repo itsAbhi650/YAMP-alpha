@@ -9,8 +9,24 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+
 namespace YAMP_alpha
 {
+    /// <summary>
+    /// Indicates why the player stopped
+    /// </summary>
+    public enum StopReason
+    {
+        /// <summary>Track finished naturally (reached end)</summary>
+        TrackFinished,
+        /// <summary>User manually stopped playback</summary>
+        UserStopped,
+        /// <summary>Switching to next/previous track</summary>
+        TrackChanging,
+        /// <summary>Player being reset/reinitialized</summary>
+        PlayerReset
+    }
+
     public class YAMP_Core : IDisposable
     {
         internal NewMain UIRef;
@@ -20,6 +36,7 @@ namespace YAMP_alpha
         public CSCore.SoundOut.ISoundOut Player { get; private set; }
         public string PlayingFile { get; private set; }
         public bool PlayerStopped { get; set; } = false;
+        public StopReason LastStopReason { get; private set; } = StopReason.UserStopped;
         public int NextTrackDirection { get; set; } = 1;
         public IWaveSource PlayerSource { get; private set; }
         public TrackInfo CurrentTrack
@@ -27,8 +44,10 @@ namespace YAMP_alpha
             get { return _curtrack; }
             set { _curtrack = value; OnTrackChanged(); }
         }
-        public TrackInfo NextTrack = null;
-        private bool MoveValidated;
+
+        // Magic number documentation: 200000 samples represents the block size for audio notification events.
+        // This size determines how frequently the SingleBlockRead event fires during playback.
+        private const int NOTIFICATION_BLOCK_SIZE = 200000;
 
         public int SoundOutVolume
         {
@@ -45,9 +64,15 @@ namespace YAMP_alpha
 
         public CSCore.SoundOut.PlaybackState PlayerPlaybackState { get { return Player.PlaybackState; } }
 
-        public int PlayerLength { get { return (int)PlayerSource.Length; } }
+        public int PlayerLength 
+        { 
+            get { return PlayerSource?.Length > 0 ? (int)PlayerSource.Length : 0; } 
+        }
 
-        public int CurrentPosition { get { return (int)PlayerSource.Position; } }
+        public int CurrentPosition 
+        { 
+            get { return PlayerSource != null ? (int)PlayerSource.Position : 0; } 
+        }
 
         public YAMP_Core()
         {
@@ -59,38 +84,14 @@ namespace YAMP_alpha
             }).ContinueWith((t) => YAMPVars.SessionEnumerator = YAMPVars.AudioSessionManager.GetSessionEnumerator());
         }
 
-        private void Player_Stopped(object sender, CSCore.SoundOut.PlaybackStoppedEventArgs e)
-        {
-            PlayerStopped = true;
-        }
-
-        public bool isValidMove(int direction, out int DestIndex)
-        {
-
-            int CurrTrackIndex = GetCurrentTrackIndex();
-            DestIndex = CurrTrackIndex + direction;
-            if (DestIndex >= 0 && DestIndex < YAMPVars.TrackList.Count)
-            {
-                MoveValidated = true;
-
-            }
-            else
-            {
-                MoveValidated = false;
-            }
-            return MoveValidated;
-        }
-
+        // Safer GetTrackCover with bounds check
         public Image GetTrackCover(int index = 0)
         {
-            if (CurrentTrack != null && CurrentTrack.Covers.Count > 0)
+            if (CurrentTrack?.Covers != null && CurrentTrack.Covers.Count > index && index >= 0)
             {
                 return CurrentTrack.Covers[index];
             }
-            else
-            {
-                return null;
-            }
+            return null;
         }
 
         public void AdjustPlayerPosition(int Value)
@@ -117,8 +118,7 @@ namespace YAMP_alpha
             TagLib.Picture CoverPicture = GetCoverPicture(Audiofile);
             if (CoverPicture != null)
             {
-                MemoryStream MStream = new MemoryStream(CoverPicture.Data.Data);
-                CoverImage = Image.FromStream(MStream);
+                CoverImage = CreateImageFromBytes(CoverPicture.Data.Data);
             }
             return CoverImage;
         }
@@ -128,10 +128,36 @@ namespace YAMP_alpha
             Image CoverImage = null;
             if (Picture != null)
             {
-                MemoryStream MStream = new MemoryStream(Picture.Data.Data);
-                CoverImage = Image.FromStream(MStream);
+                CoverImage = CreateImageFromBytes(Picture.Data.Data);
             }
             return CoverImage;
+        }
+
+        /// <summary>
+        /// Creates an Image from byte data, ensuring the MemoryStream lifetime is managed safely.
+        /// The MemoryStream is not kept alive after this method returns; instead, a Bitmap copy is created.
+        /// </summary>
+        private Image CreateImageFromBytes(byte[] imageData)
+        {
+            if (imageData == null || imageData.Length == 0)
+                return null;
+
+            try
+            {
+                using (MemoryStream ms = new MemoryStream(imageData))
+                {
+                    using (Image tempImage = Image.FromStream(ms))
+                    {
+                        // Create a permanent Bitmap copy so the Image doesn't depend on the disposed MemoryStream
+                        return new Bitmap(tempImage);
+                    }
+                }
+            }
+            catch
+            {
+                // If image creation fails, return null rather than throwing
+                return null;
+            }
         }
 
         private TagLib.Picture GetCoverPicture(TagLib.File AudioFile)
@@ -186,26 +212,91 @@ namespace YAMP_alpha
             else { return false; }
         }
 
+        /// <summary>
+        /// Gets the index of the current track in the playlist.
+        /// Returns -1 if current track is not in the list or list is empty.
+        /// </summary>
+        public int GetCurrentTrackIndex()
+        {
+            if (CurrentTrack == null || YAMPVars.TrackList == null || YAMPVars.TrackList.Count == 0)
+                return -1;
+
+            // Use built-in IndexOf for reference equality check
+            return YAMPVars.TrackList.IndexOf(CurrentTrack);
+        }
+
+        /// <summary>
+        /// Checks if a track index is valid within the current playlist bounds.
+        /// </summary>
+        private bool IsValidTrackIndex(int index)
+        {
+            return YAMPVars.TrackList != null && 
+                   index >= 0 && 
+                   index < YAMPVars.TrackList.Count;
+        }
+
+        /// <summary>
+        /// Gets the track at the specified direction from the current track.
+        /// </summary>
+        /// <param name="direction">Direction to move (1 for next, -1 for previous)</param>
+        /// <returns>TrackInfo if found, null otherwise</returns>
+        private TrackInfo GetTrackAt(int direction)
+        {
+            int currentIndex = GetCurrentTrackIndex();
+            if (currentIndex < 0)
+                return null;
+
+            int targetIndex = currentIndex + direction;
+            
+            return IsValidTrackIndex(targetIndex) 
+                ? YAMPVars.TrackList[targetIndex] 
+                : null;
+        }
+
+        /// <summary>
+        /// Plays the next track in the specified direction.
+        /// </summary>
+        /// <param name="direction">Direction to move (1 for next, -1 for previous)</param>
+        /// <returns>True if next track was loaded and started, false if no track available</returns>
         public bool PlayNextTrackDirected(int direction)
         {
-            if (FetchTrackDirected(direction))
+            TrackInfo nextTrack = GetTrackAt(direction);
+            
+            if (nextTrack != null)
             {
+                // Mark this as a track change to prevent Player_Stopped event from interfering
+                LastStopReason = StopReason.TrackChanging;
                 Player.Stop();
-                InitializePlayer(NextTrack.Path);
-                CurrentTrack = NextTrack;
+
+                // Wait for stop to complete to ensure all event handlers finish
+                // This prevents race condition with Player_Stopped event
+                //int timeout = 100; // 100ms max wait
+                //while (Player.PlaybackState != CSCore.SoundOut.PlaybackState.Stopped && timeout > 0)
+                //{
+                //    System.Threading.Thread.Sleep(5);
+                //    timeout -= 5;
+                //}
+
+                // Wait for stop to complete before initializing new track
+                // This ensures all event handlers complete
+                while (Player.PlaybackState != CSCore.SoundOut.PlaybackState.Stopped)
+                {
+                    System.Threading.Thread.Sleep(1);  // Small delay to let stop complete
+                }
+
+                InitializePlayer(nextTrack.Path);
+                CurrentTrack = nextTrack;
                 PlayerStopped = false;
                 return true;
             }
-            else
-            {
-                return false;
-            }
+            return false;
         }
 
         public bool LoadTrackInfo(TrackInfo trackInfo)
         {
             if (trackInfo != null)
             {
+                LastStopReason = StopReason.TrackChanging;
                 Stop();
                 InitializePlayer(trackInfo.Path);
                 CurrentTrack = trackInfo;
@@ -214,31 +305,6 @@ namespace YAMP_alpha
             else
             {
                 return false;
-            }
-        }
-
-        public bool FetchTrackDirected(int direction)
-        {
-            if (isValidMove(direction, out int DestIndex))
-            {
-                YAMPVars.CORE.NextTrack = YAMPVars.TrackList.ElementAtOrDefault(DestIndex);
-            }
-            else
-            {
-                YAMPVars.CORE.NextTrack = null;
-            }
-            return YAMPVars.CORE.NextTrack != null;
-        }
-
-        public int GetCurrentTrackIndex()
-        {
-            if (!NetPlay)
-            {
-                return YAMPVars.TrackList.Select((t, i) => new { track = t, index = i }).First(x => x.track.Title == YAMPVars.CORE.CurrentTrack.Title).index;
-            }
-            else
-            {
-                return -1;
             }
         }
 
@@ -379,7 +445,7 @@ namespace YAMP_alpha
         public void CreateNotificationEvents()
         {
             YAMPVars.ResetStreamNotifications();
-            PlayerSource = PlayerSource.AppendSource(x => new SingleBlockNotificationStream(x.ToSampleSource(), 200000), out YAMPVars.SingleBlockNotificationStream).ToWaveSource();
+            PlayerSource = PlayerSource.AppendSource(x => new SingleBlockNotificationStream(x.ToSampleSource(), NOTIFICATION_BLOCK_SIZE), out YAMPVars.SingleBlockNotificationStream).ToWaveSource();
             YAMPVars.SingleBlockNotificationStream.SingleBlockRead += NotificationStream_SingleBlockRead;
             YAMPVars.SingleBlockNotificationStream.SingleBlockStreamAlmostFinished += NotificationStream_SingleBlockStreamAlmostFinished;
             YAMPVars.SingleBlockNotificationStream.SingleBlockStreamFinished += NotificationStream_SingleBlockStreamFinished;
@@ -394,21 +460,15 @@ namespace YAMP_alpha
 
         private void NotificationStream_SingleBlockStreamAlmostFinished(object sender, SingleBlockStreamAlmostFinishedEventArgs e)
         {
-            if (!NetPlay || PlayerSource.CanSeek)
+            // Apply fade-out effect near the end of the track if enabled
+            if (EnableFade && YAMPVars.FadeEffect != null)
             {
-                FetchTrackDirected(1);
-            }
+                // Find the remaining seconds after SingleBlockStreamAlmostFinished event triggers
+                // This is the duration over which the fade out will be applied
+                TimeSpan REMSEC = PlayerSource.GetLength() - PlayerSource.GetPosition();
 
-            if (EnableFade)
-            {
-                if (YAMPVars.FadeEffect != null)
-                {
-                    //This will find the remaining seconds after SingleBlockStreamAlmostFinished event triggers on which the fade out will be applied.
-                    TimeSpan REMSEC = PlayerSource.GetLength() - PlayerSource.GetPosition();
-
-                    //Starting volume set to null to use default/current volume.
-                    YAMPVars.FadeEffect.FadeStrategy.StartFading(null, 0, REMSEC);
-                }
+                // Starting volume set to null to use default/current volume
+                YAMPVars.FadeEffect.FadeStrategy.StartFading(null, 0, REMSEC);
             }
         }
 
@@ -416,6 +476,7 @@ namespace YAMP_alpha
         {
             if (!NetPlay || PlayerSource.CanSeek)
             {
+                LastStopReason = StopReason.TrackFinished;
                 PlayerStopped = true;
             }
         }
@@ -457,10 +518,9 @@ namespace YAMP_alpha
 
         public void ResetPlayer()
         {
+            LastStopReason = StopReason.PlayerReset;
             ReleasePlayer();
             Player = new CSCore.SoundOut.WasapiOut();
-            //LoadFile(PlayingFile);
-            //InitializePlayer();
         }
 
         public bool PlayerInitialized { get { return Player.WaveSource != null; } }
@@ -477,6 +537,7 @@ namespace YAMP_alpha
 
         public void Stop()
         {
+            LastStopReason = StopReason.UserStopped;
             Player.Stop();
             AdjustPlayerPosition(0);
         }
@@ -486,14 +547,55 @@ namespace YAMP_alpha
             Player.Pause();
         }
 
+        private bool _disposed = false;
+        private readonly object _disposeLock = new object();
+
+        // Replace Dispose() with full Dispose pattern and event cleanup
         public void Dispose()
         {
-            PlayingFile = string.Empty;
-            if (PlayerSource != null)
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed) return;
+
+            lock (_disposeLock)
             {
-                PlayerSource.Dispose();
+                if (_disposed) return;
+                if (disposing)
+                {
+                    // managed cleanup
+                    try
+                    {
+                        // Stop and unsubscribe notification stream events
+                        if (YAMPVars.SingleBlockNotificationStream != null)
+                        {
+                            YAMPVars.SingleBlockNotificationStream.SingleBlockRead -= NotificationStream_SingleBlockRead;
+                            YAMPVars.SingleBlockNotificationStream.SingleBlockStreamAlmostFinished -= NotificationStream_SingleBlockStreamAlmostFinished;
+                            YAMPVars.SingleBlockNotificationStream.SingleBlockStreamFinished -= NotificationStream_SingleBlockStreamFinished;
+                        }
+
+                        // Stop player safely
+                        try { Player?.Stop(); } catch { }
+                        try { PlayerSource?.Dispose(); } catch { }
+                        try { Player?.Dispose(); } catch { }
+                    }
+                    catch
+                    {
+                        // log if you have logging, otherwise swallow to avoid throwing from Dispose
+                    }
+                }
+
+                // unmanaged cleanup (none here)
+                _disposed = true;
             }
-            Player.Dispose();
+        }
+
+        ~YAMP_Core()
+        {
+            Dispose(false);
         }
     }
 

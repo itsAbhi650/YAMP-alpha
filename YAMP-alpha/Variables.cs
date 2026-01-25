@@ -2,7 +2,7 @@
 using CSCore.DSP;
 using CSCore.Streams;
 using CSCore.Streams.Effects;
-using KoenZomers.OneDrive.Api;
+//using KoenZomers.OneDrive.Api;
 using System.Collections.Generic;
 
 namespace YAMP_alpha
@@ -42,7 +42,7 @@ namespace YAMP_alpha
         internal static LoopStream TrackLoop;
         internal static PanSource ChannelPan;
         internal static PositionLoop TrackPositionLoop;
-        internal static OneDriveConsumerApi OneDriveApi;
+        //internal static OneDriveConsumerApi OneDriveApi;
 
         public static void ResetEffectVars()
         {
