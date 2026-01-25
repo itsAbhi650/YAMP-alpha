@@ -72,7 +72,7 @@
             this.TrackSeekBar.Size = new System.Drawing.Size(290, 46);
             this.TrackSeekBar.SmallChange = 1;
             this.TrackSeekBar.TabIndex = 2;
-            this.TrackSeekBar.ThumbColor = System.Drawing.Color.Transparent;
+            //this.TrackSeekBar.ThumbColor = System.Drawing.Color.Transparent;
             this.TrackSeekBar.TickEdgeStyle = System.Windows.Forms.VisualStyles.EdgeStyle.Raised;
             this.TrackSeekBar.TickStyle = DoubleTrackBar.DoubleTrackBar.Tickstyle.BottomRight;
             this.TrackSeekBar.ValueLeft = 0;

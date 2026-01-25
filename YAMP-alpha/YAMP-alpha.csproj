@@ -71,9 +71,8 @@
     <Reference Include="CSCore.Ffmpeg, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\CSCore.Ffmpeg.1.2.0-beta1\lib\net35\CSCore.Ffmpeg.dll</HintPath>
     </Reference>
-    <Reference Include="DoubleTrackBar, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>bin\Debug\DoubleTrackBar.dll</HintPath>
+    <Reference Include="DoubleTrackBar">
+      <HintPath>..\packages\DoubleTrackBar\DoubleTrackBar.dll</HintPath>
     </Reference>
     <Reference Include="FftSharp, Version=1.1.4.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\FftSharp.1.1.4\lib\netstandard2.0\FftSharp.dll</HintPath>
@@ -154,8 +153,7 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="TagLibSharp, Version=2.3.0.0, Culture=neutral, PublicKeyToken=db62eba44689b5b0, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>bin\Debug\TagLibSharp.dll</HintPath>
+      <HintPath>..\packages\TagLibSharp.2.3.0\lib\net462\TagLibSharp.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase" />
   </ItemGroup>

@@ -31,12 +31,6 @@ namespace YAMP_alpha
 
         }
 
-        public GraphVisualization(bool DrawLeftSpectrum, bool DrawRightSpectrum)
-        {
-            DrawLeftChannel = DrawLeftSpectrum;
-            DrawRightChannel = DrawRightChannel;
-        }
-
         public void AddSamples(float left, float right)
         {
             lock (_lockObj)
