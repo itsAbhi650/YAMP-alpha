@@ -32,12 +32,11 @@
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.TbPg_Scope = new System.Windows.Forms.TabPage();
-            this.formsPlot1 = new ScottPlot.FormsPlot();
+            this.EqCurve = new System.Windows.Forms.PictureBox();
             this.TbPg_Spectrogram = new System.Windows.Forms.TabPage();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.Pb_Spectrogram = new System.Windows.Forms.PictureBox();
             this.TbPg_SpectogramAdv = new System.Windows.Forms.TabPage();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.CmbBx_FftSize = new System.Windows.Forms.ComboBox();
             this.label8 = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
             this.ChkBx_RollGraph = new System.Windows.Forms.CheckBox();
@@ -61,13 +60,18 @@
             this.Spectrogram = new System.Windows.Forms.Timer(this.components);
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.recenterEQToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.spectrogramONToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.spectrogramAdvONToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.VolMeter = new YAMP_alpha.Controls.MeterControl();
+            this.GainMeter = new YAMP_alpha.Controls.MeterControl();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.TbPg_Scope.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.EqCurve)).BeginInit();
             this.TbPg_Spectrogram.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Pb_Spectrogram)).BeginInit();
             this.TbPg_SpectogramAdv.SuspendLayout();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NUD_OffHz)).BeginInit();
@@ -98,6 +102,7 @@
             this.tabControl1.Controls.Add(this.TbPg_SpectogramAdv);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl1.Location = new System.Drawing.Point(0, 0);
+            this.tabControl1.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
             this.tabControl1.Size = new System.Drawing.Size(869, 286);
@@ -105,44 +110,50 @@
             // 
             // TbPg_Scope
             // 
-            this.TbPg_Scope.Controls.Add(this.formsPlot1);
+            this.TbPg_Scope.Controls.Add(this.EqCurve);
+            this.TbPg_Scope.Controls.Add(this.VolMeter);
+            this.TbPg_Scope.Controls.Add(this.GainMeter);
             this.TbPg_Scope.Location = new System.Drawing.Point(4, 22);
+            this.TbPg_Scope.Margin = new System.Windows.Forms.Padding(0);
             this.TbPg_Scope.Name = "TbPg_Scope";
-            this.TbPg_Scope.Padding = new System.Windows.Forms.Padding(3);
             this.TbPg_Scope.Size = new System.Drawing.Size(861, 260);
             this.TbPg_Scope.TabIndex = 0;
-            this.TbPg_Scope.Text = "Scope";
+            this.TbPg_Scope.Text = "Equalizer";
             this.TbPg_Scope.UseVisualStyleBackColor = true;
             // 
-            // formsPlot1
+            // EqCurve
             // 
-            this.formsPlot1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.formsPlot1.Location = new System.Drawing.Point(3, 3);
-            this.formsPlot1.Name = "formsPlot1";
-            this.formsPlot1.Size = new System.Drawing.Size(855, 254);
-            this.formsPlot1.TabIndex = 0;
+            this.EqCurve.BackColor = System.Drawing.Color.Black;
+            this.EqCurve.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.EqCurve.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.EqCurve.Location = new System.Drawing.Point(144, 0);
+            this.EqCurve.Name = "EqCurve";
+            this.EqCurve.Size = new System.Drawing.Size(717, 260);
+            this.EqCurve.TabIndex = 0;
+            this.EqCurve.TabStop = false;
             // 
             // TbPg_Spectrogram
             // 
-            this.TbPg_Spectrogram.Controls.Add(this.pictureBox1);
+            this.TbPg_Spectrogram.BackColor = System.Drawing.Color.Black;
+            this.TbPg_Spectrogram.Controls.Add(this.Pb_Spectrogram);
             this.TbPg_Spectrogram.Location = new System.Drawing.Point(4, 22);
             this.TbPg_Spectrogram.Name = "TbPg_Spectrogram";
-            this.TbPg_Spectrogram.Padding = new System.Windows.Forms.Padding(3);
             this.TbPg_Spectrogram.Size = new System.Drawing.Size(861, 260);
             this.TbPg_Spectrogram.TabIndex = 1;
             this.TbPg_Spectrogram.Text = "Spectrogram";
-            this.TbPg_Spectrogram.UseVisualStyleBackColor = true;
             // 
-            // pictureBox1
+            // Pb_Spectrogram
             // 
-            this.pictureBox1.BackColor = System.Drawing.Color.White;
-            this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Left;
-            this.pictureBox1.Location = new System.Drawing.Point(3, 3);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(800, 254);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pictureBox1.TabIndex = 0;
-            this.pictureBox1.TabStop = false;
+            this.Pb_Spectrogram.BackColor = System.Drawing.Color.Black;
+            this.Pb_Spectrogram.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.Pb_Spectrogram.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.Pb_Spectrogram.Location = new System.Drawing.Point(0, 0);
+            this.Pb_Spectrogram.Margin = new System.Windows.Forms.Padding(0);
+            this.Pb_Spectrogram.Name = "Pb_Spectrogram";
+            this.Pb_Spectrogram.Size = new System.Drawing.Size(861, 260);
+            this.Pb_Spectrogram.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.Pb_Spectrogram.TabIndex = 0;
+            this.Pb_Spectrogram.TabStop = false;
             // 
             // TbPg_SpectogramAdv
             // 
@@ -181,16 +192,6 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(128, 260);
             this.panel1.TabIndex = 17;
-            // 
-            // CmbBx_FftSize
-            // 
-            this.CmbBx_FftSize.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.CmbBx_FftSize.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.CmbBx_FftSize.FormattingEnabled = true;
-            this.CmbBx_FftSize.Location = new System.Drawing.Point(435, 0);
-            this.CmbBx_FftSize.Name = "CmbBx_FftSize";
-            this.CmbBx_FftSize.Size = new System.Drawing.Size(95, 20);
-            this.CmbBx_FftSize.TabIndex = 19;
             // 
             // label8
             // 
@@ -264,7 +265,6 @@
             this.CmbBx_ColMap.Name = "CmbBx_ColMap";
             this.CmbBx_ColMap.Size = new System.Drawing.Size(95, 20);
             this.CmbBx_ColMap.TabIndex = 2;
-            this.CmbBx_ColMap.SelectedIndexChanged += new System.EventHandler(this.CmbBx_ColMap_SelectedIndexChanged);
             // 
             // ChkBx_Dcbl
             // 
@@ -410,6 +410,8 @@
             // 
             // Pb_SpectrogramAdv
             // 
+            this.Pb_SpectrogramAdv.BackColor = System.Drawing.Color.Black;
+            this.Pb_SpectrogramAdv.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.Pb_SpectrogramAdv.Dock = System.Windows.Forms.DockStyle.Left;
             this.Pb_SpectrogramAdv.Location = new System.Drawing.Point(0, 0);
             this.Pb_SpectrogramAdv.Name = "Pb_SpectrogramAdv";
@@ -430,7 +432,9 @@
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.recenterEQToolStripMenuItem});
+            this.recenterEQToolStripMenuItem,
+            this.spectrogramONToolStripMenuItem,
+            this.spectrogramAdvONToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(869, 24);
@@ -444,12 +448,60 @@
             this.recenterEQToolStripMenuItem.Text = "Recenter EQ";
             this.recenterEQToolStripMenuItem.Click += new System.EventHandler(this.recenterEQToolStripMenuItem_Click);
             // 
+            // spectrogramONToolStripMenuItem
+            // 
+            this.spectrogramONToolStripMenuItem.CheckOnClick = true;
+            this.spectrogramONToolStripMenuItem.Name = "spectrogramONToolStripMenuItem";
+            this.spectrogramONToolStripMenuItem.Size = new System.Drawing.Size(111, 20);
+            this.spectrogramONToolStripMenuItem.Text = "Spectrogram: ON";
+            this.spectrogramONToolStripMenuItem.CheckedChanged += new System.EventHandler(this.spectrogramONToolStripMenuItem_CheckedChanged);
+            // 
+            // spectrogramAdvONToolStripMenuItem
+            // 
+            this.spectrogramAdvONToolStripMenuItem.CheckOnClick = true;
+            this.spectrogramAdvONToolStripMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.spectrogramAdvONToolStripMenuItem.Name = "spectrogramAdvONToolStripMenuItem";
+            this.spectrogramAdvONToolStripMenuItem.Size = new System.Drawing.Size(135, 20);
+            this.spectrogramAdvONToolStripMenuItem.Text = "Spectrogram Adv: ON";
+            this.spectrogramAdvONToolStripMenuItem.CheckedChanged += new System.EventHandler(this.spectrogramAdvONToolStripMenuItem_CheckedChanged);
+            // 
+            // VolMeter
+            // 
+            this.VolMeter.AutoValidate = System.Windows.Forms.AutoValidate.Disable;
+            this.VolMeter.BackColor = System.Drawing.Color.Red;
+            this.VolMeter.BackgroundColor = System.Drawing.Color.Black;
+            this.VolMeter.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.VolMeter.Dock = System.Windows.Forms.DockStyle.Left;
+            this.VolMeter.LEDColor = System.Drawing.Color.Lime;
+            this.VolMeter.LEDSize = 1;
+            this.VolMeter.Level = 0;
+            this.VolMeter.Location = new System.Drawing.Point(72, 0);
+            this.VolMeter.Maximum = 1;
+            this.VolMeter.Name = "VolMeter";
+            this.VolMeter.Size = new System.Drawing.Size(72, 260);
+            this.VolMeter.TabIndex = 1;
+            // 
+            // GainMeter
+            // 
+            this.GainMeter.AutoValidate = System.Windows.Forms.AutoValidate.Disable;
+            this.GainMeter.BackColor = System.Drawing.Color.Red;
+            this.GainMeter.BackgroundColor = System.Drawing.Color.Black;
+            this.GainMeter.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.GainMeter.Dock = System.Windows.Forms.DockStyle.Left;
+            this.GainMeter.LEDColor = System.Drawing.Color.DodgerBlue;
+            this.GainMeter.LEDSize = 1;
+            this.GainMeter.Level = 0;
+            this.GainMeter.Location = new System.Drawing.Point(0, 0);
+            this.GainMeter.Maximum = 1;
+            this.GainMeter.Name = "GainMeter";
+            this.GainMeter.Size = new System.Drawing.Size(72, 260);
+            this.GainMeter.TabIndex = 0;
+            // 
             // EqualizerDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(869, 548);
-            this.Controls.Add(this.CmbBx_FftSize);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
@@ -462,8 +514,9 @@
             this.splitContainer1.ResumeLayout(false);
             this.tabControl1.ResumeLayout(false);
             this.TbPg_Scope.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.EqCurve)).EndInit();
             this.TbPg_Spectrogram.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Pb_Spectrogram)).EndInit();
             this.TbPg_SpectogramAdv.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
@@ -484,8 +537,7 @@
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage TbPg_Scope;
         private System.Windows.Forms.TabPage TbPg_Spectrogram;
-        private ScottPlot.FormsPlot formsPlot1;
-        private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.PictureBox Pb_Spectrogram;
         private System.Windows.Forms.Timer Scope;
         private System.Windows.Forms.Timer Spectrogram;
         private System.Windows.Forms.MenuStrip menuStrip1;
@@ -510,7 +562,11 @@
         private System.Windows.Forms.NumericUpDown NUD_OffHz;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Panel panel2;
-        private System.Windows.Forms.ComboBox CmbBx_FftSize;
         private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.PictureBox EqCurve;
+        private System.Windows.Forms.ToolStripMenuItem spectrogramONToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem spectrogramAdvONToolStripMenuItem;
+        private Controls.MeterControl GainMeter;
+        private Controls.MeterControl VolMeter;
     }
 }
