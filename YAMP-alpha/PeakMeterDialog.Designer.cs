@@ -28,32 +28,17 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.trackBar1 = new System.Windows.Forms.TrackBar();
             this.button1 = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.meterControl1 = new YAMP_alpha.Controls.MeterControl();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.trackBar2 = new System.Windows.Forms.TrackBar();
+            this.meterControl2 = new YAMP_alpha.Controls.MeterControl();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.trackBar3 = new System.Windows.Forms.TrackBar();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
+            this.meterControl3 = new YAMP_alpha.Controls.MeterControl();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar2)).BeginInit();
             this.groupBox3.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar3)).BeginInit();
             this.SuspendLayout();
-            // 
-            // trackBar1
-            // 
-            this.trackBar1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.trackBar1.Location = new System.Drawing.Point(3, 16);
-            this.trackBar1.Maximum = 100;
-            this.trackBar1.Name = "trackBar1";
-            this.trackBar1.Orientation = System.Windows.Forms.Orientation.Vertical;
-            this.trackBar1.Size = new System.Drawing.Size(55, 202);
-            this.trackBar1.TabIndex = 0;
-            this.trackBar1.TickFrequency = 5;
-            this.trackBar1.TickStyle = System.Windows.Forms.TickStyle.Both;
             // 
             // button1
             // 
@@ -68,7 +53,7 @@
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.trackBar1);
+            this.groupBox1.Controls.Add(this.meterControl1);
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Left;
             this.groupBox1.Location = new System.Drawing.Point(0, 0);
             this.groupBox1.Name = "groupBox1";
@@ -77,9 +62,23 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Left";
             // 
+            // meterControl1
+            // 
+            this.meterControl1.AutoValidate = System.Windows.Forms.AutoValidate.Disable;
+            this.meterControl1.BackgroundColor = System.Drawing.Color.Black;
+            this.meterControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.meterControl1.LEDColor = System.Drawing.Color.DeepSkyBlue;
+            this.meterControl1.LEDSize = 1;
+            this.meterControl1.Level = 0;
+            this.meterControl1.Location = new System.Drawing.Point(3, 16);
+            this.meterControl1.Maximum = 100;
+            this.meterControl1.Name = "meterControl1";
+            this.meterControl1.Size = new System.Drawing.Size(55, 202);
+            this.meterControl1.TabIndex = 0;
+            // 
             // groupBox2
             // 
-            this.groupBox2.Controls.Add(this.trackBar2);
+            this.groupBox2.Controls.Add(this.meterControl2);
             this.groupBox2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox2.Location = new System.Drawing.Point(61, 0);
             this.groupBox2.Name = "groupBox2";
@@ -88,21 +87,23 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Right";
             // 
-            // trackBar2
+            // meterControl2
             // 
-            this.trackBar2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.trackBar2.Location = new System.Drawing.Point(3, 16);
-            this.trackBar2.Maximum = 100;
-            this.trackBar2.Name = "trackBar2";
-            this.trackBar2.Orientation = System.Windows.Forms.Orientation.Vertical;
-            this.trackBar2.Size = new System.Drawing.Size(53, 202);
-            this.trackBar2.TabIndex = 0;
-            this.trackBar2.TickFrequency = 5;
-            this.trackBar2.TickStyle = System.Windows.Forms.TickStyle.Both;
+            this.meterControl2.AutoValidate = System.Windows.Forms.AutoValidate.Disable;
+            this.meterControl2.BackgroundColor = System.Drawing.Color.Black;
+            this.meterControl2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.meterControl2.LEDColor = System.Drawing.Color.Lime;
+            this.meterControl2.LEDSize = 1;
+            this.meterControl2.Level = 0;
+            this.meterControl2.Location = new System.Drawing.Point(3, 16);
+            this.meterControl2.Maximum = 100;
+            this.meterControl2.Name = "meterControl2";
+            this.meterControl2.Size = new System.Drawing.Size(53, 202);
+            this.meterControl2.TabIndex = 0;
             // 
             // groupBox3
             // 
-            this.groupBox3.Controls.Add(this.trackBar3);
+            this.groupBox3.Controls.Add(this.meterControl3);
             this.groupBox3.Dock = System.Windows.Forms.DockStyle.Right;
             this.groupBox3.Location = new System.Drawing.Point(120, 0);
             this.groupBox3.Name = "groupBox3";
@@ -111,17 +112,19 @@
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Average";
             // 
-            // trackBar3
+            // meterControl3
             // 
-            this.trackBar3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.trackBar3.Location = new System.Drawing.Point(3, 16);
-            this.trackBar3.Maximum = 100;
-            this.trackBar3.Name = "trackBar3";
-            this.trackBar3.Orientation = System.Windows.Forms.Orientation.Vertical;
-            this.trackBar3.Size = new System.Drawing.Size(57, 202);
-            this.trackBar3.TabIndex = 0;
-            this.trackBar3.TickFrequency = 5;
-            this.trackBar3.TickStyle = System.Windows.Forms.TickStyle.Both;
+            this.meterControl3.AutoValidate = System.Windows.Forms.AutoValidate.Disable;
+            this.meterControl3.BackgroundColor = System.Drawing.Color.Black;
+            this.meterControl3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.meterControl3.LEDColor = System.Drawing.Color.Firebrick;
+            this.meterControl3.LEDSize = 1;
+            this.meterControl3.Level = 0;
+            this.meterControl3.Location = new System.Drawing.Point(3, 16);
+            this.meterControl3.Maximum = 100;
+            this.meterControl3.Name = "meterControl3";
+            this.meterControl3.Size = new System.Drawing.Size(57, 202);
+            this.meterControl3.TabIndex = 1;
             // 
             // PeakMeterDialog
             // 
@@ -136,28 +139,22 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Name = "PeakMeterDialog";
             this.Text = "PeakMeterDialog";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.PeakMeterDialog_FormClosing);
             this.Load += new System.EventHandler(this.PeakMeterDialog_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
             this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
-            this.groupBox2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar2)).EndInit();
             this.groupBox3.ResumeLayout(false);
-            this.groupBox3.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar3)).EndInit();
             this.ResumeLayout(false);
 
         }
 
         #endregion
-
-        private System.Windows.Forms.TrackBar trackBar1;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.TrackBar trackBar2;
         private System.Windows.Forms.GroupBox groupBox3;
-        private System.Windows.Forms.TrackBar trackBar3;
+        private Controls.MeterControl meterControl1;
+        private Controls.MeterControl meterControl2;
+        private Controls.MeterControl meterControl3;
     }
 }

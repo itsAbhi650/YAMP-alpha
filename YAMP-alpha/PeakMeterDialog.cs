@@ -20,29 +20,61 @@ namespace YAMP_alpha
             }
         }
 
+        private void PeakMeterDialog_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            // Unsubscribe from event to prevent memory leaks
+            if (YAMPVars.AudioPeakMeter != null)
+            {
+                YAMPVars.AudioPeakMeter.PeakCalculated -= AudioPeakMeter_PeakCalculated;
+            }
+        }
+
         private void AudioPeakMeter_PeakCalculated(object sender, CSCore.Streams.PeakEventArgs e)
         {
             if (!YAMPVars.CORE.PlayerStopped)
             {
-                int[] PeakVals = YAMPVars.AudioPeakMeter.ChannelPeakValues.Select(x => (int)(x * 100F)).ToArray();
-                int Left;
-                int Right;
-                int avgpeak;
+                // Clone or snapshot peak values to avoid cross-thread issues
+                float[] channelPeaks;
+                lock (YAMPVars.AudioPeakMeter)
+                {
+                    channelPeaks = YAMPVars.AudioPeakMeter.ChannelPeakValues.ToArray();
+                }
+
+                int[] PeakVals = channelPeaks.Select(x => (int)(x * 100F)).ToArray();
+
+                int Left, Right, avgpeak;
+
                 if (PeakVals.Length > 1)
                 {
                     Left = PeakVals[0];
                     Right = PeakVals[1];
                     avgpeak = (int)((Left + Right) / 2F);
                 }
+                else if (PeakVals.Length == 1)
+                {
+                    Left = Right = avgpeak = PeakVals[0];
+                }
                 else
                 {
-                    Left = PeakVals[0];
-                    Right = PeakVals[0];
-                    avgpeak = PeakVals[0];
+                    return; // no peaks to display
                 }
-                trackBar1.Value = Left;
-                trackBar2.Value = Right;
-                trackBar3.Value = avgpeak;
+
+                // Marshal back to UI thread
+                if (meterControl1.InvokeRequired)
+                {
+                    meterControl1.Invoke((MethodInvoker)(() =>
+                    {
+                        meterControl1.Level = Left;// Clamp(Left, 0, meterControl1.Maximum);
+                        meterControl2.Level = Right;// Clamp(Right, 0, meterControl2.Maximum);
+                        meterControl3.Level = avgpeak;// Clamp(avgpeak, 0, meterControl3.Maximum);
+                    }));
+                }
+                else
+                {
+                    meterControl1.Level = Left;// Clamp(Left, 0, meterControl1.Maximum);
+                    meterControl2.Level = Right;// Clamp(Right, 0, meterControl2.Maximum);
+                    meterControl3.Level = avgpeak;// Clamp(avgpeak, 0, meterControl3.Maximum);
+                }
             }
         }
 

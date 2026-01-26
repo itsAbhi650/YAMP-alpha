@@ -63,16 +63,17 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.TrackSeekBar.BorderColor = System.Drawing.Color.DarkGray;
             this.TrackSeekBar.BorderStyle = System.Windows.Forms.ButtonBorderStyle.Solid;
+            this.TrackSeekBar.LeftThumbColor = System.Drawing.Color.Transparent;
             this.TrackSeekBar.LeftThumbDirection = DoubleTrackBar.DoubleTrackBar.ThumbDirection.Bottom;
             this.TrackSeekBar.Location = new System.Drawing.Point(12, 38);
             this.TrackSeekBar.Maximum = 50;
             this.TrackSeekBar.Minimum = 0;
             this.TrackSeekBar.Name = "TrackSeekBar";
+            this.TrackSeekBar.RightThumbColor = System.Drawing.Color.Transparent;
             this.TrackSeekBar.RightThumbDirection = DoubleTrackBar.DoubleTrackBar.ThumbDirection.Bottom;
             this.TrackSeekBar.Size = new System.Drawing.Size(290, 46);
             this.TrackSeekBar.SmallChange = 1;
             this.TrackSeekBar.TabIndex = 2;
-            //this.TrackSeekBar.ThumbColor = System.Drawing.Color.Transparent;
             this.TrackSeekBar.TickEdgeStyle = System.Windows.Forms.VisualStyles.EdgeStyle.Raised;
             this.TrackSeekBar.TickStyle = DoubleTrackBar.DoubleTrackBar.Tickstyle.BottomRight;
             this.TrackSeekBar.ValueLeft = 0;
