@@ -2,12 +2,10 @@
 using CSCore.Streams;
 using CSCore.Streams.Effects;
 using FftSharp;
-using ScottPlot.Plottable;
 using System;
 using System.Data;
 using System.Drawing;
 using System.Linq;
-using Spectrogram;
 using System.Windows.Forms;
 using YAMP_alpha.Controls;
 
@@ -16,18 +14,14 @@ namespace YAMP_alpha
     public partial class EqualizerDialog : Form
     {
         private float[] buffer;
-        private double[] SpectroBuffer;
-        //private SignalPlot signalPlot;
         private BasicSpectrumProvider SpectrumProvider;
         private VoicePrint3DSpectrum Spectrum;
-        private SpectrogramGenerator SpectroScott;
         private int SampleRate;
         private int ChannelCount;
         private FftSize FFTSIZE;
         private Bitmap SpectroBitmap;
         private static int MaxDB = 6;
         private int _xpos;
-        private Colormap[] Colormaps = Colormap.GetColormaps();
         private EQBand[] FrequencyBands = null;
         private EQBand VolBand = new EQBand("Volume", 0, 100, 0, string.Empty)
         {
@@ -52,14 +46,8 @@ namespace YAMP_alpha
         private void EqualizerDialog_Load(object sender, EventArgs e)
         {
             SpectroBitmap = new Bitmap(2140, 702);
-            CmbBx_ColMap.DataSource = Colormap.GetColormapNames();
-            CmbBx_RotateGraph.DataSource = Enum.GetNames(typeof(RotateFlipType)).Select(x => x.Remove(0, "Rotate".Length)).ToArray();
-            CmbBx_ImgMode.DataSource = Enum.GetNames(typeof(PictureBoxSizeMode));
             GainMeter.Maximum = GainBand.BandMax;
             VolMeter.Maximum = VolBand.BandMax;
-            //CmbBx_FftSize.DataSource = Enum.GetNames(typeof(FftSize));
-            //CmbBx_FftSize.SelectedItem = "Fft4096";
-            //CmbBx_FftSize.SelectedIndexChanged += CmbBx_FftSize_SelectedIndexChanged;
 
             if (YAMPVars.CORE != null && YAMPVars.CORE.PlayerSource != null)
             {
@@ -68,15 +56,9 @@ namespace YAMP_alpha
                 FFTSIZE = YAMPVars.FftProvider.FftSize;
                 SampleRate = YAMPVars.CORE.PlayerSource.WaveFormat.SampleRate;
                 SpectrumProvider = new BasicSpectrumProvider(ChannelCount, SampleRate, FFTSIZE);
-                
-                YAMPVars.NotificationSource.BlockRead += NotificationSource_BlockRead;
+
                 YAMPVars.SingleBlockNotificationStream.SingleBlockRead += SingleBlockNotificationStream_SingleBlockRead;
                 
-                CmbBx_ColMap.SelectedIndexChanged += new System.EventHandler(this.CmbBx_ColMap_SelectedIndexChanged);
-                SpectroScott = new SpectrogramGenerator(SampleRate, (int)FFTSIZE, 512) { OffsetHz = 20 };
-                Pb_Spectrogram.Height = SpectroScott.Height;
-                SpectroScott.SetFixedWidth(Pb_SpectrogramAdv.Width);
-
                 Spectrum = new VoicePrint3DSpectrum(FFTSIZE)
                 {
                     SpectrumProvider = SpectrumProvider,
@@ -139,7 +121,7 @@ namespace YAMP_alpha
 
         private void NotificationSource_BlockRead(object sender, BlockReadEventArgs<float> e)
         {
-            SpectroBuffer = e.Data.Select(x => (double)(x * (int)NUD_Multiplier.Value)).ToArray();
+
         }
 
         private void SingleBlockNotificationStream_SingleBlockRead(object sender, SingleBlockReadEventArgs e)
@@ -400,27 +382,6 @@ namespace YAMP_alpha
             return new PointF(x, y);
         }
 
-        private void Scope_Tick(object sender, EventArgs e)
-        {
-            bool isNewDataAvailable = YAMPVars.FftProvider.IsNewDataAvailable;
-            if (isNewDataAvailable)
-            {
-                buffer = new float[4096];
-                YAMPVars.FftProvider.GetFftData(buffer);
-
-                if (SpectroBuffer != null)
-                {
-                    SpectroScott.Add(SpectroBuffer);
-                    if (SpectroScott.Width > 0)
-                    {
-                        Pb_SpectrogramAdv.Image?.Dispose();
-                        var Bitmp = SpectroScott.GetBitmap((float)NUD_Brightness.Value, dB: ChkBx_Dcbl.Checked, roll: ChkBx_RollGraph.Checked);
-                        Bitmp.RotateFlip((RotateFlipType)Enum.Parse(typeof(RotateFlipType), "Rotate" + CmbBx_RotateGraph.SelectedItem.ToString()));
-                        Pb_SpectrogramAdv.Image = Bitmp;
-                    }
-                }
-            }
-        }
         private void Spectrogram_Tick(object sender, EventArgs e)
         {
             GenerateVoice3DPrintSpectrum();
@@ -437,45 +398,6 @@ namespace YAMP_alpha
             }
         }
 
-        private void CmbBx_ColMap_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            SpectroScott.Colormap = Colormaps[CmbBx_ColMap.SelectedIndex];
-        }
-
-        private void CmbBx_ImgMode_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            Pb_SpectrogramAdv.SizeMode = (PictureBoxSizeMode)Enum.Parse(typeof(PictureBoxSizeMode), CmbBx_ImgMode.SelectedItem.ToString());
-        }
-
-        private void EqualizerDialog_SizeChanged(object sender, EventArgs e)
-        {
-            if (ChkBx_ResizeSpectro.Checked)
-            {
-                SpectroScott.SetFixedWidth(Pb_SpectrogramAdv.Width);
-            }
-        }
-
-        private void NUD_OffHz_ValueChanged(object sender, EventArgs e)
-        {
-            SpectroScott.OffsetHz = (int)NUD_OffHz.Value;
-        }
-
-
-        private void spectrogramAdvONToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
-        {
-            Scope.Enabled = spectrogramAdvONToolStripMenuItem.Checked;
-            if (!Scope.Enabled)
-            {
-                Pb_SpectrogramAdv.Image = null;
-                Pb_SpectrogramAdv.Invalidate();
-                spectrogramAdvONToolStripMenuItem.Text = "Spectrogram Adv: OFF";
-            }
-            else
-            {
-                spectrogramAdvONToolStripMenuItem.Text = "Spectrogram Adv: ON";
-            }
-        }
-
         private void spectrogramONToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
         {
             Spectrogram.Enabled = spectrogramONToolStripMenuItem.Checked;
@@ -484,10 +406,12 @@ namespace YAMP_alpha
                 Pb_Spectrogram.Image = null;
                 Pb_Spectrogram.Invalidate();
                 spectrogramONToolStripMenuItem.Text = "Spectrogram: OFF";
+                tabControl1.TabPages.Remove(TbPg_Spectrogram);
             }
             else
             {
                 spectrogramONToolStripMenuItem.Text = "Spectrogram: ON";
+                tabControl1.TabPages.Add(TbPg_Spectrogram);
             }
         }
     }
