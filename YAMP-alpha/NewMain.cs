@@ -1,4 +1,5 @@
 ﻿using CSCore;
+using CSCore.DSP;
 using Microsoft.VisualBasic;
 using System;
 using System.Drawing;
@@ -16,6 +17,11 @@ namespace YAMP_alpha
         GraphVisualization visualisation = null;
         private string _curlyrln = "";
         private bool RefreshBrushes;
+        private BasicSpectrumProvider _circularSpectrumProvider;
+        private PeakHoldSpectrumProvider peakHoldProvider;
+        private SmoothingSpectrumProvider smoothingProvider;
+        private CircularSpectrum _circularSpectrum;
+        private HorizontalBarSpectrum _horizontalBarSpectrum;
 
         private event EventHandler LyricLineChanged;
         private string CurrentLyricLine
@@ -247,67 +253,6 @@ namespace YAMP_alpha
                     dImgHeight = _height;
                 }
                 Size = new Size((int)dImgWidth + Border, (int)dImgHeight + GetAdditionalPlayerHeight());
-                //GetClientRect(r);
-                //int width = r.Width();
-                //int height = r.Height();
-                //if (!m_bCustomImgLoaded)
-                //{
-                //    // Limit logo size
-                //    // TODO: Use vector logo to preserve quality and remove limit.
-                //    width = std::min(img.GetWidth(), width);
-                //    height = std::min(img.GetHeight(), height);
-                //}
-
-                //int height = (int)Math.Floor(cover.Height * percent);
-                //if (height<MinimumSize.Height)
-                //{
-                //    height = (int)(MinimumSize.Height * 1.25F);
-                //}
-                //int width = (int)Math.Floor(cover.Width * percent);
-                //if (width<MinimumSize.Width)
-                //{
-                //    width = (int)(MinimumSize.Width * 1.25F);
-                //}
-                //int coverwidthdiff = width - CoverImageBox.ClientSize.Width;
-                //width = (coverwidthdiff > 0 ? width + (coverwidthdiff) : coverwidthdiff < 0 ? width - (coverwidthdiff) : width);
-                ////width = (int)MinimumSize.
-                //Size newSize = new Size(width + Border, height + AdditionalPlayerHeight);
-                //Size diffSize = newSize.GetDifference(MinimumSize, out SizeExtensions.Difference diff);
-                //switch (diff)
-                //{   
-                //    case SizeExtensions.Difference.Equal:
-                //    case SizeExtensions.Difference.Bigger:
-                //        Size = newSize;
-                //        break;
-                //    case SizeExtensions.Difference.Smaller:
-                //        width = (int)Math.Floor(cover.Width * percent)+100;
-                //        coverwidthdiff = width - CoverImageBox.ClientSize.Width;
-                //        width = (coverwidthdiff > 0 ? width + (coverwidthdiff) : coverwidthdiff < 0 ? width - (coverwidthdiff) : width) + Border;
-                //        height = (width - Border) + AdditionalPlayerHeight;
-                //        newSize = new Size(width, height);
-                //        Size = newSize;
-                //        break;
-                //    default:
-                //        break;
-                //}
-                //if (Width > width)
-                //{
-                //    Width = Width - (Width - width);
-                //}
-                //else
-                //{
-                //    Image img = CoverImageBox.BackgroundImage;
-                //    Width = width + Border;
-                //    //if (CoverImageBox.ClientRectangle.Width < Width)
-                //    //{
-                //    //    Width -= Width - CoverImageBox.ClientRectangle.Width;
-                //    //}
-                //}
-                //if (CoverImageBox.ClientRectangle.Height<CoverImageBox.Height)
-                //{
-                //    Height -= CoverImageBox.Height - CoverImageBox.ClientRectangle.Height;
-                //}
-                //Width = (int)(cover.Width * percent) + (Width - ClientRectangle.Width);//) - (Width - CoverImageBox.Width);
             }
         }
 
@@ -666,11 +611,6 @@ namespace YAMP_alpha
             }.ShowDialog();
         }
 
-        private void filtersToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
-        }
-
         private void signalFilteringToolStripMenuItem_Click(object sender, EventArgs e)
         {
             new SignalFilterDialog().Show();
@@ -689,51 +629,6 @@ namespace YAMP_alpha
                 UpdatePanel(PanelMode);
             }
         }
-
-        //private void UpdatePanel(YAMPEnums.PanelMode Mode)
-        //{
-        //    CoverImageBox.BackgroundImage = null;
-        //    switch (Mode)
-        //    {
-        //        case YAMPEnums.PanelMode.Cover:
-        //            YAMPVars.NotificationSource.BlockRead -= NotificationSource_BlockRead;
-        //            visualizer.Stop();
-        //            visualisation = null;
-        //            YAMPVars.SingleBlockNotificationStream.SingleBlockRead -= SingleBlockNotificationStream_SingleBlockRead;
-        //            CoverImageBox.Paint -= CoverImageBox_Paint;
-        //            if (YAMPVars.CORE.CurrentTrack.Covers.Count > 0)
-        //            {
-        //                CoverImageBox.BackgroundImage = YAMPVars.CORE.CurrentTrack.Covers[0];
-        //            }
-        //            break;
-        //        case YAMPEnums.PanelMode.Spectrum:
-        //            YAMPVars.NotificationSource.BlockRead -= NotificationSource_BlockRead;
-        //            leftChannelToolStripMenuItem.Checked = YAMPVars.DrawLeftChannelSpectrum;
-        //            rightChannelToolStripMenuItem.Checked = YAMPVars.DrawRightChannelSpectrum;
-        //            visualisation = new GraphVisualization();
-        //            YAMPVars.SingleBlockNotificationStream.SingleBlockRead += SingleBlockNotificationStream_SingleBlockRead;
-        //            CoverImageBox.Paint -= CoverImageBox_Paint;
-        //            visualizer.Start();
-        //            break;
-        //        case YAMPEnums.PanelMode.Lyrics:
-        //            visualizer.Stop();
-        //            visualisation = null;
-        //            YAMPVars.SingleBlockNotificationStream.SingleBlockRead -= SingleBlockNotificationStream_SingleBlockRead;
-        //            CoverImageBox.Paint += CoverImageBox_Paint;
-        //            LyricLineChanged += NewMain_LyricLineChanged;
-        //            if (YAMPVars.CORE.CurrentTrack.Lyrics == null)
-        //            {
-        //                CurrentLyricLine = "No lyrics found. Load a file...";
-        //                YAMPVars.NotificationSource.BlockRead -= NotificationSource_BlockRead;
-        //                CoverImageBox.Paint -= CoverImageBox_Paint;
-        //            }
-        //            else
-        //                YAMPVars.NotificationSource.BlockRead += NotificationSource_BlockRead;
-        //            break;
-        //        default:
-        //            break;
-        //    }
-        //}
 
         private void UpdatePanel(YAMPEnums.PanelMode mode)
         {
@@ -762,14 +657,116 @@ namespace YAMP_alpha
                     SetupCoverMode();
                     break;
 
-                case YAMPEnums.PanelMode.Spectrum:
+                case YAMPEnums.PanelMode.Waveform:
                     SetupSpectrumMode();
+                    break;
+
+                case YAMPEnums.PanelMode.Circular:
+                    SetupCircularMode();
                     break;
 
                 case YAMPEnums.PanelMode.Lyrics:
                     SetupLyricsMode();
                     break;
+
+                case YAMPEnums.PanelMode.Bars:
+                    SetupHorizontalBarsMode();
+                    break;
             }
+        }
+
+        private void SetupCircularMode()
+        {
+            const FftSize fftSize = FftSize.Fft4096;
+            
+            // Create spectrum provider for circular visualization
+            _circularSpectrumProvider = new BasicSpectrumProvider(YAMPVars.CORE.Player.WaveSource.WaveFormat.Channels,
+                YAMPVars.CORE.Player.WaveSource.WaveFormat.SampleRate, fftSize);
+
+            // Create circular spectrum with configurable style
+            _circularSpectrum = new CircularSpectrum(fftSize)
+            {
+                SpectrumProvider = _circularSpectrumProvider,
+                UseAverage = true,
+                BarCount = 60, // More bars for circular looks better
+                BarWidth = 3.0f,
+                InnerRadius = 50,
+                IsXLogScale = true,
+                ScalingStrategy = ScalingStrategy.Sqrt,
+                
+                // Style options:
+                // - FullCircle: Standard full 360° circle (may look unbalanced due to frequency differences)
+                // - SymmetricMirror: Mirrors frequency data at 180° for perfectly balanced look
+                // - MusicalRange: Uses frequency cutoff (60Hz-8kHz) for more balanced visualization
+                // - SemiCircle, HalfArcBottom, HalfArcTop: Various arc styles
+                // - MirrorMode: Bars grow both inward and outward
+                // - DualRing: Two concentric rings
+                Style = CircularSpectrumStyle.SymmetricMirror, // Best for balanced circular appearance
+                
+                EnableRotation = false // Set to true for rotating effect
+            };
+
+            YAMPVars.SingleBlockNotificationStream.SingleBlockRead += SingleBlockNotificationStream_SingleBlockRead;
+
+            visualizer.Start();
+        }
+
+        private void SetupHorizontalBarsMode()
+        {
+            const FftSize fftSize = FftSize.Fft4096;
+
+            // Choose spectrum provider type:
+            // Option 1: PeakHoldSpectrumProvider - shows falling peak indicators  
+            // NOTE: This is kept for backward compatibility, but HorizontalBarSpectrum
+            // now has its own built-in peak tracking that respects bar scaling
+            //peakHoldProvider = new PeakHoldSpectrumProvider(
+            //    YAMPVars.CORE.Player.WaveSource.WaveFormat.Channels,
+            //    YAMPVars.CORE.Player.WaveSource.WaveFormat.SampleRate,
+            //    fftSize,
+            //    peakHoldFrames: 10,      // Hold peaks for 10 frames before decay
+            //    peakDecayRate: 0.9f      // Decay rate (0.9 = fast, 0.98 = slow)
+            //);
+
+            // Option 2: SmoothingSpectrumProvider - smooth, flowing bars
+            smoothingProvider = new SmoothingSpectrumProvider(
+                YAMPVars.CORE.Player.WaveSource.WaveFormat.Channels,
+                YAMPVars.CORE.Player.WaveSource.WaveFormat.SampleRate,
+                fftSize,
+                attackTime: 0.05f,   // 20ms attack
+                releaseTime: 0.01f,   // 100ms release
+                frameRate: 60       // 60 FPS
+            );
+            // Or use preset: smoothingProvider.SetSmoothingPreset(SmoothingPreset.Medium);
+
+            // Create horizontal bar spectrum with built-in peak tracking
+            _horizontalBarSpectrum = new HorizontalBarSpectrum(fftSize)
+            {
+                SpectrumProvider = smoothingProvider,  // Use any provider
+                UseAverage = true,
+                BarCount = 30,
+                BarSpacing = 2,
+                IsXLogScale = true,
+                ScalingStrategy = ScalingStrategy.Sqrt,
+                
+                ShowPeakIndicators = false,
+                PeakIndicatorColor = Color.Red,
+                
+                // Peak modes:
+                // - FallingPeak: Peaks decay gradually (classic analyzer behavior)
+                // - NeverFall: Peaks stay at maximum forever (session peak tracking)
+                // - InstantFall: Peaks follow bar height instantly (visual accent)
+                // - NoPeaks: No peak indicators displayed (clean bars only)
+                PeakMode = PeakHoldMode.FallingPeak,  // Try NeverFall, InstantFall, or NoPeaks
+
+                PeakHoldFrames = 17,      // Hold for 15 frames (~250ms @ 60fps)
+                PeakDecayRate = 0.97f,    // Decay rate (0.9 = fast, 0.98 = slow)
+                
+                RenderDirection = BarSpectrumRenderDirection.VerticalBottomToTop
+            };
+
+            YAMPVars.SingleBlockNotificationStream.SingleBlockRead += SingleBlockNotificationStream_SingleBlockRead;
+
+            visualizer.Start();
         }
 
         /// <summary>
@@ -857,16 +854,59 @@ namespace YAMP_alpha
 
         private void SingleBlockNotificationStream_SingleBlockRead(object sender, CSCore.Streams.SingleBlockReadEventArgs e)
         {
-            visualisation?.AddSamples(e.Left, e.Right);
+            switch (PanelMode)
+            {
+                case YAMPEnums.PanelMode.Waveform:
+                    visualisation?.AddSamples(e.Left, e.Right);
+                    break;
+                case YAMPEnums.PanelMode.Circular:
+                    _circularSpectrumProvider?.Add(e.Left, e.Right);
+                    break;
+                case YAMPEnums.PanelMode.Bars:
+                    smoothingProvider?.Add(e.Left, e.Right);
+                    break;
+            }
         }
 
         private void visualizer_Tick(object sender, EventArgs e)
         {
-            var image = CoverImageBox.BackgroundImage;
-            CoverImageBox.BackgroundImage = visualisation.Draw(CoverImageBox.Width, CoverImageBox.Height);
-            if (image != null)
+            Image image = CoverImageBox.Image;
+            Image newImage = null;
+            if (PanelMode == YAMPEnums.PanelMode.Waveform)
             {
-                image.Dispose();
+                newImage = visualisation?.Draw(CoverImageBox.Width, CoverImageBox.Height);
+            }
+            else if (PanelMode == YAMPEnums.PanelMode.Circular)
+            {
+                if (_circularSpectrum != null)
+                {
+                    // Optional: Add rotation animation
+                    if (_circularSpectrum.EnableRotation)
+                    {
+                        _circularSpectrum.Rotation += 2.0f; // Rotate 2 degrees per frame
+                    }
+                    
+                    newImage = _circularSpectrum.CreateCircularSpectrum(CoverImageBox.Size, Color.Cyan, Color.Purple, Color.Black, true);
+                }
+            }
+            else if (PanelMode == YAMPEnums.PanelMode.Bars)
+            {
+                if (_horizontalBarSpectrum != null)
+                {
+                    newImage = _horizontalBarSpectrum.CreateHorizontalBarSpectrum(
+                        CoverImageBox.Size, 
+                        Color.Lime,      // Start color (left)
+                        Color.Red,       // End color (right)
+                        Color.Black,     // Background
+                        true             // High quality
+                    );
+                }
+            }
+            if (newImage != null)
+            {
+                CoverImageBox.BackgroundImage = newImage;
+                if (image != null)
+                    image.Dispose();
             }
         }
 

@@ -253,7 +253,10 @@
     <Compile Include="GargleEffectDialog.Designer.cs">
       <DependentUpon>GargleEffectDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="GraphVisualization.cs" />
+    <Compile Include="Visualization\BarSpectrumRenderDirection.cs" />
+    <Compile Include="Visualization\CircularSpectrum.cs" />
+    <Compile Include="Visualization\CircularSpectrumStyle.cs" />
+    <Compile Include="Visualization\GraphVisualization.cs" />
     <Compile Include="LyricsConfig.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -329,9 +332,13 @@
     <Compile Include="Variables.cs" />
     <Compile Include="Visualization\BasicSpectrumProvider.cs" />
     <Compile Include="Visualization\GradientCalculator.cs" />
+    <Compile Include="Visualization\HorizontalBarSpectrum.cs" />
     <Compile Include="Visualization\ISpectrumProvider.cs" />
     <Compile Include="Visualization\LineSpectrum.cs" />
+    <Compile Include="Visualization\PeakHoldMode.cs" />
+    <Compile Include="Visualization\PeakHoldSpectrumProvider.cs" />
     <Compile Include="Visualization\ScalingStrategy.cs" />
+    <Compile Include="Visualization\SmoothingSpectrumProvider.cs" />
     <Compile Include="Visualization\SpectrumBase.cs" />
     <Compile Include="Visualization\VoicePrint3DSpectrum.cs" />
     <Compile Include="VUMeterDialog.cs">
@@ -471,6 +478,11 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="Visualization\AdvancedSpectrumProviders_QuickStart.md" />
+    <None Include="Visualization\AdvancedSpectrumProviders_README.md" />
+    <None Include="Visualization\BarSpectrumRenderDirection_README.md" />
+    <None Include="Visualization\CircularSpectrum_QuickGuide.md" />
+    <None Include="Visualization\CircularSpectrum_README.md" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">

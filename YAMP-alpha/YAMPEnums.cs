@@ -11,8 +11,10 @@ namespace YAMP_alpha
         public enum PanelMode
         {
             Cover = 0,
-            Spectrum = 1,
-            Lyrics = 2,
+            Waveform = 1,
+            Bars = 2,
+            Circular = 3,
+            Lyrics = 4
         }
     }
 }

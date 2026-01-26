@@ -271,7 +271,7 @@
             this.Cb_RenderSpectrum.Name = "Cb_RenderSpectrum";
             this.Cb_RenderSpectrum.Size = new System.Drawing.Size(109, 17);
             this.Cb_RenderSpectrum.TabIndex = 25;
-            this.Cb_RenderSpectrum.Text = "Render Spectrum";
+            this.Cb_RenderSpectrum.Text = "Render Waveform";
             this.Cb_RenderSpectrum.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.Cb_RenderSpectrum.UseVisualStyleBackColor = true;
             this.Cb_RenderSpectrum.CheckedChanged += new System.EventHandler(this.Cb_RenderSpectrum_CheckedChanged);

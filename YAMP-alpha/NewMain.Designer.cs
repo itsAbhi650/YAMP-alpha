@@ -588,7 +588,7 @@
             this.rightChannelToolStripMenuItem});
             this.spectrumToolStripMenuItem.Name = "spectrumToolStripMenuItem";
             this.spectrumToolStripMenuItem.Size = new System.Drawing.Size(125, 22);
-            this.spectrumToolStripMenuItem.Text = "Spectrum";
+            this.spectrumToolStripMenuItem.Text = "Waveform";
             // 
             // leftChannelToolStripMenuItem
             // 
