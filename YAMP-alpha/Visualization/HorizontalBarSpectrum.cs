@@ -20,7 +20,7 @@ namespace YAMP_alpha
         private Color _peakIndicatorColor;
         private BarSpectrumRenderDirection _renderDirection;
         private double[] _scaledPeakValues;  // Track peaks of SCALED bar values (not raw FFT)
-        private int _framesSinceLastPeak;
+        private int[] _peakHoldCounters;      // Per-bar hold counters for peak decay timing
         private int _peakHoldFrames = 15;
         private float _peakDecayRate = 0.95f;
         private PeakHoldMode _peakMode = PeakHoldMode.FallingPeak;
@@ -245,14 +245,12 @@ namespace YAMP_alpha
             // Prepare the FFT result for rendering (this applies scaling, averaging, log scale, etc.)
             SpectrumPointData[] spectrumPoints = CalculateSpectrumPoints(maxBarValue, fftBuffer);
 
-            // Initialize or resize peak tracking array
+            // Initialize or resize peak tracking arrays
             if (_scaledPeakValues == null || _scaledPeakValues.Length != BarCount)
             {
                 _scaledPeakValues = new double[BarCount];
+                _peakHoldCounters = new int[BarCount];
             }
-
-            // Increment frame counter for peak decay
-            _framesSinceLastPeak++;
 
             // Draw the bars and update peaks based on render direction
             for (int i = 0; i < spectrumPoints.Length; i++)
@@ -294,9 +292,81 @@ namespace YAMP_alpha
                 // Draw peak indicator if enabled (uses scaled peak value that matches bar height)
                 if (_showPeakIndicators && barIndex < _scaledPeakValues.Length)
                 {
-                    DrawScaledPeakIndicator(graphics, barIndex, _scaledPeakValues[barIndex], width, height);
+                    // Get the color at the bar's position from the brush for matching peak color
+                    Color peakColor = GetColorAtBarPosition(brush, barIndex, width, height);
+                    DrawScaledPeakIndicator(graphics, barIndex, _scaledPeakValues[barIndex], width, height, peakColor);
                 }
             }
+        }
+
+        /// <summary>
+        /// Gets the color from the brush at the bar's position (for gradient brushes)
+        /// </summary>
+        private Color GetColorAtBarPosition(Brush brush, int barIndex, int width, int height)
+        {
+            // If using fixed PeakIndicatorColor, return it
+            if (_peakIndicatorColor != Color.Empty && _peakIndicatorColor != Color.Transparent)
+            {
+                // Check if user explicitly set a peak color (non-default)
+                // We'll use the bar color instead by sampling from the brush
+            }
+
+            // For solid brushes, return the solid color
+            if (brush is SolidBrush solidBrush)
+            {
+                return solidBrush.Color;
+            }
+
+            // For gradient brushes, calculate the color at the bar's position
+            if (brush is LinearGradientBrush gradientBrush)
+            {
+                // Get the position ratio based on render direction
+                float ratio;
+                bool isVertical = _renderDirection == BarSpectrumRenderDirection.VerticalBottomToTop || 
+                                 _renderDirection == BarSpectrumRenderDirection.VerticalTopToBottom;
+
+                if (isVertical)
+                {
+                    // For vertical bars, position is along X axis (width)
+                    double xCoord = BarSpacing * (barIndex + 1) + (_barHeight * barIndex) + (_barHeight / 2);
+                    ratio = (float)(xCoord / width);
+                }
+                else
+                {
+                    // For horizontal bars, position is along Y axis (height)
+                    double yCoord = BarSpacing * (barIndex + 1) + (_barHeight * barIndex) + (_barHeight / 2);
+                    ratio = (float)(yCoord / height);
+                }
+
+                ratio = Math.Max(0f, Math.Min(1f, ratio)); // Clamp to 0-1
+
+                // Interpolate between the gradient colors
+                Color[] colors = gradientBrush.LinearColors;
+                if (colors != null && colors.Length >= 2)
+                {
+                    return InterpolateColor(colors[0], colors[1], ratio);
+                }
+            }
+
+            // Fallback to PeakIndicatorColor
+            return _peakIndicatorColor;
+        }
+
+        /// <summary>
+        /// Interpolates between two colors based on a ratio (0.0 to 1.0)
+        /// </summary>
+        private Color InterpolateColor(Color color1, Color color2, float ratio)
+        {
+            int r = (int)(color1.R + (color2.R - color1.R) * ratio);
+            int g = (int)(color1.G + (color2.G - color1.G) * ratio);
+            int b = (int)(color1.B + (color2.B - color1.B) * ratio);
+            int a = (int)(color1.A + (color2.A - color1.A) * ratio);
+
+            return Color.FromArgb(
+                Math.Max(0, Math.Min(255, a)),
+                Math.Max(0, Math.Min(255, r)),
+                Math.Max(0, Math.Min(255, g)),
+                Math.Max(0, Math.Min(255, b)));
         }
 
         private RectangleF CreateHorizontalLeftToRightBar(int barIndex, double barValue, int width, int height)
@@ -352,21 +422,35 @@ namespace YAMP_alpha
         }
 
         /// <summary>
-        /// Updates peak value for a specific bar using the SCALED bar value
+        /// Updates peak value for a specific bar using the SCALED bar value.
+        /// When bar touches or exceeds falling peak, hold timer resets.
         /// </summary>
         private void UpdateScaledPeak(int barIndex, double currentScaledValue)
         {
             if (barIndex < 0 || barIndex >= _scaledPeakValues.Length)
                 return;
 
-            // If current bar is taller than peak, update peak
-            if (currentScaledValue > _scaledPeakValues[barIndex])
+            double currentPeak = _scaledPeakValues[barIndex];
+            
+            // Check if bar has reached or exceeded the current peak (including touching a falling peak)
+            // Use a small tolerance to detect "touching" the peak
+            const double touchTolerance = 2.0; // pixels
+            bool barTouchesPeak = currentScaledValue >= (currentPeak - touchTolerance);
+
+            if (currentScaledValue >= currentPeak)
             {
+                // Bar exceeds peak - update peak and reset hold counter
                 _scaledPeakValues[barIndex] = currentScaledValue;
+                _peakHoldCounters[barIndex] = 0;
+            }
+            else if (barTouchesPeak && _peakMode == PeakHoldMode.FallingPeak)
+            {
+                // Bar is touching a falling peak - reset hold counter to keep peak at current level
+                _peakHoldCounters[barIndex] = 0;
             }
             else
             {
-                // Apply decay based on mode
+                // Bar is below peak - apply decay based on mode
                 switch (_peakMode)
                 {
                     case PeakHoldMode.NeverFall:
@@ -374,8 +458,11 @@ namespace YAMP_alpha
                         break;
 
                     case PeakHoldMode.FallingPeak:
+                        // Increment per-bar hold counter
+                        _peakHoldCounters[barIndex]++;
+                        
                         // Standard falling peak with hold time
-                        if (_framesSinceLastPeak > _peakHoldFrames)
+                        if (_peakHoldCounters[barIndex] > _peakHoldFrames)
                         {
                             _scaledPeakValues[barIndex] *= _peakDecayRate;
                             
@@ -395,11 +482,11 @@ namespace YAMP_alpha
         /// <summary>
         /// Draws peak indicator using pre-scaled peak value (already in pixel coordinates)
         /// </summary>
-        private void DrawScaledPeakIndicator(Graphics graphics, int barIndex, double peakValue, int width, int height)
+        private void DrawScaledPeakIndicator(Graphics graphics, int barIndex, double peakValue, int width, int height, Color peakColor)
         {
             if (peakValue <= 2) return; // Only draw if visible
 
-            using (Pen peakPen = new Pen(_peakIndicatorColor, 2.0f))
+            using (Pen peakPen = new Pen(peakColor, 2.0f))
             {
                 switch (_renderDirection)
                 {
@@ -435,7 +522,10 @@ namespace YAMP_alpha
             {
                 Array.Clear(_scaledPeakValues, 0, _scaledPeakValues.Length);
             }
-            _framesSinceLastPeak = 0;
+            if (_peakHoldCounters != null)
+            {
+                Array.Clear(_peakHoldCounters, 0, _peakHoldCounters.Length);
+            }
         }
 
         protected override void UpdateFrequencyMapping()
