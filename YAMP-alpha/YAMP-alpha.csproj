@@ -151,6 +151,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AudioFileSupport.cs" />
     <Compile Include="AudioFilters.cs" />
     <Compile Include="BellFilter.cs" />
     <Compile Include="BigArt.cs">
