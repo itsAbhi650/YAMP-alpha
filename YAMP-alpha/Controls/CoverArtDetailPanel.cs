@@ -14,6 +14,7 @@ namespace YAMP_alpha.Controls
     public partial class CoverArtDetailPanel : UserControl
     {
         public string LoadedImagePath;
+        public TagLib.IPicture OriginalPicture;
 
 
         public CoverArtDetailPanel()
@@ -39,6 +40,22 @@ namespace YAMP_alpha.Controls
 
         [Category("Data"), DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         public string Description { get { return tbPicDesc.Text; } set { tbPicDesc.Text = value; } }
+
+        public TagLib.IPicture ToPicture()
+        {
+            TagLib.Picture picture = !string.IsNullOrEmpty(LoadedImagePath)
+                ? new TagLib.Picture(LoadedImagePath)
+                : OriginalPicture != null
+                    ? new TagLib.Picture(OriginalPicture)
+                    : null;
+
+            if (picture == null)
+                return null;
+
+            picture.Type = CoverType;
+            picture.Description = Description;
+            return picture;
+        }
 
         [Category("Action"), Description("Occurs when cover image is double clicked.")]
         public event EventHandler CoverDoubleClick;
