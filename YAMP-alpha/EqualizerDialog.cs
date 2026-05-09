@@ -1,4 +1,4 @@
-﻿using CSCore.DSP;
+using CSCore.DSP;
 using CSCore.Streams;
 using CSCore.Streams.Effects;
 using FftSharp;
@@ -20,19 +20,14 @@ namespace YAMP_alpha
         private int ChannelCount;
         private FftSize FFTSIZE;
         private Bitmap SpectroBitmap;
-        private static int MaxDB = 6;
+        private static int MaxDB = 20;
         private int _xpos;
         private EQBand[] FrequencyBands = null;
-        private EQBand VolBand = new EQBand("Volume", 0, 100, 0, string.Empty)
-        {
-            FooterVisible = true,
-            Dock = DockStyle.Left,
-            ShowBandValueInFooter = true
-        };
 
-        private EQBand GainBand = new EQBand("Gain", 100, 400, 0, string.Empty)
+        private EQBand GainBand = new EQBand("Gain", 100, 400, 100, "")
         {
-            FooterVisible = true,
+            FooterVisibilityMode = YAMP_alpha.Controls.EQBand.FooterVisibility.Always,
+            FooterContentMode = YAMP_alpha.Controls.EQBand.FooterContentSelect.Value,
             Dock = DockStyle.Left,
             ShowBandValueInFooter = true
         };
@@ -47,61 +42,45 @@ namespace YAMP_alpha
         {
             SpectroBitmap = new Bitmap(2140, 702);
             GainMeter.Maximum = GainBand.BandMax;
-            VolMeter.Maximum = VolBand.BandMax;
-
+            GainBand.BandValue = 101;
             if (YAMPVars.CORE != null && YAMPVars.CORE.PlayerSource != null)
             {
-                ChannelCount = YAMPVars.CORE.PlayerSource.WaveFormat.Channels;
-                YAMPVars.FftProvider = new FftProvider(ChannelCount, FftSize.Fft4096);
-                FFTSIZE = YAMPVars.FftProvider.FftSize;
-                SampleRate = YAMPVars.CORE.PlayerSource.WaveFormat.SampleRate;
-                SpectrumProvider = new BasicSpectrumProvider(ChannelCount, SampleRate, FFTSIZE);
-
-                YAMPVars.SingleBlockNotificationStream.SingleBlockRead += SingleBlockNotificationStream_SingleBlockRead;
-                
-                Spectrum = new VoicePrint3DSpectrum(FFTSIZE)
-                {
-                    SpectrumProvider = SpectrumProvider,
-                    UseAverage = true,
-                    PointCount = 200,
-                    IsXLogScale = true,
-                    ScalingStrategy = ScalingStrategy.Sqrt
-                };
-
                 GainBand.ValueChanged += GainBand_ValueChanged;
-                VolBand.ValueChanged += VolBand_ValueChanged;
-
                 GainBand.BandValue = (int)(YAMPVars.GainSource.Volume * 100f);
-                VolBand.BandValue = (int)(YAMPVars.VolumeSource.Volume * 100f);
-
-                splitContainer1.Panel2.Controls.Add(VolBand);
                 splitContainer1.Panel2.Controls.Add(GainBand);
-                
+
                 //Scope.Start();
                 //Spectrogram.Start();
-                FrequencyBands = new EQBand[YAMPVars.EqualizerEffect.SampleFilters.Count];
-                
-                for (int i = 0; i < YAMPVars.EqualizerEffect.SampleFilters.Count; i++)
+                if (YAMPVars.FrequencyBands == null)
                 {
-                    EqualizerFilter item = YAMPVars.EqualizerEffect.SampleFilters[i];
-                    int FilterFreq = (int)item.Filters[0].Frequency;
-                    string FreqText = (FilterFreq < 1000) ? (FilterFreq.ToString() + " Hz") : ((FilterFreq / 1000).ToString() + " KHz");
-                    FrequencyBands[i] = new EQBand("EQ", -6, 6, 0, FreqText)
+                    YAMPVars.FrequencyBands = new EQBand[YAMPVars.EqualizerEffect.SampleFilters.Count];
+                    for (int i = 0; i < YAMPVars.FrequencyBands.Length; i++)
                     {
-                        Dock = DockStyle.Left,
-                        FooterText = FreqText,
-                        Tag = i,
-                    };
+                        EqualizerFilter item = YAMPVars.EqualizerEffect.SampleFilters[i];
+                        int FilterFreq = (int)item.Filters[0].Frequency;
+                        string FreqText = (FilterFreq < 1000) ? (FilterFreq.ToString() + " Hz") : ((FilterFreq / 1000).ToString() + " KHz");
+                        YAMPVars.FrequencyBands[i] = new EQBand(FreqText, -MaxDB, MaxDB, 0, "")
+                        {
+                            Dock = DockStyle.Left,
+                            Tag = i,
+                            ShowBandValueInFooter = true,
+                            FooterVisibilityMode = EQBand.FooterVisibility.Always,
+                            FooterContentMode = EQBand.FooterContentSelect.Value
+                        };
 
-                    FrequencyBands[i].BandValue = (int)(item.AverageGainDB / MaxDB * FrequencyBands[i].BandMax);
-                    FrequencyBands[i].ValueChanged += EQBAND_ValueChanged;
-                    FrequencyBands[i].DoubleClick += EQBAND_DoubleClick;
-                    
-                    splitContainer1.Panel2.Controls.Add(FrequencyBands[i]);
-                    FrequencyBands[i].BringToFront();
+                        YAMPVars.FrequencyBands[i].BandValue = (int)(item.AverageGainDB / MaxDB * YAMPVars.FrequencyBands[i].BandMax);
+                        YAMPVars.FrequencyBands[i].ValueChanged += EQBAND_ValueChanged;
+                        YAMPVars.FrequencyBands[i].DoubleClick += EQBAND_DoubleClick;
+                    }
                 }
 
-                EqCurve.Image = RenderEQCurve(FrequencyBands, EqCurve.Width, EqCurve.Height);
+                for (int i = 0; i < YAMPVars.FrequencyBands.Length; i++)
+                {
+                    splitContainer1.Panel2.Controls.Add(YAMPVars.FrequencyBands[i]);
+                    YAMPVars.FrequencyBands[i].BringToFront();
+                }
+
+                EqCurve.Image = RenderEQCurve(YAMPVars.FrequencyBands, EqCurve.Width, EqCurve.Height);
             }
         }
 
@@ -111,11 +90,12 @@ namespace YAMP_alpha
             var Band = (EQBand)sender;
             int filterIndex = (int)Band.Tag;
             var EQFilter = YAMPVars.EqualizerEffect.SampleFilters[filterIndex];
-            using (var BandConfigurator = new EQBandConfigDialog(EQFilter))
+            using (var BandConfigurator = new EQBandConfigDialog(EQFilter, MaxDB))
             {
                 BandConfigurator.ShowDialog();
             }
-            Band.BandValue = GainToBand(EQFilter.AverageGainDB, Band.BandMax, MaxDB);
+            Band.LockBand();
+            //Band.BandValue = GainToBand(EQFilter.AverageGainDB, Band.BandMax, MaxDB);
             inBand = false;
         }
 
@@ -136,12 +116,6 @@ namespace YAMP_alpha
             GainMeter.Level = GainBand.BandValue;
         }
 
-        private void VolBand_ValueChanged(object sender, EventArgs e)
-        {
-            YAMPVars.VolumeSource.Volume = VolBand.BandValue / 100f;
-            VolMeter.Level = VolBand.BandValue;
-        }
-
         private void EQBAND_ValueChanged(object sender, EventArgs e)
         {
             if (!inBand)
@@ -151,8 +125,8 @@ namespace YAMP_alpha
                 if (flag)
                 {
                     int filterIndex = (int)EQBAND.Tag;
-                    YAMPVars.EqualizerEffect.SampleFilters[filterIndex].AverageGainDB = BandToGain(EQBAND.BandValue, MaxDB, MaxDB);
-                    EqCurve.Image = RenderEQCurve(FrequencyBands, EqCurve.Width, EqCurve.Height);
+                    YAMPVars.EqualizerEffect.SampleFilters[filterIndex].AverageGainDB = EQBAND.BandValue;// BandToGain(EQBAND.BandValue, MaxDB, MaxDB);
+                    EqCurve.Image = RenderEQCurve(YAMPVars.FrequencyBands, EqCurve.Width, EqCurve.Height);
                 }
             }
         }
@@ -223,11 +197,13 @@ namespace YAMP_alpha
                 using (Pen gridPen = new Pen(Color.FromArgb(40, 50, 50, 60), 1f))
                 {
                     gridPen.DashStyle = System.Drawing.Drawing2D.DashStyle.Dot;
-                    
-                    // +6dB, +3dB, 0dB, -3dB, -6dB lines
-                    for (int db = -6; db <= 6; db += 3)
+
+                    // Space grid lines logically (e.g. 4 partitions from center to max)
+                    int step = Math.Max(1, MaxDB / 4);
+
+                    for (int db = -MaxDB; db <= MaxDB; db += step)
                     {
-                        float y = midY - (db / 6.0f) * (height / 2f);
+                        float y = midY - (db / (float)MaxDB) * (height / 2f);
                         g.DrawLine(gridPen, 0, y, width, y);
                     }
                 }
@@ -255,7 +231,8 @@ namespace YAMP_alpha
                 for (int i = 0; i < count; i++)
                 {
                     float x = i * bandSpacing;
-                    float y = midY - Convert.ToSingle((bands[i].BandValue / 6.0f) * (height / 2f));
+                    // Scale vertical offset by MaxDB
+                    float y = midY - Convert.ToSingle((bands[i].BandValue / (float)MaxDB) * (height / 2f));
                     controlPoints[i] = new PointF(x, y);
                 }
 
@@ -406,13 +383,25 @@ namespace YAMP_alpha
                 Pb_Spectrogram.Image = null;
                 Pb_Spectrogram.Invalidate();
                 spectrogramONToolStripMenuItem.Text = "Spectrogram: OFF";
-                tabControl1.TabPages.Remove(TbPg_Spectrogram);
+                if (tabControl1.TabPages.Contains(TbPg_Spectrogram))
+                {
+                    tabControl1.TabPages.Remove(TbPg_Spectrogram);
+                }
             }
             else
             {
                 spectrogramONToolStripMenuItem.Text = "Spectrogram: ON";
-                tabControl1.TabPages.Add(TbPg_Spectrogram);
+                if (!tabControl1.TabPages.Contains(TbPg_Spectrogram))
+                {
+                    tabControl1.TabPages.Add(TbPg_Spectrogram);
+                    tabControl1.SelectedTab = TbPg_Spectrogram;
+                }
             }
+        }
+
+        private void EqualizerDialog_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            GainBand.ValueChanged -= GainBand_ValueChanged;
         }
     }
 }

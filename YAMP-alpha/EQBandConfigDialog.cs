@@ -15,32 +15,34 @@ namespace YAMP_alpha
     public partial class EQBandConfigDialog : Form
     {
         private EqualizerFilter EQFilter = null;
-        public EQBandConfigDialog(EqualizerFilter filter)
+        private int maxdb;
+        public EQBandConfigDialog(EqualizerFilter filter, int MaxDB)
         {
             InitializeComponent();
+            maxdb = MaxDB;
             bandLabel.Text = filter.Filters[0].Frequency.ToString() + "Hz Band Impact";
-            LeftBandWidth = new EQBand("BandWidth", 1, 40, 1, "ABC")
-            {
-                ShowBandValueInFooter = true
-            };
-            RightBandWidth = new EQBand("BandWidth", 1, 40, 1, "ABC")
-            {
-                ShowBandValueInFooter = true
-            };
-            EQFilter = filter;
-            avgGain.BandValue = (int)(EQFilter.AverageGainDB / 12 * avgGain.BandMax);
-            leftGainDb.BandValue = (int)(EQFilter.Filters[0].GainDB / 12 * leftGainDb.BandMax);
-            rightGainDb.BandValue = (int)(EQFilter.Filters[1].GainDB / 12 * rightGainDb.BandMax);
-        }
 
-        private void avgGain_ValueChanged(object sender, EventArgs e)
-        {
-            if (EQFilter!=null)
-            {
-                double perc = avgGain.BandValue / (double)avgGain.BandMax;
-                float value = (float)(perc * 12);
-                EQFilter.AverageGainDB = value;
-            }
+            LeftBandWidth.Text = "BandWidth"; // Updates Header (EQBox.Text)
+            LeftBandWidth.BandMin = 1;
+            LeftBandWidth.BandMax = 40;
+            LeftBandWidth.BandValue = 1;
+            LeftBandWidth.FooterText = "ABC";
+            LeftBandWidth.ShowBandValueInFooter = true;
+
+            RightBandWidth.Text = "BandWidth";
+            RightBandWidth.BandMin = 1;
+            RightBandWidth.BandMax = 40;
+            RightBandWidth.BandValue = 1;
+            RightBandWidth.FooterText = "ABC";
+            RightBandWidth.ShowBandValueInFooter = true;
+
+            EQFilter = filter;
+            leftGainDb.BandMax = MaxDB;
+            leftGainDb.BandMin = -MaxDB;
+            rightGainDb.BandMax = MaxDB;
+            rightGainDb.BandMin = -MaxDB;
+            leftGainDb.BandValue = (int)(EQFilter.Filters[0].GainDB / maxdb * leftGainDb.BandMax);
+            rightGainDb.BandValue = (int)(EQFilter.Filters[1].GainDB / maxdb * rightGainDb.BandMax);
         }
 
         private void leftGainDb_ValueChanged(object sender, EventArgs e)
@@ -48,7 +50,7 @@ namespace YAMP_alpha
             if (EQFilter != null)
             {
                 double perc = leftGainDb.BandValue / (double)leftGainDb.BandMax;
-                float value = (float)(perc * 12);
+                float value = (float)(perc * maxdb);
                 EQFilter.Filters[0].GainDB = value;
             }
         }
@@ -58,7 +60,7 @@ namespace YAMP_alpha
             if (EQFilter!=null)
             {
                 double perc = rightGainDb.BandValue / (double)rightGainDb.BandMax;
-                float value = (float)(perc * 12);
+                float value = (float)(perc * maxdb);
                 EQFilter.Filters[1].GainDB = value;
             }
         }

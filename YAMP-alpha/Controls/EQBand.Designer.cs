@@ -28,10 +28,12 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.EQBox = new System.Windows.Forms.GroupBox();
             this.EQBandBar = new System.Windows.Forms.TrackBar();
             this.EQSideMargin = new System.Windows.Forms.Panel();
             this.EQFooter = new System.Windows.Forms.Label();
+            this.showvaluetimer = new System.Windows.Forms.Timer(this.components);
             this.EQBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.EQBandBar)).BeginInit();
             this.SuspendLayout();
@@ -83,6 +85,12 @@
             this.EQFooter.TabIndex = 1;
             this.EQFooter.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.EQFooter.Click += new System.EventHandler(this.EQFooter_Click);
+            this.EQFooter.DoubleClick += new System.EventHandler(this.EQFooter_DoubleClick);
+            // 
+            // showvaluetimer
+            // 
+            this.showvaluetimer.Interval = 1000;
+            this.showvaluetimer.Tick += new System.EventHandler(this.showvaluetimer_Tick);
             // 
             // EQBand
             // 
@@ -107,5 +115,6 @@
         private System.Windows.Forms.TrackBar EQBandBar;
         private System.Windows.Forms.Panel EQSideMargin;
         private System.Windows.Forms.Label EQFooter;
+        private System.Windows.Forms.Timer showvaluetimer;
     }
 }
