@@ -22,6 +22,7 @@ namespace YAMP_alpha
         private SmoothingSpectrumProvider smoothingProvider;
         private CircularSpectrum _circularSpectrum;
         private HorizontalBarSpectrum _horizontalBarSpectrum;
+        private ModernWaveformSpectrum _modernWaveform;
 
         private event EventHandler LyricLineChanged;
         private string CurrentLyricLine
@@ -131,6 +132,7 @@ namespace YAMP_alpha
             YAMPVars.DrawRightChannelSpectrum = rightChannelToolStripMenuItem.Checked;
             YAMPVars.CORE.TrackChanged += CORE_TrackChanged;
             YAMPVars.CORE.Player.Stopped += Player_Stopped;
+            //YAMPVars.NotificationSource.BlockRead += NotificationSource_BlockRead;
         }
 
         private void Player_Stopped(object sender, CSCore.SoundOut.PlaybackStoppedEventArgs e)
@@ -169,7 +171,7 @@ namespace YAMP_alpha
                 UpdateTrackers();
 
                 // Get cover image (belongs to TrackInfo, don't dispose)
-                Image cover = YAMPVars.CORE.GetTrackCover();
+                Image cover = GetUsableTrackCover();
 
                 // Only dispose the previous background if it was temporary (not a track cover)
                 var prevImage = CoverImageBox.BackgroundImage;
@@ -235,12 +237,18 @@ namespace YAMP_alpha
 
         private void ResizePlayer(Image cover = null)
         {
-            if (cover != null)
+            if (IsUsableImage(cover))
             {
                 int Border = Width - ClientRectangle.Width;
-                double dImageAR = cover.Width / cover.Height;
+                double dImageAR = cover.Width / (double)cover.Height;
+                if (dImageAR <= 0)
+                    return;
+
                 int _width = ClientRectangle.Width;
                 int _height = ClientRectangle.Height;
+                if (_width <= 0 || _height <= 0)
+                    return;
+
                 double dImgWidth = _height * dImageAR;
                 double dImgHeight;
                 if (_width < dImgWidth)
@@ -263,7 +271,7 @@ namespace YAMP_alpha
                 bool TrackLoaded = YAMPVars.CORE.GetFirstTrack();
                 if (!TrackLoaded)
                 {
-                    using (OpenFileDialog OPD = new OpenFileDialog() { Filter = "mp3 files (*.mp3)|*.mp3|m4a files (*.m4a)|*.m4a" })
+                    using (OpenFileDialog OPD = new OpenFileDialog() { Filter = AudioFileSupport.OpenFileFilter })
                     {
                         if (OPD.ShowDialog() == DialogResult.OK)
                         {
@@ -376,7 +384,7 @@ namespace YAMP_alpha
 
         private void LoadFileStripMenuItem_Click(object sender, EventArgs e)
         {
-            using (OpenFileDialog OPD = new OpenFileDialog() { Filter = CSCore.Codecs.CodecFactory.SupportedFilesFilterEn })
+            using (OpenFileDialog OPD = new OpenFileDialog() { Filter = AudioFileSupport.OpenFileFilter })
             {
                 if (OPD.ShowDialog() == DialogResult.OK)
                 {
@@ -386,10 +394,7 @@ namespace YAMP_alpha
                     YAMPVars.CORE.CurrentTrack = Track;
                     VolumeTracker.Value = YAMPVars.CORE.SoundOutVolume;
                     YAMPVars.TrackList.Add(YAMPVars.CORE.CurrentTrack);
-                    if (YAMPVars.CORE.CurrentTrack.Covers.Count > 0)
-                    {
-                        CoverImageBox.BackgroundImage = YAMPVars.CORE.CurrentTrack.Covers[0];
-                    }
+                    CoverImageBox.BackgroundImage = GetUsableTrackCover();
                 }
             }
         }
@@ -633,7 +638,7 @@ namespace YAMP_alpha
         private void UpdatePanel(YAMPEnums.PanelMode mode)
         {
             // Clean up event handlers first
-            YAMPVars.NotificationSource.BlockRead -= NotificationSource_BlockRead;
+            //YAMPVars.NotificationSource.BlockRead -= NotificationSource_BlockRead;
             YAMPVars.SingleBlockNotificationStream.SingleBlockRead -= SingleBlockNotificationStream_SingleBlockRead;
             CoverImageBox.Paint -= CoverImageBox_Paint;
             LyricLineChanged -= NewMain_LyricLineChanged;
@@ -671,6 +676,10 @@ namespace YAMP_alpha
 
                 case YAMPEnums.PanelMode.Bars:
                     SetupHorizontalBarsMode();
+                    break;
+
+                case YAMPEnums.PanelMode.ModernWaveform:
+                    SetupModernWaveformMode();
                     break;
             }
         }
@@ -732,7 +741,7 @@ namespace YAMP_alpha
                 YAMPVars.CORE.Player.WaveSource.WaveFormat.Channels,
                 YAMPVars.CORE.Player.WaveSource.WaveFormat.SampleRate,
                 fftSize,
-                attackTime: 0.05f,   // 20ms attack
+                attackTime: 0.05f,   // 50ms attack
                 releaseTime: 0.01f,   // 100ms release
                 frameRate: 60       // 60 FPS
             );
@@ -747,7 +756,8 @@ namespace YAMP_alpha
                 BarSpacing = 2,
                 IsXLogScale = true,
                 ScalingStrategy = ScalingStrategy.Sqrt,
-                
+                MinimumFrequency = 60,    // 60Hz minimum for better visual balance
+                MaximumFrequency = 7000,  // 8kHz maximum to avoid excessive high-frequency bars
                 ShowPeakIndicators = false,
                 PeakIndicatorColor = Color.Red,
                 
@@ -758,8 +768,8 @@ namespace YAMP_alpha
                 // - NoPeaks: No peak indicators displayed (clean bars only)
                 PeakMode = PeakHoldMode.FallingPeak,  // Try NeverFall, InstantFall, or NoPeaks
 
-                PeakHoldFrames = 17,      // Hold for 15 frames (~250ms @ 60fps)
-                PeakDecayRate = 0.97f,    // Decay rate (0.9 = fast, 0.98 = slow)
+                PeakHoldFrames = 15,      // Hold for 15 frames (~250ms @ 60fps)
+                PeakDecayRate = 0.98f,    // Decay rate (0.9 = fast, 0.98 = slow)
                 
                 RenderDirection = BarSpectrumRenderDirection.VerticalBottomToTop
             };
@@ -769,24 +779,108 @@ namespace YAMP_alpha
             visualizer.Start();
         }
 
+        private void SetupModernWaveformMode()
+        {
+            // Dispose previous instance if exists
+            _modernWaveform?.Dispose();
+
+            // Get sample rate from player for accurate frequency filtering
+            int sampleRate = YAMPVars.CORE.Player.WaveSource.WaveFormat.SampleRate;
+
+            // Create modern waveform with configurable style
+            _modernWaveform = new ModernWaveformSpectrum(4096)
+            {
+                // Visual style options: Line, FilledMirror, Bars, Points, AreaFill, MirroredBars
+                Style = WaveformStyle.Line,
+
+                // Colors
+                LeftChannelColor = Color.FromArgb(0, 200, 255),    // Cyan
+                RightChannelColor = Color.FromArgb(255, 100, 150), // Pink
+                BackgroundColor = Color.Black,
+
+                // Channel rendering
+                RenderChannel = WaveformChannel.Left,
+
+                // Visual effects
+                EnableGlow = false,
+                EnableGradientFill = false,
+                ShowCenterLine = false,
+                CenterLineColor = Color.FromArgb(60, 255, 255, 255),
+                ShowGrid = false,
+
+                // Rendering quality
+                LineThickness = 1f,
+                AmplitudeScale = 0.8f,
+                EnableAntiAliasing = true,
+                RenderResolution = 128,       // Lower = smoother curves (fewer points)
+
+                // Smoothing and decay
+                SmoothingFactor = 0.4f,       // 0 = sharp, 1 = very smooth
+                EnableDecay = true,           // Smooth amplitude falloff animation
+                DecayRate = 0.90f,            // 0 = instant, 0.99 = very slow decay
+                AttackRate = 0.75f,           // How fast amplitude rises (0 = instant)
+
+                // Curved lines - makes peaks smooth and organic
+                UseCurvedLines = true,        // Use bezier curves instead of straight lines
+                CurveTension = 0.5f,          // 0 = angular, 1 = very curvy (0.5 is balanced)
+
+                // Frequency filtering
+                SampleRate = sampleRate,
+                EnableFrequencyFilter = true,
+                MinimumFrequency = 5000f,
+                MaximumFrequency = 16000f,
+
+                // Labels
+                ShowAmplitudeLabels = false
+            };
+
+            YAMPVars.SingleBlockNotificationStream.SingleBlockRead += SingleBlockNotificationStream_SingleBlockRead;
+
+            visualizer.Start();
+        }
+
         /// <summary>
-        /// Determines if the given image is a reference from the current track's covers.
-        /// Track cover images should NOT be disposed as they are owned by the TrackInfo object.
+        /// Determines if the given image is owned by a track in the playlist.
+        /// Track cover images should NOT be disposed as they are owned by TrackInfo objects.
         /// </summary>
         private bool IsTrackCoverImage(Image image)
         {
-            if (image == null || YAMPVars.CORE?.CurrentTrack?.Covers == null)
+            if (image == null || YAMPVars.TrackList == null)
                 return false;
 
-            return YAMPVars.CORE.CurrentTrack.Covers.Any(cover => ReferenceEquals(cover, image));
+            return YAMPVars.TrackList.Any(track =>
+                track?.Covers != null &&
+                track.Covers.Any(cover => ReferenceEquals(cover, image)));
+        }
+
+        private Image GetUsableTrackCover()
+        {
+            Image cover = YAMPVars.CORE?.GetTrackCover();
+            return IsUsableImage(cover) ? cover : null;
+        }
+
+        private bool IsUsableImage(Image image)
+        {
+            if (image == null)
+                return false;
+
+            try
+            {
+                return image.Width > 0 && image.Height > 0;
+            }
+            catch (ArgumentException)
+            {
+                return false;
+            }
         }
 
         private void SetupCoverMode()
         {
-            if (YAMPVars.CORE?.CurrentTrack?.Covers != null && YAMPVars.CORE.CurrentTrack.Covers.Count > 0)
+            Image cover = GetUsableTrackCover();
+            if (cover != null)
             {
                 // Use the actual track cover (no disposal needed - it belongs to TrackInfo)
-                CoverImageBox.BackgroundImage = YAMPVars.CORE.CurrentTrack.Covers[0];
+                CoverImageBox.BackgroundImage = cover;
             }
             else
             {
@@ -817,7 +911,7 @@ namespace YAMP_alpha
 
             if (YAMPVars.CORE?.CurrentTrack?.Lyrics != null)
             {
-                YAMPVars.NotificationSource.BlockRead += NotificationSource_BlockRead;
+                //YAMPVars.NotificationSource.BlockRead += NotificationSource_BlockRead;
             }
             else
             {
@@ -865,6 +959,9 @@ namespace YAMP_alpha
                 case YAMPEnums.PanelMode.Bars:
                     smoothingProvider?.Add(e.Left, e.Right);
                     break;
+                case YAMPEnums.PanelMode.ModernWaveform:
+                    _modernWaveform?.AddSamples(e.Left, e.Right);
+                    break;
             }
         }
 
@@ -902,6 +999,13 @@ namespace YAMP_alpha
                     );
                 }
             }
+            else if (PanelMode == YAMPEnums.PanelMode.ModernWaveform)
+            {
+                if (_modernWaveform != null)
+                {
+                    newImage = _modernWaveform.Draw(CoverImageBox.Width, CoverImageBox.Height);
+                }
+            }
             if (newImage != null)
             {
                 CoverImageBox.BackgroundImage = newImage;
@@ -924,7 +1028,7 @@ namespace YAMP_alpha
                     ParseLRC(OFD.FileName);
                     if (PanelMode == YAMPEnums.PanelMode.Lyrics)
                     {
-                        YAMPVars.NotificationSource.BlockRead += NotificationSource_BlockRead;
+                        //YAMPVars.NotificationSource.BlockRead += NotificationSource_BlockRead;
                     }
                 }
             }

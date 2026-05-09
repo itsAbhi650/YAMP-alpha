@@ -121,7 +121,7 @@ namespace YAMP_alpha
 
         private async void button1_Click(object sender, EventArgs e)
         {
-            SaveFileDialog SFD = new SaveFileDialog() { Filter = "mp3 files (*.mp3)|*.mp3|m4a files (*.m4a)|*.m4a|wav files (*.wav)|*.wav" };
+            SaveFileDialog SFD = new SaveFileDialog() { Filter = "MP3 files (*.mp3)|*.mp3|M4A files (*.m4a)|*.m4a|WMA files (*.wma)|*.wma" };
             if (SFD.ShowDialog() == DialogResult.OK)
             {
                 string FromFilePath = TrackPathBox.Text;
@@ -151,7 +151,7 @@ namespace YAMP_alpha
         {
             using (OpenFileDialog OFD = new OpenFileDialog()
             {
-                Filter = "mp3 files (*.mp3)|*.mp3|m4a files (*.m4a)|*.m4a|wav files (*.wav)|*.wav"
+                Filter = AudioFileSupport.OpenFileFilter
             })
             {
                 if (OFD.ShowDialog() == DialogResult.OK)

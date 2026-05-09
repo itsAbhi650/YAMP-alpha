@@ -260,7 +260,7 @@
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(179, 177);
             this.label1.TabIndex = 0;
-            this.label1.Text = "Drop MP3 files here to add to playlist";
+            this.label1.Text = "Drop audio files here to add to playlist";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.label1.DragDrop += new System.Windows.Forms.DragEventHandler(this.label1_DragDrop);
             this.label1.DragOver += new System.Windows.Forms.DragEventHandler(this.label1_DragOver);

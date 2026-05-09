@@ -100,7 +100,7 @@ namespace YAMP_alpha
 
         private void fileToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            using (OpenFileDialog OFD = new OpenFileDialog() { Filter = "mp3 files (*.mp3)|*.mp3|m4a files (*.m4a)|*.m4a", Multiselect = true })
+            using (OpenFileDialog OFD = new OpenFileDialog() { Filter = AudioFileSupport.OpenFileFilter, Multiselect = true })
             {
                 if (OFD.ShowDialog() == DialogResult.OK)
                 {
@@ -113,6 +113,12 @@ namespace YAMP_alpha
         {
             foreach (string TrackName in Tracks)
             {
+                if (!AudioFileSupport.IsSupportedAudioFile(TrackName))
+                {
+                    MessageBox.Show(string.Format("{0} is not a supported audio file.", Path.GetFileName(TrackName)));
+                    continue;
+                }
+
                 TrackInfo track = new TrackInfo(TrackName);
                 if (!TrackExist(track))
                 {
@@ -206,10 +212,26 @@ namespace YAMP_alpha
             if (e.StateChanged == DataGridViewElementStates.Selected)
             {
                 pictureBox1.Image = null;
-                if (YAMPVars.TrackList[e.Row.Index].Covers.Count > 0)
+                if (YAMPVars.TrackList[e.Row.Index].Covers.Count > 0 &&
+                    IsUsableImage(YAMPVars.TrackList[e.Row.Index].Covers[0]))
                 {
                     pictureBox1.Image = YAMPVars.TrackList[e.Row.Index].Covers[0];
                 }
+            }
+        }
+
+        private bool IsUsableImage(Image image)
+        {
+            if (image == null)
+                return false;
+
+            try
+            {
+                return image.Width > 0 && image.Height > 0;
+            }
+            catch (ArgumentException)
+            {
+                return false;
             }
         }
 
@@ -257,7 +279,7 @@ namespace YAMP_alpha
             if (FBD.ShowDialog() == DialogResult.OK)
             {
                 DirectoryInfo dir = new DirectoryInfo(FBD.SelectedPath);
-                FileInfo[] Files = dir.GetFiles().Where(x => x.Extension == ".mp3").ToArray();
+                FileInfo[] Files = AudioFileSupport.EnumerateSupportedAudioFiles(dir).ToArray();
                 foreach (FileInfo item in Files)
                 {
                     try
@@ -339,6 +361,9 @@ namespace YAMP_alpha
             FileInfo[] DroppedFiles = ((string[])e.Data.GetData(DataFormats.FileDrop)).Select(x => new FileInfo(x)).ToArray();
             foreach (FileInfo File in DroppedFiles)
             {
+                if (!AudioFileSupport.IsSupportedAudioFile(File.FullName))
+                    continue;
+
                 TrackInfo Track = new TrackInfo(File.FullName);
                 PlaylistSource.Add(Track);
                 label1_DragLeave(sender, e);

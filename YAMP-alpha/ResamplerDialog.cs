@@ -23,7 +23,7 @@ namespace YAMP_alpha
 
         private void BtnLoad_Click(object sender, EventArgs e)
         {
-            using (OpenFileDialog OFD = new OpenFileDialog() { Filter = CSCore.Codecs.CodecFactory.SupportedFilesFilterEn })
+            using (OpenFileDialog OFD = new OpenFileDialog() { Filter = AudioFileSupport.OpenFileFilter })
             {
                 if (OFD.ShowDialog() == DialogResult.OK)
                 {
