@@ -179,7 +179,7 @@ namespace YAMP_alpha
 
         public static int GetSampleRate(string SourcePath)
         {
-            if (string.IsNullOrEmpty(SourcePath))
+            if (!string.IsNullOrEmpty(SourcePath))
             {
                 IWaveSource source = CSCore.Codecs.CodecFactory.Instance.GetCodec(SourcePath);
                 return source.WaveFormat.SampleRate;
