@@ -173,31 +173,55 @@ namespace YAMP_alpha
 
         private ID3Info GetID3Info()
         {
-            using (TagLib.File AudioFile = TagLib.File.Create(PlayingFile))
+            var file = new FileInfo(PlayingFile);
+            ID3Info info = new ID3Info
             {
-                TagLib.Picture Picture = GetCoverPicture(AudioFile);
-                ID3Info info = new ID3Info
+                CompleteName = PlayingFile,
+                TrackName = file.Exists ? file.Name : PlayingFile,
+                FileSize = file.Exists ? file.Length.ToString() : string.Empty,
+                Format = file.Extension
+            };
+
+            try
+            {
+                using (TagLib.File AudioFile = TagLib.File.Create(PlayingFile))
                 {
-                    TrackName = AudioFile.Tag.Title,
-                    Album = AudioFile.Tag.Album,
-                    Artists = AudioFile.Tag.JoinedPerformers,
-                    AlbumArtist = AudioFile.Tag.JoinedAlbumArtists,
-                    Bitrate = AudioFile.Properties.AudioBitrate,
-                    Duration = AudioFile.Properties.Duration.ToString("mm\\:ss"),
-                    FileSize = AudioFile.FileAbstraction.ReadStream.Length.ToString(),
-                    Genre = AudioFile.Tag.JoinedGenres,
-                    Date = AudioFile.Tag.DateTagged,
-                    Format = AudioFile.Properties.Description,
-                    CompleteName = AudioFile.Name,
-                };
-                if (Picture != null)
-                {
-                    info.Cover = GetCoverImage(Picture);
-                    info.CoverMIME = Picture.MimeType;
-                    info.CoverType = Picture.Type.ToString();
+                    TagLib.Picture Picture = GetCoverPicture(AudioFile);
+                    info.TrackName = string.IsNullOrEmpty(AudioFile.Tag.Title) ? info.TrackName : AudioFile.Tag.Title;
+                    info.Album = AudioFile.Tag.Album;
+                    info.Artists = AudioFile.Tag.JoinedPerformers;
+                    info.AlbumArtist = AudioFile.Tag.JoinedAlbumArtists;
+                    info.Bitrate = AudioFile.Properties.AudioBitrate;
+                    info.Duration = AudioFile.Properties.Duration.ToString("mm\\:ss");
+                    info.FileSize = AudioFile.FileAbstraction.ReadStream.Length.ToString();
+                    info.Genre = AudioFile.Tag.JoinedGenres;
+                    info.Date = AudioFile.Tag.DateTagged;
+                    info.Format = AudioFile.Properties.Description;
+                    info.CompleteName = AudioFile.Name;
+
+                    if (Picture != null)
+                    {
+                        info.Cover = GetCoverImage(Picture);
+                        info.CoverMIME = Picture.MimeType;
+                        info.CoverType = Picture.Type.ToString();
+                    }
                 }
-                return info;
             }
+            catch
+            {
+                if (PlayerSource != null)
+                {
+                    try
+                    {
+                        info.Duration = PlayerSource.GetLength().ToString("mm\\:ss");
+                    }
+                    catch
+                    {
+                    }
+                }
+            }
+
+            return info;
         }
 
         public bool GetFirstTrack()
@@ -417,10 +441,6 @@ namespace YAMP_alpha
             .AppendSource(x => new DmoChorusEffect(x) { IsEnabled = false }, out YAMPVars.ChorusEffect)
             .AppendSource(x => new LoopStream(x) { EnableLoop = false }, out YAMPVars.TrackLoop)
             .ToSampleSource()
-            .AppendSource(x => new BiQuadFiltersSource(x)
-            {
-                FilteringEnabled = false
-            }, out YAMPVars.biQuadFilterSrc)
             .AppendSource(x => new GainSource(x) { Volume = 1.0f }, out YAMPVars.GainSource)
             .AppendSource(x => new VolumeSource(x) { Volume = 1.0f }, out YAMPVars.VolumeSource)
             .AppendSource(x => new PeakMeter(x) { Interval = 25 }, out YAMPVars.AudioPeakMeter)
