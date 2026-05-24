@@ -8,7 +8,9 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Security;
 using System.Threading.Tasks;
+using System.Security.Cryptography.X509Certificates;
 
 namespace YAMP_alpha
 {
@@ -27,10 +29,31 @@ namespace YAMP_alpha
         PlayerReset
     }
 
+    public enum CorePlaybackState
+    {
+        Idle,
+        Loading,
+        Ready,
+        Playing,
+        Paused,
+        Stopping,
+        Ended,
+        Error,
+        Disposed
+    }
+
     public class YAMP_Core : IDisposable
     {
         internal NewMain UIRef;
         private TrackInfo _curtrack;
+        private readonly object _playerLock = new object();
+        private CorePlaybackState _state = CorePlaybackState.Idle;
+        private float _volume = 1.0f;
+
+        // Restored: global certificate validation bypass (used for some HTTPS streams).
+        // This is intentionally global and should be treated as a last resort.
+        private static bool _globalCertBypassEnabled;
+        private static readonly object _globalCertBypassLock = new object();
         public bool EnableFade;
         public ID3Info TagInfo { get; set; }
         public CSCore.SoundOut.ISoundOut Player { get; private set; }
@@ -39,6 +62,18 @@ namespace YAMP_alpha
         public StopReason LastStopReason { get; private set; } = StopReason.UserStopped;
         public int NextTrackDirection { get; set; } = 1;
         public IWaveSource PlayerSource { get; private set; }
+        public CorePlaybackState State
+        {
+            get { return _state; }
+            private set
+            {
+                if (_state != value)
+                {
+                    _state = value;
+                    StateChanged?.Invoke(this, EventArgs.Empty);
+                }
+            }
+        }
         public TrackInfo CurrentTrack
         {
             get { return _curtrack; }
@@ -51,18 +86,36 @@ namespace YAMP_alpha
 
         public int SoundOutVolume
         {
-            get { return (int)(Player.Volume * 100F); }
-            set { Player.Volume = value / 100F; }
+            get { return (int)(_volume * 100F); }
+            set
+            {
+                _volume = Math.Max(0, Math.Min(100, value)) / 100F;
+                if (Player != null)
+                {
+                    Player.Volume = _volume;
+                }
+            }
         }
 
         public event EventHandler TrackChanged;
+        /// <summary>
+        /// Fired once when a track ends naturally (not on manual stop or track change)
+        /// </summary>
+        public event EventHandler TrackEnded;
+
+        // Internal flag to ensure TrackEnded is raised only once per track
+        private bool _trackEndedRaised = false;
+        public event EventHandler StateChanged;
 
         private void OnTrackChanged()
         {
             TrackChanged?.Invoke(this, EventArgs.Empty);
         }
 
-        public CSCore.SoundOut.PlaybackState PlayerPlaybackState { get { return Player.PlaybackState; } }
+        public CSCore.SoundOut.PlaybackState PlayerPlaybackState
+        {
+            get { return Player != null ? Player.PlaybackState : CSCore.SoundOut.PlaybackState.Stopped; }
+        }
 
         public int PlayerLength 
         { 
@@ -76,12 +129,57 @@ namespace YAMP_alpha
 
         public YAMP_Core()
         {
-            Player = new CSCore.SoundOut.WasapiOut();
+            EnsureGlobalCertificateBypass();
+            Player = CreatePlayer();
             YAMPVars.MediaDevice = new MMDeviceEnumerator().GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
             Task.Run(() =>
             {
                 YAMPVars.AudioSessionManager = AudioSessionManager2.FromMMDevice(YAMPVars.MediaDevice);
             }).ContinueWith((t) => YAMPVars.SessionEnumerator = YAMPVars.AudioSessionManager.GetSessionEnumerator());
+        }
+
+        private static void EnsureGlobalCertificateBypass()
+        {
+            if (_globalCertBypassEnabled)
+                return;
+
+            lock (_globalCertBypassLock)
+            {
+                if (_globalCertBypassEnabled)
+                    return;
+
+                ServicePointManager.ServerCertificateValidationCallback += AlwaysAcceptCertificate;
+                _globalCertBypassEnabled = true;
+            }
+        }
+
+        private static bool AlwaysAcceptCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        {
+            return true;
+        }
+
+        private CSCore.SoundOut.ISoundOut CreatePlayer()
+        {
+            var player = new CSCore.SoundOut.WasapiOut();
+            //player.Volume = _volume; // Removed as not initialized yet, will set when source is ready
+            player.Stopped += Player_Stopped;
+            return player;
+        }
+
+        private void Player_Stopped(object sender, CSCore.SoundOut.PlaybackStoppedEventArgs e)
+        {
+            if (LastStopReason == StopReason.TrackFinished)
+            {
+                State = CorePlaybackState.Ended;
+            }
+            else if (LastStopReason == StopReason.TrackChanging || LastStopReason == StopReason.PlayerReset)
+            {
+                State = CorePlaybackState.Ready;
+            }
+            else
+            {
+                State = CorePlaybackState.Idle;
+            }
         }
 
         // Safer GetTrackCover with bounds check
@@ -101,7 +199,7 @@ namespace YAMP_alpha
                 if (!NetPlay || PlayerSource.CanSeek)
                 {
                     TimeSpan ts = TimeSpan.FromSeconds(Value);
-                    Extensions.SetPosition(YAMPVars.CORE.PlayerSource, ts);
+                    Extensions.SetPosition(PlayerSource, ts);
                 }
             }
         }
@@ -229,9 +327,7 @@ namespace YAMP_alpha
             if (YAMPVars.TrackList != null && YAMPVars.TrackList.Count > 0)
             {
                 TrackInfo FirstTrack = YAMPVars.TrackList[0];
-                YAMPVars.CORE.InitializePlayer(FirstTrack.Path);
-                CurrentTrack = FirstTrack;
-                return true;
+                return LoadTrackInfo(FirstTrack);
             }
             else { return false; }
         }
@@ -288,30 +384,16 @@ namespace YAMP_alpha
             
             if (nextTrack != null)
             {
-                // Mark this as a track change to prevent Player_Stopped event from interfering
-                LastStopReason = StopReason.TrackChanging;
-                Player.Stop();
-
-                // Wait for stop to complete to ensure all event handlers finish
-                // This prevents race condition with Player_Stopped event
-                //int timeout = 100; // 100ms max wait
-                //while (Player.PlaybackState != CSCore.SoundOut.PlaybackState.Stopped && timeout > 0)
-                //{
-                //    System.Threading.Thread.Sleep(5);
-                //    timeout -= 5;
-                //}
-
-                // Wait for stop to complete before initializing new track
-                // This ensures all event handlers complete
-                while (Player.PlaybackState != CSCore.SoundOut.PlaybackState.Stopped)
+                try
                 {
-                    System.Threading.Thread.Sleep(1);  // Small delay to let stop complete
+                    InitializePlayer(nextTrack.Path);
+                    CurrentTrack = nextTrack;
+                    return true;
                 }
-
-                InitializePlayer(nextTrack.Path);
-                CurrentTrack = nextTrack;
-                PlayerStopped = false;
-                return true;
+                catch
+                {
+                    return false;
+                }
             }
             return false;
         }
@@ -320,11 +402,16 @@ namespace YAMP_alpha
         {
             if (trackInfo != null)
             {
-                LastStopReason = StopReason.TrackChanging;
-                Stop();
-                InitializePlayer(trackInfo.Path);
-                CurrentTrack = trackInfo;
-                return true;
+                try
+                {
+                    InitializePlayer(trackInfo.Path);
+                    CurrentTrack = trackInfo;
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
             }
             else
             {
@@ -334,35 +421,69 @@ namespace YAMP_alpha
 
         public void InitializePlayer()
         {
-            Task.Run(() =>
-            {
-                Player.Initialize(PlayerSource);
-            }).Wait();
+            InitializeCurrentSource();
         }
 
         public void InitializePlayer(string filename)
         {
-            NetPlay = false;
-            LoadFile(filename);
-            PlayerSource = AppendEffectSources(PlayerSource);
-            CreateNotificationEvents();
-            Player.Initialize(PlayerSource);
-            TagInfo = GetID3Info();
+            lock (_playerLock)
+            {
+                State = CorePlaybackState.Loading;
+                NetPlay = false;
+                try
+                {
+                    PrepareForNewSource(StopReason.TrackChanging);
+                    LoadFile(filename);
+                    PlayerSource = AppendEffectSources(PlayerSource);
+                    CreateNotificationEvents();
+                    InitializeCurrentSource();
+                    TagInfo = GetID3Info();
+                    PlayerStopped = false;
+                    PlayerPaused = false;
+                    _trackEndedRaised = false;
+                    State = CorePlaybackState.Ready;
+                }
+                catch
+                {
+                    CleanupAfterLoadFailure();
+                    throw;
+                }
+            }
         }
 
         public bool InitializePlayerNet(string StreamURL)
         {
-            NetPlay = true;
-            PlayingFile = StreamURL;
-            PlayerSource = CheckStreamSource(StreamURL, out string LocalPath);
-            if (PlayerSource != null)
+            lock (_playerLock)
             {
-                CurrentTrack = new TrackInfo(LocalPath);
-                Player.Initialize(PlayerSource);
-                return true;
-            }
-            else
-            {
+                State = CorePlaybackState.Loading;
+                NetPlay = true;
+                PrepareForNewSource(StopReason.TrackChanging);
+                PlayingFile = StreamURL;
+                try
+                {
+                    PlayerSource = CheckStreamSource(StreamURL, out string LocalPath);
+                    if (PlayerSource != null)
+                    {
+                        PlayerSource = AppendEffectSources(PlayerSource);
+                        CreateNotificationEvents();
+                        InitializeCurrentSource();
+                        CurrentTrack = !string.IsNullOrEmpty(LocalPath) && File.Exists(LocalPath)
+                            ? new TrackInfo(LocalPath)
+                            : new TrackInfo();
+                        PlayerStopped = false;
+                        PlayerPaused = false;
+                        _trackEndedRaised = false;
+                        State = CorePlaybackState.Ready;
+                        return true;
+                    }
+                }
+                catch
+                {
+                    CleanupAfterLoadFailure();
+                    return false;
+                }
+
+                CleanupAfterLoadFailure();
                 return false;
             }
         }
@@ -370,62 +491,24 @@ namespace YAMP_alpha
         private IWaveSource CheckStreamSource(string StreamUrl, out string LocalURI)
         {
             LocalURI = string.Empty;
-            string knownType = "";
-            string DLFilePath = "";
-            ServicePointManager.ServerCertificateValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
-            bool AllowDownload = false;
-            var ffSource = new FfmpegDecoder(StreamUrl);
-            if (ffSource.WaveFormat != null && ffSource.CanSeek)
-            {
-                ffSource = null;
-                if (StreamUrl.Contains("mp3"))
-                {
-                    knownType = "mp3";
-                }
+            if (string.IsNullOrWhiteSpace(StreamUrl))
+                return null;
 
-                using (WebClient WebC = new WebClient())
+            try
+            {
+                return new FfmpegDecoder(StreamUrl);
+            }
+            catch
+            {
+                try
                 {
-                    WebC.OpenRead(StreamUrl);
-                    long TotalBytes = Convert.ToInt64(WebC.ResponseHeaders["Content-Length"]);
-                    var TotalMegaBytes = TotalBytes / 1024F / 1024F;
-                    using (StreamDialog Sdiag = new StreamDialog(TotalMegaBytes))
-                    {
-                        if (Sdiag.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                        {
-                            WebC.DownloadFileCompleted += Wc_DownloadFileCompleted;
-                            WebC.DownloadProgressChanged += Wc_DownloadProgressChanged;
-                            AllowDownload = true;
-                        }
-                    }
-                    if (AllowDownload)
-                    {
-                        DLFilePath = AppContext.BaseDirectory + "temp." + knownType;
-                        LocalURI = DLFilePath;
-                        WebC.DownloadFileAsync(new Uri(StreamUrl), DLFilePath);
-                        new FileInfo(DLFilePath).Attributes = FileAttributes.Hidden;
-                        YAMPVars.DownloadProgress.ShowDialog();
-                        return CSCore.Codecs.CodecFactory.Instance.GetCodec(DLFilePath);
-                    }
-                    else
-                    {
-                        return null;
-                    }
+                    return CSCore.Codecs.CodecFactory.Instance.GetCodec(new Uri(StreamUrl));
+                }
+                catch
+                {
+                    return null;
                 }
             }
-            else
-            {
-                return ffSource;
-            }
-        }
-
-        private void Wc_DownloadFileCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
-        {
-            YAMPVars.DownloadProgress.Close();
-        }
-
-        private void Wc_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
-        {
-            YAMPVars.DownloadProgress.Percent = e.ProgressPercentage;
         }
 
         private IWaveSource AppendEffectSources(IWaveSource Source)
@@ -496,18 +579,36 @@ namespace YAMP_alpha
         {
             if (!NetPlay || PlayerSource.CanSeek)
             {
+                var priorReason = LastStopReason;
                 LastStopReason = StopReason.TrackFinished;
-                PlayerStopped = true;
+                PlayerPaused = false;
+
+                // Only treat this as a finished track when the stop was not initiated by the user or a track change
+                if (priorReason != StopReason.UserStopped && priorReason != StopReason.TrackChanging)
+                {
+                    // mark stopped for UI/logic that expects natural end and raise the event
+                    PlayerStopped = true;
+                    RaiseTrackEnded();
+                }
             }
+        }
+
+        private void RaiseTrackEnded()
+        {
+            if (_trackEndedRaised)
+                return;
+
+            _trackEndedRaised = true;
+            State = CorePlaybackState.Ended;
+            TrackEnded?.Invoke(this, EventArgs.Empty);
         }
 
         public void ReleasePlayer()
         {
-            if (PlayerInitialized)
+            lock (_playerLock)
             {
-                Player.Stop();
-                Player.Dispose();
-                PlayerSource.Dispose();
+                PrepareForNewSource(StopReason.PlayerReset);
+                State = CorePlaybackState.Idle;
             }
         }
 
@@ -518,7 +619,13 @@ namespace YAMP_alpha
 
         public void InitializePlayer(IWaveSource WaveSource)
         {
-            Task.Run(() => { Player.Initialize(WaveSource); });
+            lock (_playerLock)
+            {
+                PrepareForNewSource(StopReason.PlayerReset);
+                PlayerSource = WaveSource;
+                InitializeCurrentSource();
+                State = CorePlaybackState.Ready;
+            }
         }
 
         //public float Remap(float from, float fromMin, float fromMax, float toMin, float toMax)
@@ -538,12 +645,10 @@ namespace YAMP_alpha
 
         public void ResetPlayer()
         {
-            LastStopReason = StopReason.PlayerReset;
             ReleasePlayer();
-            Player = new CSCore.SoundOut.WasapiOut();
         }
 
-        public bool PlayerInitialized { get { return Player.WaveSource != null; } }
+        public bool PlayerInitialized { get { return Player != null && Player.WaveSource != null; } }
 
         public float WaveFormLEFT { get; private set; }
         public float WaveFormRIGHT { get; private set; }
@@ -552,19 +657,97 @@ namespace YAMP_alpha
 
         public void Play()
         {
+            if (!PlayerInitialized)
+                return;
+
             Player.Play();
+            PlayerStopped = false;
+            PlayerPaused = false;
+            State = CorePlaybackState.Playing;
         }
 
         public void Stop()
         {
+            if (!PlayerInitialized)
+                return;
+
             LastStopReason = StopReason.UserStopped;
+            State = CorePlaybackState.Stopping;
+            if (!NetPlay || PlayerSource.CanSeek)
+            {
+                AdjustPlayerPosition(0);
+            }
             Player.Stop();
-            AdjustPlayerPosition(0);
+            PlayerStopped = false;
+            PlayerPaused = false;
         }
 
         public void Pause()
         {
+            if (!PlayerInitialized)
+                return;
+
             Player.Pause();
+            PlayerPaused = true;
+            State = CorePlaybackState.Paused;
+        }
+
+        private void InitializeCurrentSource()
+        {
+            if (PlayerSource == null)
+                return;
+
+            Player.Initialize(PlayerSource);
+        }
+
+        private void PrepareForNewSource(StopReason reason)
+        {
+            LastStopReason = reason;
+            UnsubscribeNotificationEvents();
+            DisposePlayer();
+            DisposePlayerSource();
+            Player = CreatePlayer();
+            PlayerStopped = false;
+            PlayerPaused = false;
+            _trackEndedRaised = false;
+        }
+
+        private void UnsubscribeNotificationEvents()
+        {
+            if (YAMPVars.SingleBlockNotificationStream != null)
+            {
+                YAMPVars.SingleBlockNotificationStream.SingleBlockRead -= NotificationStream_SingleBlockRead;
+                YAMPVars.SingleBlockNotificationStream.SingleBlockStreamAlmostFinished -= NotificationStream_SingleBlockStreamAlmostFinished;
+                YAMPVars.SingleBlockNotificationStream.SingleBlockStreamFinished -= NotificationStream_SingleBlockStreamFinished;
+            }
+        }
+
+        private void DisposePlayer()
+        {
+            if (Player == null)
+                return;
+
+            try { Player.Stopped -= Player_Stopped; } catch { }
+            try { Player.Stop(); } catch { }
+            try { Player.Dispose(); } catch { }
+            Player = null;
+        }
+
+        private void DisposePlayerSource()
+        {
+            try { PlayerSource?.Dispose(); } catch { }
+            PlayerSource = null;
+        }
+
+        private void CleanupAfterLoadFailure()
+        {
+            UnsubscribeNotificationEvents();
+            DisposePlayer();
+            DisposePlayerSource();
+            Player = CreatePlayer();
+            PlayerStopped = false;
+            PlayerPaused = false;
+            State = CorePlaybackState.Error;
         }
 
         private bool _disposed = false;
@@ -589,18 +772,11 @@ namespace YAMP_alpha
                     // managed cleanup
                     try
                     {
-                        // Stop and unsubscribe notification stream events
-                        if (YAMPVars.SingleBlockNotificationStream != null)
-                        {
-                            YAMPVars.SingleBlockNotificationStream.SingleBlockRead -= NotificationStream_SingleBlockRead;
-                            YAMPVars.SingleBlockNotificationStream.SingleBlockStreamAlmostFinished -= NotificationStream_SingleBlockStreamAlmostFinished;
-                            YAMPVars.SingleBlockNotificationStream.SingleBlockStreamFinished -= NotificationStream_SingleBlockStreamFinished;
-                        }
-
-                        // Stop player safely
-                        try { Player?.Stop(); } catch { }
-                        try { PlayerSource?.Dispose(); } catch { }
-                        try { Player?.Dispose(); } catch { }
+                        LastStopReason = StopReason.PlayerReset;
+                        UnsubscribeNotificationEvents();
+                        DisposePlayer();
+                        DisposePlayerSource();
+                        State = CorePlaybackState.Disposed;
                     }
                     catch
                     {

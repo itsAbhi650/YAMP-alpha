@@ -131,26 +131,19 @@ namespace YAMP_alpha
             YAMPVars.DrawLeftChannelSpectrum = leftChannelToolStripMenuItem.Checked;
             YAMPVars.DrawRightChannelSpectrum = rightChannelToolStripMenuItem.Checked;
             YAMPVars.CORE.TrackChanged += CORE_TrackChanged;
-            YAMPVars.CORE.Player.Stopped += Player_Stopped;
+            YAMPVars.CORE.TrackEnded += CORE_TrackEnded;
             //YAMPVars.NotificationSource.BlockRead += NotificationSource_BlockRead;
         }
 
-        private void Player_Stopped(object sender, CSCore.SoundOut.PlaybackStoppedEventArgs e)
+        private void CORE_TrackEnded(object sender, EventArgs e)
         {
-            // Only set PlayerStopped flag if this was NOT a track change
-            // When switching tracks, PlayNextTrackDirected/LoadTrackInfo handle state management
-            if (YAMPVars.CORE.LastStopReason != StopReason.TrackChanging)
+            // Handle UI updates on the UI thread when a track ends naturally.
+            ThreadSafeCall(() =>
             {
-                YAMPVars.CORE.PlayerStopped = true;
-            }
-            
-            // Handle playlist flag (double-click from playlist to play track)
-            if (YAMPVars.PLTRACKFLAG)
-            {
-                YAMPVars.PLTRACKFLAG = false;
-                YAMPVars.CORE.PlayerStopped = false;
-                PlayFromStart();
-            }
+                if (PlayTimer.Enabled)
+                    PlayTimer.Stop();
+                // final UI updates can be added here if needed
+            });
         }
 
         internal void PlayfromPlaylist(TrackInfo Track)
@@ -159,9 +152,10 @@ namespace YAMP_alpha
             {
                 PlayTimer.Stop();
             }
-            YAMPVars.CORE.LoadTrackInfo(Track);
-            YAMPVars.PLTRACKFLAG = true;
-            PlayFromStart();
+            if (YAMPVars.CORE.LoadTrackInfo(Track))
+            {
+                PlayFromStart();
+            }
         }
 
         private void CORE_TrackChanged(object sender, EventArgs e)
@@ -296,8 +290,6 @@ namespace YAMP_alpha
             {
                 if (YAMPVars.CORE.PlayerPlaybackState != CSCore.SoundOut.PlaybackState.Playing)
                 {
-                    YAMPVars.CORE.PlayerStopped = false;
-                    YAMPVars.CORE.PlayerPaused = false;
                     YAMPVars.CORE.Play();
                     PlayTimer.Start();
                 }
@@ -318,7 +310,6 @@ namespace YAMP_alpha
             {
                 YAMPVars.CORE.Pause();
                 PlayTimer.Stop();
-                YAMPVars.CORE.PlayerPaused = true;
             }
         }
 
@@ -363,8 +354,8 @@ namespace YAMP_alpha
         {
             if (YAMPVars.CORE != null)
             {
-                YAMPVars.CORE.Player.Stopped -= Player_Stopped;
-                YAMPVars.CORE.Player.Stop();
+                YAMPVars.CORE.TrackEnded -= CORE_TrackEnded;
+                YAMPVars.CORE.Stop();
                 YAMPVars.CORE.Dispose();
             }
         }
@@ -378,7 +369,7 @@ namespace YAMP_alpha
                     DurationTracker.Value = 0;
                     YAMPVars.CORE.PlayerSource.Position = 0;
                 }
-                YAMPVars.CORE.Player.Stop();
+                YAMPVars.CORE.Stop();
             }
         }
 
@@ -388,13 +379,13 @@ namespace YAMP_alpha
             {
                 if (OPD.ShowDialog() == DialogResult.OK)
                 {
-                    YAMPVars.CORE.ResetPlayer();
                     TrackInfo Track = new TrackInfo(OPD.FileName);
-                    YAMPVars.CORE.InitializePlayer(Track.Path);
-                    YAMPVars.CORE.CurrentTrack = Track;
-                    VolumeTracker.Value = YAMPVars.CORE.SoundOutVolume;
-                    YAMPVars.TrackList.Add(YAMPVars.CORE.CurrentTrack);
-                    CoverImageBox.BackgroundImage = GetUsableTrackCover();
+                    if (YAMPVars.CORE.LoadTrackInfo(Track))
+                    {
+                        VolumeTracker.Value = YAMPVars.CORE.SoundOutVolume;
+                        YAMPVars.TrackList.Add(YAMPVars.CORE.CurrentTrack);
+                        CoverImageBox.BackgroundImage = GetUsableTrackCover();
+                    }
                 }
             }
         }
