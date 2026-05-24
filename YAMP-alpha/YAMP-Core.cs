@@ -44,7 +44,6 @@ namespace YAMP_alpha
 
     public class YAMP_Core : IDisposable
     {
-        internal NewMain UIRef;
         private TrackInfo _curtrack;
         private readonly object _playerLock = new object();
         private CorePlaybackState _state = CorePlaybackState.Idle;
@@ -62,6 +61,23 @@ namespace YAMP_alpha
         public StopReason LastStopReason { get; private set; } = StopReason.UserStopped;
         public int NextTrackDirection { get; set; } = 1;
         public IWaveSource PlayerSource { get; private set; }
+        public DmoDistortionEffect DistortionEffect { get; private set; }
+        public DmoFlangerEffect FlangerEffect { get; private set; }
+        public DmoWavesReverbEffect WavesReverbEffect { get; private set; }
+        public DmoEchoEffect EchoEffect { get; private set; }
+        public DmoCompressorEffect CompressorEffect { get; private set; }
+        public DmoGargleEffect GargleEffect { get; private set; }
+        public DmoChorusEffect ChorusEffect { get; private set; }
+        public LoopStream TrackLoop { get; private set; }
+        public GainSource GainSource { get; private set; }
+        public VolumeSource VolumeSource { get; private set; }
+        public PeakMeter AudioPeakMeter { get; private set; }
+        public PitchShifter PitchShiftEffect { get; private set; }
+        public FadeInOut FadeEffect { get; private set; }
+        public PanSource ChannelPan { get; private set; }
+        public Equalizer EqualizerEffect { get; private set; }
+        public NotificationSource NotificationSource { get; private set; }
+        public SingleBlockNotificationStream SingleBlockNotificationStream { get; private set; }
         public CorePlaybackState State
         {
             get { return _state; }
@@ -102,6 +118,7 @@ namespace YAMP_alpha
         /// Fired once when a track ends naturally (not on manual stop or track change)
         /// </summary>
         public event EventHandler TrackEnded;
+        public event EventHandler<TrackLoadFailedEventArgs> TrackLoadFailed;
 
         // Internal flag to ensure TrackEnded is raised only once per track
         private bool _trackEndedRaised = false;
@@ -112,19 +129,24 @@ namespace YAMP_alpha
             TrackChanged?.Invoke(this, EventArgs.Empty);
         }
 
+        private void OnTrackLoadFailed(string path, string error)
+        {
+            TrackLoadFailed?.Invoke(this, new TrackLoadFailedEventArgs(path, error));
+        }
+
         public CSCore.SoundOut.PlaybackState PlayerPlaybackState
         {
             get { return Player != null ? Player.PlaybackState : CSCore.SoundOut.PlaybackState.Stopped; }
         }
 
-        public int PlayerLength 
-        { 
-            get { return PlayerSource?.Length > 0 ? (int)PlayerSource.Length : 0; } 
+        public int PlayerLength
+        {
+            get { return PlayerSource?.Length > 0 ? (int)PlayerSource.Length : 0; }
         }
 
-        public int CurrentPosition 
-        { 
-            get { return PlayerSource != null ? (int)PlayerSource.Position : 0; } 
+        public int CurrentPosition
+        {
+            get { return PlayerSource != null ? (int)PlayerSource.Position : 0; }
         }
 
         public YAMP_Core()
@@ -194,12 +216,15 @@ namespace YAMP_alpha
 
         public void AdjustPlayerPosition(int Value)
         {
-            if (PlayerInitialized)
+            lock (_playerLock)
             {
-                if (!NetPlay || PlayerSource.CanSeek)
+                if (PlayerInitialized)
                 {
-                    TimeSpan ts = TimeSpan.FromSeconds(Value);
-                    Extensions.SetPosition(PlayerSource, ts);
+                    if (!NetPlay || PlayerSource.CanSeek)
+                    {
+                        TimeSpan ts = TimeSpan.FromSeconds(Value);
+                        Extensions.SetPosition(PlayerSource, ts);
+                    }
                 }
             }
         }
@@ -350,8 +375,8 @@ namespace YAMP_alpha
         /// </summary>
         private bool IsValidTrackIndex(int index)
         {
-            return YAMPVars.TrackList != null && 
-                   index >= 0 && 
+            return YAMPVars.TrackList != null &&
+                   index >= 0 &&
                    index < YAMPVars.TrackList.Count;
         }
 
@@ -367,9 +392,9 @@ namespace YAMP_alpha
                 return null;
 
             int targetIndex = currentIndex + direction;
-            
-            return IsValidTrackIndex(targetIndex) 
-                ? YAMPVars.TrackList[targetIndex] 
+
+            return IsValidTrackIndex(targetIndex)
+                ? YAMPVars.TrackList[targetIndex]
                 : null;
         }
 
@@ -381,19 +406,16 @@ namespace YAMP_alpha
         public bool PlayNextTrackDirected(int direction)
         {
             TrackInfo nextTrack = GetTrackAt(direction);
-            
+
             if (nextTrack != null)
             {
-                try
+                if (TryLoadTrack(nextTrack.Path, out string error))
                 {
-                    InitializePlayer(nextTrack.Path);
                     CurrentTrack = nextTrack;
                     return true;
                 }
-                catch
-                {
-                    return false;
-                }
+
+                OnTrackLoadFailed(nextTrack.Path, error);
             }
             return false;
         }
@@ -402,21 +424,16 @@ namespace YAMP_alpha
         {
             if (trackInfo != null)
             {
-                try
+                if (TryLoadTrack(trackInfo.Path, out string error))
                 {
-                    InitializePlayer(trackInfo.Path);
                     CurrentTrack = trackInfo;
                     return true;
                 }
-                catch
-                {
-                    return false;
-                }
+
+                OnTrackLoadFailed(trackInfo.Path, error);
             }
-            else
-            {
-                return false;
-            }
+
+            return false;
         }
 
         public void InitializePlayer()
@@ -426,27 +443,57 @@ namespace YAMP_alpha
 
         public void InitializePlayer(string filename)
         {
+            if (!TryLoadTrack(filename, out string error))
+                throw new InvalidOperationException(error);
+        }
+
+        public bool TryLoadTrack(string path, out string error)
+        {
             lock (_playerLock)
             {
+                error = string.Empty;
                 State = CorePlaybackState.Loading;
                 NetPlay = false;
+
+                if (string.IsNullOrWhiteSpace(path))
+                {
+                    CleanupAfterLoadFailure();
+                    error = "No file was selected.";
+                    return false;
+                }
+
+                if (!File.Exists(path))
+                {
+                    CleanupAfterLoadFailure();
+                    error = "File does not exist.";
+                    return false;
+                }
+
+                if (!AudioFileSupport.IsSupportedAudioFile(path))
+                {
+                    CleanupAfterLoadFailure();
+                    error = "Unsupported audio format.";
+                    return false;
+                }
+
                 try
                 {
                     PrepareForNewSource(StopReason.TrackChanging);
-                    LoadFile(filename);
+                    LoadFile(path);
                     PlayerSource = AppendEffectSources(PlayerSource);
-                    CreateNotificationEvents();
                     InitializeCurrentSource();
                     TagInfo = GetID3Info();
                     PlayerStopped = false;
                     PlayerPaused = false;
                     _trackEndedRaised = false;
                     State = CorePlaybackState.Ready;
+                    return true;
                 }
-                catch
+                catch (Exception ex)
                 {
                     CleanupAfterLoadFailure();
-                    throw;
+                    error = ex.Message;
+                    return false;
                 }
             }
         }
@@ -465,7 +512,6 @@ namespace YAMP_alpha
                     if (PlayerSource != null)
                     {
                         PlayerSource = AppendEffectSources(PlayerSource);
-                        CreateNotificationEvents();
                         InitializeCurrentSource();
                         CurrentTrack = !string.IsNullOrEmpty(LocalPath) && File.Exists(LocalPath)
                             ? new TrackInfo(LocalPath)
@@ -511,47 +557,173 @@ namespace YAMP_alpha
             }
         }
 
-        private IWaveSource AppendEffectSources(IWaveSource Source)
+        private IWaveSource AppendEffectSources(IWaveSource source)
         {
-            YAMPVars.ResetEffectVars();
-            Source = Source
-            .AppendSource(x => new DmoDistortionEffect(x) { IsEnabled = false }, out YAMPVars.DistortionEffect)
-            .AppendSource(x => new DmoFlangerEffect(x) { IsEnabled = false }, out YAMPVars.FlangerEffect)
-            .AppendSource(x => new DmoWavesReverbEffect(x) { IsEnabled = false }, out YAMPVars.WavesReverbEffect)
-            .AppendSource(x => new DmoEchoEffect(x) { IsEnabled = false }, out YAMPVars.EchoEffect)
-            .AppendSource(x => new DmoCompressorEffect(x) { IsEnabled = false }, out YAMPVars.CompressorEffect)
-            .AppendSource(x => new DmoGargleEffect(x) { IsEnabled = false }, out YAMPVars.GargleEffect)
-            .AppendSource(x => new DmoChorusEffect(x) { IsEnabled = false }, out YAMPVars.ChorusEffect)
-            .AppendSource(x => new LoopStream(x) { EnableLoop = false }, out YAMPVars.TrackLoop)
-            .ToSampleSource()
-            .AppendSource(x => new GainSource(x) { Volume = 1.0f }, out YAMPVars.GainSource)
-            .AppendSource(x => new VolumeSource(x) { Volume = 1.0f }, out YAMPVars.VolumeSource)
-            .AppendSource(x => new PeakMeter(x) { Interval = 25 }, out YAMPVars.AudioPeakMeter)
-            .AppendSource(x => new PitchShifter(x), out YAMPVars.PitchShiftEffect)
-            .AppendSource(x => new FadeInOut(x) { FadeStrategy = new LinearFadeStrategy() }, out YAMPVars.FadeEffect)
-            .AppendSource(x => new NotificationSource(x), out YAMPVars.NotificationSource)
-            .ToWaveSource();
+            ResetOwnedEffectReferences();
 
+            source = AppendDecodeStage(source);
+            source = AppendDmoEffectStage(source);
+            source = AppendLoopStage(source);
+            source = AppendGainVolumeStage(source);
+            source = AppendPeakMeterStage(source);
+            source = AppendPitchFadeStage(source);
+            source = AppendPanStage(source);
+            source = AppendEqualizerStage(source);
+            source = AppendNotificationStage(source);
 
-            if (Source.WaveFormat.Channels > 1)
-            {
-                Source = Source.ToSampleSource().AppendSource(x => new PanSource(x) { Pan = 0.0F }, out YAMPVars.ChannelPan).ToWaveSource();
-            }
+            return source;
+        }
 
-            if (Source.WaveFormat.SampleRate >= 32000)
-            {
-                Source = Source.ToSampleSource().AppendSource(x => Equalizer.Create10BandEqualizer(x), out YAMPVars.EqualizerEffect).ToWaveSource();
-            }
-            return Source;
+        private IWaveSource AppendDecodeStage(IWaveSource source)
+        {
+            return source;
+        }
+
+        private IWaveSource AppendDmoEffectStage(IWaveSource source)
+        {
+            DmoDistortionEffect distortionEffect;
+            DmoFlangerEffect flangerEffect;
+            DmoWavesReverbEffect wavesReverbEffect;
+            DmoEchoEffect echoEffect;
+            DmoCompressorEffect compressorEffect;
+            DmoGargleEffect gargleEffect;
+            DmoChorusEffect chorusEffect;
+
+            source = source
+                .AppendSource(x => new DmoDistortionEffect(x) { IsEnabled = false }, out distortionEffect)
+                .AppendSource(x => new DmoFlangerEffect(x) { IsEnabled = false }, out flangerEffect)
+                .AppendSource(x => new DmoWavesReverbEffect(x) { IsEnabled = false }, out wavesReverbEffect)
+                .AppendSource(x => new DmoEchoEffect(x) { IsEnabled = false }, out echoEffect)
+                .AppendSource(x => new DmoCompressorEffect(x) { IsEnabled = false }, out compressorEffect)
+                .AppendSource(x => new DmoGargleEffect(x) { IsEnabled = false }, out gargleEffect)
+                .AppendSource(x => new DmoChorusEffect(x) { IsEnabled = false }, out chorusEffect);
+
+            DistortionEffect = YAMPVars.DistortionEffect = distortionEffect;
+            FlangerEffect = YAMPVars.FlangerEffect = flangerEffect;
+            WavesReverbEffect = YAMPVars.WavesReverbEffect = wavesReverbEffect;
+            EchoEffect = YAMPVars.EchoEffect = echoEffect;
+            CompressorEffect = YAMPVars.CompressorEffect = compressorEffect;
+            GargleEffect = YAMPVars.GargleEffect = gargleEffect;
+            ChorusEffect = YAMPVars.ChorusEffect = chorusEffect;
+
+            return source;
+        }
+
+        private IWaveSource AppendLoopStage(IWaveSource source)
+        {
+            LoopStream trackLoop;
+            source = source.AppendSource(x => new LoopStream(x) { EnableLoop = false }, out trackLoop);
+            TrackLoop = YAMPVars.TrackLoop = trackLoop;
+            return source;
+        }
+
+        private IWaveSource AppendGainVolumeStage(IWaveSource source)
+        {
+            GainSource gainSource;
+            VolumeSource volumeSource;
+
+            source = source
+                .ToSampleSource()
+                .AppendSource(x => new GainSource(x) { Volume = 1.0f }, out gainSource)
+                .AppendSource(x => new VolumeSource(x) { Volume = 1.0f }, out volumeSource)
+                .ToWaveSource();
+
+            GainSource = YAMPVars.GainSource = gainSource;
+            VolumeSource = YAMPVars.VolumeSource = volumeSource;
+
+            return source;
+        }
+
+        private IWaveSource AppendPeakMeterStage(IWaveSource source)
+        {
+            PeakMeter audioPeakMeter;
+
+            source = source
+                .ToSampleSource()
+                .AppendSource(x => new PeakMeter(x) { Interval = 25 }, out audioPeakMeter)
+                .ToWaveSource();
+
+            AudioPeakMeter = YAMPVars.AudioPeakMeter = audioPeakMeter;
+
+            return source;
+        }
+
+        private IWaveSource AppendPitchFadeStage(IWaveSource source)
+        {
+            PitchShifter pitchShiftEffect;
+            FadeInOut fadeEffect;
+
+            source = source
+                .ToSampleSource()
+                .AppendSource(x => new PitchShifter(x), out pitchShiftEffect)
+                .AppendSource(x => new FadeInOut(x) { FadeStrategy = new LinearFadeStrategy() }, out fadeEffect)
+                .ToWaveSource();
+
+            PitchShiftEffect = YAMPVars.PitchShiftEffect = pitchShiftEffect;
+            FadeEffect = YAMPVars.FadeEffect = fadeEffect;
+
+            return source;
+        }
+
+        private IWaveSource AppendPanStage(IWaveSource source)
+        {
+            if (source.WaveFormat.Channels <= 1)
+                return source;
+
+            PanSource channelPan;
+
+            source = source
+                .ToSampleSource()
+                .AppendSource(x => new PanSource(x) { Pan = 0.0F }, out channelPan)
+                .ToWaveSource();
+
+            ChannelPan = YAMPVars.ChannelPan = channelPan;
+
+            return source;
+        }
+
+        private IWaveSource AppendEqualizerStage(IWaveSource source)
+        {
+            if (source.WaveFormat.SampleRate < 32000)
+                return source;
+
+            Equalizer equalizerEffect;
+
+            source = source
+                .ToSampleSource()
+                .AppendSource(x => Equalizer.Create10BandEqualizer(x), out equalizerEffect)
+                .ToWaveSource();
+
+            EqualizerEffect = YAMPVars.EqualizerEffect = equalizerEffect;
+
+            return source;
+        }
+
+        private IWaveSource AppendNotificationStage(IWaveSource source)
+        {
+            ResetOwnedNotificationReferences();
+
+            NotificationSource notificationSource;
+            SingleBlockNotificationStream singleBlockNotificationStream;
+
+            source = source
+                .ToSampleSource()
+                .AppendSource(x => new NotificationSource(x), out notificationSource)
+                .ToWaveSource();
+
+            source = source.AppendSource(x => new SingleBlockNotificationStream(x.ToSampleSource(), NOTIFICATION_BLOCK_SIZE), out singleBlockNotificationStream).ToWaveSource();
+            NotificationSource = YAMPVars.NotificationSource = notificationSource;
+            SingleBlockNotificationStream = YAMPVars.SingleBlockNotificationStream = singleBlockNotificationStream;
+            SingleBlockNotificationStream.SingleBlockRead += NotificationStream_SingleBlockRead;
+            SingleBlockNotificationStream.SingleBlockStreamAlmostFinished += NotificationStream_SingleBlockStreamAlmostFinished;
+            SingleBlockNotificationStream.SingleBlockStreamFinished += NotificationStream_SingleBlockStreamFinished;
+
+            return source;
         }
 
         public void CreateNotificationEvents()
         {
-            YAMPVars.ResetStreamNotifications();
-            PlayerSource = PlayerSource.AppendSource(x => new SingleBlockNotificationStream(x.ToSampleSource(), NOTIFICATION_BLOCK_SIZE), out YAMPVars.SingleBlockNotificationStream).ToWaveSource();
-            YAMPVars.SingleBlockNotificationStream.SingleBlockRead += NotificationStream_SingleBlockRead;
-            YAMPVars.SingleBlockNotificationStream.SingleBlockStreamAlmostFinished += NotificationStream_SingleBlockStreamAlmostFinished;
-            YAMPVars.SingleBlockNotificationStream.SingleBlockStreamFinished += NotificationStream_SingleBlockStreamFinished;
+            PlayerSource = AppendNotificationStage(PlayerSource);
         }
 
         private void NotificationStream_SingleBlockRead(object sender, SingleBlockReadEventArgs e)
@@ -564,14 +736,14 @@ namespace YAMP_alpha
         private void NotificationStream_SingleBlockStreamAlmostFinished(object sender, SingleBlockStreamAlmostFinishedEventArgs e)
         {
             // Apply fade-out effect near the end of the track if enabled
-            if (EnableFade && YAMPVars.FadeEffect != null)
+            if (EnableFade && FadeEffect != null)
             {
                 // Find the remaining seconds after SingleBlockStreamAlmostFinished event triggers
                 // This is the duration over which the fade out will be applied
                 TimeSpan REMSEC = PlayerSource.GetLength() - PlayerSource.GetPosition();
 
                 // Starting volume set to null to use default/current volume
-                YAMPVars.FadeEffect.FadeStrategy.StartFading(null, 0, REMSEC);
+                FadeEffect.FadeStrategy.StartFading(null, 0, REMSEC);
             }
         }
 
@@ -657,39 +829,48 @@ namespace YAMP_alpha
 
         public void Play()
         {
-            if (!PlayerInitialized)
-                return;
+            lock (_playerLock)
+            {
+                if (!PlayerInitialized)
+                    return;
 
-            Player.Play();
-            PlayerStopped = false;
-            PlayerPaused = false;
-            State = CorePlaybackState.Playing;
+                Player.Play();
+                PlayerStopped = false;
+                PlayerPaused = false;
+                State = CorePlaybackState.Playing;
+            }
         }
 
         public void Stop()
         {
-            if (!PlayerInitialized)
-                return;
-
-            LastStopReason = StopReason.UserStopped;
-            State = CorePlaybackState.Stopping;
-            if (!NetPlay || PlayerSource.CanSeek)
+            lock (_playerLock)
             {
-                AdjustPlayerPosition(0);
+                if (!PlayerInitialized)
+                    return;
+
+                LastStopReason = StopReason.UserStopped;
+                State = CorePlaybackState.Stopping;
+                if (!NetPlay || PlayerSource.CanSeek)
+                {
+                    AdjustPlayerPosition(0);
+                }
+                Player.Stop();
+                PlayerStopped = false;
+                PlayerPaused = false;
             }
-            Player.Stop();
-            PlayerStopped = false;
-            PlayerPaused = false;
         }
 
         public void Pause()
         {
-            if (!PlayerInitialized)
-                return;
+            lock (_playerLock)
+            {
+                if (!PlayerInitialized)
+                    return;
 
-            Player.Pause();
-            PlayerPaused = true;
-            State = CorePlaybackState.Paused;
+                Player.Pause();
+                PlayerPaused = true;
+                State = CorePlaybackState.Paused;
+            }
         }
 
         private void InitializeCurrentSource()
@@ -714,12 +895,39 @@ namespace YAMP_alpha
 
         private void UnsubscribeNotificationEvents()
         {
-            if (YAMPVars.SingleBlockNotificationStream != null)
+            if (SingleBlockNotificationStream != null)
             {
-                YAMPVars.SingleBlockNotificationStream.SingleBlockRead -= NotificationStream_SingleBlockRead;
-                YAMPVars.SingleBlockNotificationStream.SingleBlockStreamAlmostFinished -= NotificationStream_SingleBlockStreamAlmostFinished;
-                YAMPVars.SingleBlockNotificationStream.SingleBlockStreamFinished -= NotificationStream_SingleBlockStreamFinished;
+                SingleBlockNotificationStream.SingleBlockRead -= NotificationStream_SingleBlockRead;
+                SingleBlockNotificationStream.SingleBlockStreamAlmostFinished -= NotificationStream_SingleBlockStreamAlmostFinished;
+                SingleBlockNotificationStream.SingleBlockStreamFinished -= NotificationStream_SingleBlockStreamFinished;
             }
+        }
+
+        private void ResetOwnedEffectReferences()
+        {
+            YAMPVars.ResetEffectVars();
+            DistortionEffect = null;
+            FlangerEffect = null;
+            WavesReverbEffect = null;
+            EchoEffect = null;
+            CompressorEffect = null;
+            GargleEffect = null;
+            ChorusEffect = null;
+            TrackLoop = YAMPVars.TrackLoop = null;
+            GainSource = YAMPVars.GainSource = null;
+            VolumeSource = YAMPVars.VolumeSource = null;
+            AudioPeakMeter = YAMPVars.AudioPeakMeter = null;
+            PitchShiftEffect = YAMPVars.PitchShiftEffect = null;
+            FadeEffect = YAMPVars.FadeEffect = null;
+            ChannelPan = YAMPVars.ChannelPan = null;
+            EqualizerEffect = YAMPVars.EqualizerEffect = null;
+        }
+
+        private void ResetOwnedNotificationReferences()
+        {
+            YAMPVars.ResetStreamNotifications();
+            NotificationSource = YAMPVars.NotificationSource = null;
+            SingleBlockNotificationStream = YAMPVars.SingleBlockNotificationStream = null;
         }
 
         private void DisposePlayer()
@@ -812,5 +1020,17 @@ namespace YAMP_alpha
         public Image Cover;
         public string CoverType;
         public string CoverMIME;
+    }
+
+    public class TrackLoadFailedEventArgs : EventArgs
+    {
+        public TrackLoadFailedEventArgs(string path, string error)
+        {
+            Path = path;
+            Error = error;
+        }
+
+        public string Path { get; private set; }
+        public string Error { get; private set; }
     }
 }

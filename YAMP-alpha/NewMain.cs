@@ -124,10 +124,7 @@ namespace YAMP_alpha
 
         private void NewMain_Load(object sender, EventArgs e)
         {
-            YAMPVars.CORE = new YAMP_Core
-            {
-                UIRef = this
-            };
+            YAMPVars.CORE = new YAMP_Core();
             YAMPVars.DrawLeftChannelSpectrum = leftChannelToolStripMenuItem.Checked;
             YAMPVars.DrawRightChannelSpectrum = rightChannelToolStripMenuItem.Checked;
             YAMPVars.CORE.TrackChanged += CORE_TrackChanged;
@@ -464,7 +461,14 @@ namespace YAMP_alpha
         private void playlistToolStripMenuItem_Click(object sender, EventArgs e)
         {
             YAMPlaylistDialog playlist = new YAMPlaylistDialog();
+            playlist.TrackSelected += Playlist_TrackSelected;
             playlist.ShowDialog(this);
+            playlist.TrackSelected -= Playlist_TrackSelected;
+        }
+
+        private void Playlist_TrackSelected(object sender, TrackSelectedEventArgs e)
+        {
+            PlayfromPlaylist(e.Track);
         }
 
         private void Btns_TrackShift_Click(object sender, EventArgs e)

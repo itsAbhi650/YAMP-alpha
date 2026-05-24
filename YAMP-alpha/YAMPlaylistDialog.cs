@@ -16,6 +16,7 @@ namespace YAMP_alpha
         static BindingSource PlaylistSource;
         private string _loadedPlaylist = "";
         private int CurrentColoredRowIndex;
+        public event EventHandler<TrackSelectedEventArgs> TrackSelected;
 
         public string LoadedPlaylist
         {
@@ -306,7 +307,7 @@ namespace YAMP_alpha
         {
             if (e.RowIndex >= 0)
             {
-                YAMPVars.CORE.UIRef.PlayfromPlaylist(YAMPVars.TrackList[e.RowIndex]);
+                TrackSelected?.Invoke(this, new TrackSelectedEventArgs(YAMPVars.TrackList[e.RowIndex]));
                 UpdateCurrentPlayingRowStyle();
             }
         }
@@ -571,5 +572,15 @@ namespace YAMP_alpha
             //    }
             //}
         }
+    }
+
+    public class TrackSelectedEventArgs : EventArgs
+    {
+        public TrackSelectedEventArgs(TrackInfo track)
+        {
+            Track = track;
+        }
+
+        public TrackInfo Track { get; private set; }
     }
 }
