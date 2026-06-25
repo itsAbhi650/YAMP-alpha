@@ -2,7 +2,7 @@
 [![Build](https://github.com/itsAbhi650/YAMP-Alpha/workflows/Build/badge.svg)](https://github.com/itsAbhi650/YAMP-Alpha/actions?query=workflow:"Build")
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=itsAbhi650_YAMP-alpha&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=itsAbhi650_YAMP-alpha) 
 [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=itsAbhi650_YAMP-alpha&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=itsAbhi650_YAMP-alpha)
-
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/itsAbhi650/YAMP-alpha)
 
 I am creating this project in order to learn about popular Audio Libraries for .NET like [CSCore](https://github.com/filoe/cscore) and [NAudio](https://github.com/naudio). This is a simple media player in its very beginning stage (hence alpha) and right now has many sections broken and incomplete. 
 
