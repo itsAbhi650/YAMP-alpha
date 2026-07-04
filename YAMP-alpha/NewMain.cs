@@ -507,8 +507,16 @@ namespace YAMP_alpha
 
         private void LoadDirStripMenuItem_Click(object sender, EventArgs e)
         {
+            bool shouldLoadFirstTrack =
+                YAMPVars.CORE.PlayerSource == null &&
+                (YAMPVars.TrackList == null || YAMPVars.TrackList.Count == 0);
+
             YAMPlaylistDialog.LoadDirectory();
-            YAMPVars.CORE.GetFirstTrack();
+
+            if (shouldLoadFirstTrack && YAMPVars.TrackList != null && YAMPVars.TrackList.Count > 0)
+            {
+                YAMPVars.CORE.GetFirstTrack();
+            }
         }
 
         private void streamToolStripMenuItem_Click(object sender, EventArgs e)
