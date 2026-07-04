@@ -253,6 +253,13 @@
     <Compile Include="GargleEffectDialog.Designer.cs">
       <DependentUpon>GargleEffectDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="ScratchTest.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Scratch\ScratchController.cs" />
+    <Compile Include="Scratch\ScratchPlaybackSource.cs" />
+    <Compile Include="Scratch\ScratchProcessor.cs" />
+    <Compile Include="Scratch\ScratchState.cs" />
     <Compile Include="Visualization\BarSpectrumRenderDirection.cs" />
     <Compile Include="Visualization\CircularSpectrum.cs" />
     <Compile Include="Visualization\CircularSpectrumStyle.cs" />
