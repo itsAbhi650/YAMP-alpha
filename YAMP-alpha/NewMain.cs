@@ -49,6 +49,7 @@ namespace YAMP_alpha
             int height = Height - CoverImageBox.Height;
             MinimumSize = new Size(400, height);
             UpdateVisualSpectrumChannelCheck();
+            UpdateVisualisationToolStripSelection();
             leftChannelToolStripMenuItem.CheckStateChanged += SpectrumDrawChannel_CheckedChanged;
             rightChannelToolStripMenuItem.CheckStateChanged += SpectrumDrawChannel_CheckedChanged;
         }
@@ -97,6 +98,26 @@ namespace YAMP_alpha
         {
             leftChannelToolStripMenuItem.Checked = YAMPVars.DrawLeftChannelSpectrum;
             rightChannelToolStripMenuItem.Checked = YAMPVars.DrawRightChannelSpectrum;
+        }
+
+        private void UpdateVisualisationToolStripSelection()
+        {
+            // Only the current visualisation mode should be checked.
+            coverVisualisationToolStripMenuItem.Checked = PanelMode == YAMPEnums.PanelMode.Cover;
+            spectrumToolStripMenuItem.Checked = PanelMode == YAMPEnums.PanelMode.Waveform;
+            barsVisualisationToolStripMenuItem.Checked = PanelMode == YAMPEnums.PanelMode.Bars;
+            circularVisualisationToolStripMenuItem.Checked = PanelMode == YAMPEnums.PanelMode.Circular;
+            lyricsVisualisationToolStripMenuItem.Checked = PanelMode == YAMPEnums.PanelMode.Lyrics;
+        }
+
+        private void SetVisualisationPanelMode(YAMPEnums.PanelMode mode)
+        {
+            if (PanelMode == mode)
+                return;
+
+            PanelMode = mode;
+            UpdatePanel(PanelMode);
+            UpdateVisualisationToolStripSelection();
         }
 
         private void PlayFromStart(bool FadeTrack = true)
@@ -633,8 +654,10 @@ namespace YAMP_alpha
         {
             if (YAMPVars.CORE.PlayerInitialized)
             {
-                PanelMode = Enum.IsDefined(typeof(YAMPEnums.PanelMode), (int)PanelMode + 1) ? (YAMPEnums.PanelMode)((int)PanelMode + 1) : 0;
-                UpdatePanel(PanelMode);
+                var nextMode = Enum.IsDefined(typeof(YAMPEnums.PanelMode), (int)PanelMode + 1)
+                    ? (YAMPEnums.PanelMode)((int)PanelMode + 1)
+                    : 0;
+                SetVisualisationPanelMode(nextMode);
             }
         }
 
@@ -673,16 +696,12 @@ namespace YAMP_alpha
                     SetupCircularMode();
                     break;
 
-                case YAMPEnums.PanelMode.Lyrics:
-                    SetupLyricsMode();
-                    break;
-
                 case YAMPEnums.PanelMode.Bars:
                     SetupHorizontalBarsMode();
                     break;
 
-                case YAMPEnums.PanelMode.ModernWaveform:
-                    SetupModernWaveformMode();
+                case YAMPEnums.PanelMode.Lyrics:
+                    SetupLyricsMode();
                     break;
             }
         }
@@ -775,66 +794,6 @@ namespace YAMP_alpha
                 PeakDecayRate = 0.98f,    // Decay rate (0.9 = fast, 0.98 = slow)
                 
                 RenderDirection = BarSpectrumRenderDirection.VerticalBottomToTop
-            };
-
-            YAMPVars.SingleBlockNotificationStream.SingleBlockRead += SingleBlockNotificationStream_SingleBlockRead;
-
-            visualizer.Start();
-        }
-
-        private void SetupModernWaveformMode()
-        {
-            // Dispose previous instance if exists
-            _modernWaveform?.Dispose();
-
-            // Get sample rate from player for accurate frequency filtering
-            int sampleRate = YAMPVars.CORE.Player.WaveSource.WaveFormat.SampleRate;
-
-            // Create modern waveform with configurable style
-            _modernWaveform = new ModernWaveformSpectrum(4096)
-            {
-                // Visual style options: Line, FilledMirror, Bars, Points, AreaFill, MirroredBars
-                Style = WaveformStyle.Line,
-
-                // Colors
-                LeftChannelColor = Color.FromArgb(0, 200, 255),    // Cyan
-                RightChannelColor = Color.FromArgb(255, 100, 150), // Pink
-                BackgroundColor = Color.Black,
-
-                // Channel rendering
-                RenderChannel = WaveformChannel.Left,
-
-                // Visual effects
-                EnableGlow = false,
-                EnableGradientFill = false,
-                ShowCenterLine = false,
-                CenterLineColor = Color.FromArgb(60, 255, 255, 255),
-                ShowGrid = false,
-
-                // Rendering quality
-                LineThickness = 1f,
-                AmplitudeScale = 0.8f,
-                EnableAntiAliasing = true,
-                RenderResolution = 128,       // Lower = smoother curves (fewer points)
-
-                // Smoothing and decay
-                SmoothingFactor = 0.4f,       // 0 = sharp, 1 = very smooth
-                EnableDecay = true,           // Smooth amplitude falloff animation
-                DecayRate = 0.90f,            // 0 = instant, 0.99 = very slow decay
-                AttackRate = 0.75f,           // How fast amplitude rises (0 = instant)
-
-                // Curved lines - makes peaks smooth and organic
-                UseCurvedLines = true,        // Use bezier curves instead of straight lines
-                CurveTension = 0.5f,          // 0 = angular, 1 = very curvy (0.5 is balanced)
-
-                // Frequency filtering
-                SampleRate = sampleRate,
-                EnableFrequencyFilter = true,
-                MinimumFrequency = 5000f,
-                MaximumFrequency = 16000f,
-
-                // Labels
-                ShowAmplitudeLabels = false
             };
 
             YAMPVars.SingleBlockNotificationStream.SingleBlockRead += SingleBlockNotificationStream_SingleBlockRead;
@@ -962,9 +921,6 @@ namespace YAMP_alpha
                 case YAMPEnums.PanelMode.Bars:
                     smoothingProvider?.Add(e.Left, e.Right);
                     break;
-                case YAMPEnums.PanelMode.ModernWaveform:
-                    _modernWaveform?.AddSamples(e.Left, e.Right);
-                    break;
             }
         }
 
@@ -1002,13 +958,6 @@ namespace YAMP_alpha
                     );
                 }
             }
-            else if (PanelMode == YAMPEnums.PanelMode.ModernWaveform)
-            {
-                if (_modernWaveform != null)
-                {
-                    newImage = _modernWaveform.Draw(CoverImageBox.Width, CoverImageBox.Height);
-                }
-            }
             if (newImage != null)
             {
                 CoverImageBox.BackgroundImage = newImage;
@@ -1033,6 +982,29 @@ namespace YAMP_alpha
                 //visualisation.DrawLeftChannel = leftChannelToolStripMenuItem.Checked;
                 //visualisation.DrawRightChannel = rightChannelToolStripMenuItem.Checked;
             }
+        }
+
+        private void VisualisationModeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (!(sender is ToolStripMenuItem item))
+                return;
+
+            // Ensure only one visualisation menu item is checked at a time.
+            foreach (ToolStripMenuItem menuItem in visualisationsToolStripMenuItem.DropDownItems)
+            {
+                menuItem.Checked = menuItem == item;
+            }
+
+            if (item == coverVisualisationToolStripMenuItem)
+                SetVisualisationPanelMode(YAMPEnums.PanelMode.Cover);
+            else if (item == spectrumToolStripMenuItem)
+                SetVisualisationPanelMode(YAMPEnums.PanelMode.Waveform);
+            else if (item == barsVisualisationToolStripMenuItem)
+                SetVisualisationPanelMode(YAMPEnums.PanelMode.Bars);
+            else if (item == circularVisualisationToolStripMenuItem)
+                SetVisualisationPanelMode(YAMPEnums.PanelMode.Circular);
+            else if (item == lyricsVisualisationToolStripMenuItem)
+                SetVisualisationPanelMode(YAMPEnums.PanelMode.Lyrics);
         }
 
         private void loadToolStripMenuItem_Click(object sender, EventArgs e)

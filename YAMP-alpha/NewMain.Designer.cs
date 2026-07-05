@@ -76,12 +76,19 @@
             this.signalFilteringToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tagEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.lyricsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.loadToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cloudToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.oneDriveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.visualisationsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.coverVisualisationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.spectrumToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.leftChannelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.rightChannelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.barsVisualisationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.circularVisualisationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.lyricsVisualisationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.PlayTimer = new System.Windows.Forms.Timer(this.components);
             this.CoverImageBox = new System.Windows.Forms.PictureBox();
             this.Pnl_Extras = new System.Windows.Forms.Panel();
@@ -90,9 +97,6 @@
             this.Btn_ToggleFade = new System.Windows.Forms.CheckBox();
             this.CB_ToggleTrackLoop = new System.Windows.Forms.CheckBox();
             this.visualizer = new System.Windows.Forms.Timer(this.components);
-            this.loadToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.VolumeTracker)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DurationTracker)).BeginInit();
@@ -562,6 +566,25 @@
             this.lyricsToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
             this.lyricsToolStripMenuItem1.Text = "Lyrics";
             // 
+            // loadToolStripMenuItem
+            // 
+            this.loadToolStripMenuItem.Name = "loadToolStripMenuItem";
+            this.loadToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
+            this.loadToolStripMenuItem.Text = "Load";
+            this.loadToolStripMenuItem.Click += new System.EventHandler(this.loadToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(113, 6);
+            // 
+            // optionsToolStripMenuItem
+            // 
+            this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
+            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
+            this.optionsToolStripMenuItem.Text = "Options";
+            this.optionsToolStripMenuItem.Click += new System.EventHandler(this.optionsToolStripMenuItem_Click);
+            // 
             // cloudToolStripMenuItem
             // 
             this.cloudToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -573,26 +596,40 @@
             // oneDriveToolStripMenuItem
             // 
             this.oneDriveToolStripMenuItem.Name = "oneDriveToolStripMenuItem";
-            this.oneDriveToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.oneDriveToolStripMenuItem.Size = new System.Drawing.Size(123, 22);
             this.oneDriveToolStripMenuItem.Text = "OneDrive";
             this.oneDriveToolStripMenuItem.Click += new System.EventHandler(this.oneDriveToolStripMenuItem_Click);
             // 
             // visualisationsToolStripMenuItem
             // 
             this.visualisationsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.spectrumToolStripMenuItem});
+            this.coverVisualisationToolStripMenuItem,
+            this.spectrumToolStripMenuItem,
+            this.barsVisualisationToolStripMenuItem,
+            this.circularVisualisationToolStripMenuItem,
+            this.lyricsVisualisationToolStripMenuItem});
             this.visualisationsToolStripMenuItem.Name = "visualisationsToolStripMenuItem";
             this.visualisationsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.visualisationsToolStripMenuItem.Text = "Visualisations";
             // 
+            // coverVisualisationToolStripMenuItem
+            // 
+            this.coverVisualisationToolStripMenuItem.CheckOnClick = true;
+            this.coverVisualisationToolStripMenuItem.Name = "coverVisualisationToolStripMenuItem";
+            this.coverVisualisationToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.coverVisualisationToolStripMenuItem.Text = "Cover";
+            this.coverVisualisationToolStripMenuItem.Click += new System.EventHandler(this.VisualisationModeToolStripMenuItem_Click);
+            // 
             // spectrumToolStripMenuItem
             // 
+            this.spectrumToolStripMenuItem.CheckOnClick = true;
             this.spectrumToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.leftChannelToolStripMenuItem,
             this.rightChannelToolStripMenuItem});
             this.spectrumToolStripMenuItem.Name = "spectrumToolStripMenuItem";
-            this.spectrumToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
+            this.spectrumToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.spectrumToolStripMenuItem.Text = "Waveform";
+            this.spectrumToolStripMenuItem.Click += new System.EventHandler(this.VisualisationModeToolStripMenuItem_Click);
             // 
             // leftChannelToolStripMenuItem
             // 
@@ -609,6 +646,30 @@
             this.rightChannelToolStripMenuItem.Size = new System.Drawing.Size(149, 22);
             this.rightChannelToolStripMenuItem.Tag = "R";
             this.rightChannelToolStripMenuItem.Text = "Right Channel";
+            // 
+            // barsVisualisationToolStripMenuItem
+            // 
+            this.barsVisualisationToolStripMenuItem.CheckOnClick = true;
+            this.barsVisualisationToolStripMenuItem.Name = "barsVisualisationToolStripMenuItem";
+            this.barsVisualisationToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.barsVisualisationToolStripMenuItem.Text = "Bars";
+            this.barsVisualisationToolStripMenuItem.Click += new System.EventHandler(this.VisualisationModeToolStripMenuItem_Click);
+            // 
+            // circularVisualisationToolStripMenuItem
+            // 
+            this.circularVisualisationToolStripMenuItem.CheckOnClick = true;
+            this.circularVisualisationToolStripMenuItem.Name = "circularVisualisationToolStripMenuItem";
+            this.circularVisualisationToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.circularVisualisationToolStripMenuItem.Text = "Circular";
+            this.circularVisualisationToolStripMenuItem.Click += new System.EventHandler(this.VisualisationModeToolStripMenuItem_Click);
+            // 
+            // lyricsVisualisationToolStripMenuItem
+            // 
+            this.lyricsVisualisationToolStripMenuItem.CheckOnClick = true;
+            this.lyricsVisualisationToolStripMenuItem.Name = "lyricsVisualisationToolStripMenuItem";
+            this.lyricsVisualisationToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.lyricsVisualisationToolStripMenuItem.Text = "Lyrics";
+            this.lyricsVisualisationToolStripMenuItem.Click += new System.EventHandler(this.VisualisationModeToolStripMenuItem_Click);
             // 
             // PlayTimer
             // 
@@ -695,25 +756,6 @@
             // 
             this.visualizer.Interval = 20;
             this.visualizer.Tick += new System.EventHandler(this.visualizer_Tick);
-            // 
-            // loadToolStripMenuItem
-            // 
-            this.loadToolStripMenuItem.Name = "loadToolStripMenuItem";
-            this.loadToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.loadToolStripMenuItem.Text = "Load";
-            this.loadToolStripMenuItem.Click += new System.EventHandler(this.loadToolStripMenuItem_Click);
-            // 
-            // toolStripSeparator1
-            // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(177, 6);
-            // 
-            // optionsToolStripMenuItem
-            // 
-            this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
-            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.optionsToolStripMenuItem.Text = "Options";
-            this.optionsToolStripMenuItem.Click += new System.EventHandler(this.optionsToolStripMenuItem_Click);
             // 
             // NewMain
             // 
@@ -805,7 +847,11 @@
         private System.Windows.Forms.ToolStripMenuItem cloudToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem oneDriveToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem visualisationsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem coverVisualisationToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem spectrumToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem barsVisualisationToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem circularVisualisationToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem lyricsVisualisationToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem leftChannelToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem rightChannelToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem loadToolStripMenuItem;

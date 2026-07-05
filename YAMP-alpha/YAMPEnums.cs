@@ -14,8 +14,7 @@ namespace YAMP_alpha
             Waveform = 1,
             Bars = 2,
             Circular = 3,
-            Lyrics = 4,
-            ModernWaveform = 5
+            Lyrics = 4
         }
     }
 }
