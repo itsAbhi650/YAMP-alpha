@@ -143,14 +143,40 @@ namespace YAMP_alpha
             get { return Player != null ? Player.PlaybackState : CSCore.SoundOut.PlaybackState.Stopped; }
         }
 
-        public int PlayerLength
+        public TimeSpan Duration
         {
-            get { return PlayerSource?.Length > 0 ? (int)PlayerSource.Length : 0; }
+            get
+            {
+                if (PlayerSource == null)
+                    return TimeSpan.Zero;
+
+                try
+                {
+                    return PlayerSource.GetLength();
+                }
+                catch
+                {
+                    return TimeSpan.Zero;
+                }
+            }
         }
 
-        public int CurrentPosition
+        public TimeSpan CurrentTime
         {
-            get { return PlayerSource != null ? (int)PlayerSource.Position : 0; }
+            get
+            {
+                if (PlayerSource == null)
+                    return TimeSpan.Zero;
+
+                try
+                {
+                    return PlayerSource.GetPosition();
+                }
+                catch
+                {
+                    return TimeSpan.Zero;
+                }
+            }
         }
 
         public YAMP_Core() : this(SynchronizationContext.Current)
@@ -223,19 +249,27 @@ namespace YAMP_alpha
             return null;
         }
 
-        public void AdjustPlayerPosition(int Value)
+        public void Seek(TimeSpan position)
         {
             lock (_playerLock)
             {
-                if (PlayerInitialized)
+                if (!PlayerInitialized)
+                    return;
+
+                if (!NetPlay || PlayerSource.CanSeek)
                 {
-                    if (!NetPlay || PlayerSource.CanSeek)
-                    {
-                        TimeSpan ts = TimeSpan.FromSeconds(Value);
-                        Extensions.SetPosition(PlayerSource, ts);
-                    }
+                    TimeSpan clampedPosition = position < TimeSpan.Zero ? TimeSpan.Zero : position;
+                    if (clampedPosition > Duration)
+                        clampedPosition = Duration;
+
+                    Extensions.SetPosition(PlayerSource, clampedPosition);
                 }
             }
+        }
+
+        public void Seek(int seconds)
+        {
+            Seek(TimeSpan.FromSeconds(Math.Max(0, seconds)));
         }
 
         public void LoadFile(string Filename)
@@ -861,7 +895,7 @@ namespace YAMP_alpha
                 State = CorePlaybackState.Stopping;
                 if (!NetPlay || PlayerSource.CanSeek)
                 {
-                    AdjustPlayerPosition(0);
+                    Seek(TimeSpan.Zero);
                 }
                 Player.Stop();
                 PlayerStopped = false;

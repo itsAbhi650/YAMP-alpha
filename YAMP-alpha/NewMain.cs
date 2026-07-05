@@ -410,7 +410,7 @@ namespace YAMP_alpha
 
         private void trackBar1_Scroll(object sender, EventArgs e)
         {
-            YAMPVars.CORE.AdjustPlayerPosition(DurationTracker.Value);
+            YAMPVars.CORE.Seek(DurationTracker.Value);
         }
 
         private void pitchShifterToolStripMenuItem_Click(object sender, EventArgs e)
@@ -517,7 +517,7 @@ namespace YAMP_alpha
             {
                 DurationTracker.Value += SecToSkip;
             }
-            YAMPVars.CORE.AdjustPlayerPosition(DurationTracker.Value);
+            YAMPVars.CORE.Seek(DurationTracker.Value);
         }
 
         private void distortionToolStripMenuItem_Click(object sender, EventArgs e)
@@ -585,7 +585,7 @@ namespace YAMP_alpha
                 if (DurationTracker.Value >= YAMPVars.TrackPositionLoop.B)
                 {
                     DurationTracker.Value = YAMPVars.TrackPositionLoop.A;
-                    YAMPVars.CORE.AdjustPlayerPosition(YAMPVars.TrackPositionLoop.A);
+                    YAMPVars.CORE.Seek(YAMPVars.TrackPositionLoop.A);
                 }
             }
         }
@@ -608,7 +608,7 @@ namespace YAMP_alpha
                         Btn.Text = "A↔B";
                         Btn.Tag = "B";
                         DurationTracker.Value = YAMPVars.TrackPositionLoop.A;
-                        YAMPVars.CORE.AdjustPlayerPosition(YAMPVars.TrackPositionLoop.A);
+                        YAMPVars.CORE.Seek(YAMPVars.TrackPositionLoop.A);
                         break;
                     default:
                         YAMPVars.TrackPositionLoop = null;
