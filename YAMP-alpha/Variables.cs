@@ -35,6 +35,10 @@ namespace YAMP_alpha
         public static bool DrawRightChannelSpectrum = true;
         internal static PositionLoop TrackPositionLoop;
         internal static EQBand[] FrequencyBands = null;
+        // Shared spectrum/provider objects so multiple dialogs reuse the same data
+        public static BasicSpectrumProvider SharedSpectrumProvider;
+        public static VoicePrint3DSpectrum SharedVoicePrint3DSpectrum;
+        public static bool SpectrumProviderSubscribed = false;
         //internal static OneDriveConsumerApi OneDriveApi;
 
         public static void ResetEffectVars()
@@ -51,6 +55,51 @@ namespace YAMP_alpha
         public static void ResetStreamNotifications()
         {
             SimpleNotificationSource = null;
+        }
+
+        public static void InitializeSharedSpectrum(YAMP_Core core)
+        {
+            if (core == null || core.PlayerSource == null)
+                return;
+
+            int channels = core.PlayerSource.WaveFormat.Channels;
+            int sampleRate = core.PlayerSource.WaveFormat.SampleRate;
+
+            // Ensure FFT provider exists
+            if (FftProvider == null)
+            {
+                FftProvider = new FftProvider(channels, FftSize.Fft4096);
+            }
+
+            var fftSize = FftProvider.FftSize;
+
+            if (SharedSpectrumProvider == null)
+            {
+                SharedSpectrumProvider = new BasicSpectrumProvider(channels, sampleRate, fftSize);
+            }
+
+            if (SharedVoicePrint3DSpectrum == null)
+            {
+                SharedVoicePrint3DSpectrum = new VoicePrint3DSpectrum(fftSize)
+                {
+                    SpectrumProvider = SharedSpectrumProvider,
+                    UseAverage = true,
+                    PointCount = 200,
+                    IsXLogScale = true,
+                    ScalingStrategy = ScalingStrategy.Sqrt
+                };
+            }
+
+            // Subscribe once to the core notification stream to feed the shared provider
+            if (!SpectrumProviderSubscribed && core.SingleBlockNotificationStream != null)
+            {
+                core.SingleBlockNotificationStream.SingleBlockRead += (s, e) =>
+                {
+                    // Add samples into the shared provider
+                    SharedSpectrumProvider?.Add(e.Left, e.Right);
+                };
+                SpectrumProviderSubscribed = true;
+            }
         }
     }
 }

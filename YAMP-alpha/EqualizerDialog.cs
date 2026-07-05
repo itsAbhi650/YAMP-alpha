@@ -22,8 +22,6 @@ namespace YAMP_alpha
         private Bitmap SpectroBitmap;
         private static int MaxDB = 20;
         private int _xpos;
-        private EQBand[] FrequencyBands = null;
-
         private EQBand GainBand = new EQBand("Gain", 100, 400, 100, "")
         {
             FooterVisibilityMode = YAMP_alpha.Controls.EQBand.FooterVisibility.Always,
@@ -52,30 +50,20 @@ namespace YAMP_alpha
                 GainBand.BandValue = (int)(gainSource.Volume * 100f);
                 splitContainer1.Panel2.Controls.Add(GainBand);
 
+                ChannelCount = YAMPVars.CORE.PlayerSource.WaveFormat.Channels;
+                SampleRate = YAMPVars.CORE.PlayerSource.WaveFormat.SampleRate;
+
+                // Ensure shared spectrum provider and spectrum instance are initialized
+                YAMPVars.InitializeSharedSpectrum(YAMPVars.CORE);
+
+                // Reuse shared instances so multiple Equalizer dialogs don't recreate providers or duplicate subscriptions
+                FFTSIZE = YAMPVars.FftProvider.FftSize;
+                SpectrumProvider = YAMPVars.SharedSpectrumProvider;
+                Spectrum = YAMPVars.SharedVoicePrint3DSpectrum;
+
                 //Scope.Start();
                 //Spectrogram.Start();
-                if (YAMPVars.FrequencyBands == null)
-                {
-                    YAMPVars.FrequencyBands = new EQBand[equalizerEffect.SampleFilters.Count];
-                    for (int i = 0; i < YAMPVars.FrequencyBands.Length; i++)
-                    {
-                        EqualizerFilter item = equalizerEffect.SampleFilters[i];
-                        int FilterFreq = (int)item.Filters[0].Frequency;
-                        string FreqText = (FilterFreq < 1000) ? (FilterFreq.ToString() + " Hz") : ((FilterFreq / 1000).ToString() + " KHz");
-                        YAMPVars.FrequencyBands[i] = new EQBand(FreqText, -MaxDB, MaxDB, 0, "")
-                        {
-                            Dock = DockStyle.Left,
-                            Tag = i,
-                            ShowBandValueInFooter = true,
-                            FooterVisibilityMode = EQBand.FooterVisibility.Always,
-                            FooterContentMode = EQBand.FooterContentSelect.Value
-                        };
-
-                        YAMPVars.FrequencyBands[i].BandValue = (int)(item.AverageGainDB / MaxDB * YAMPVars.FrequencyBands[i].BandMax);
-                        YAMPVars.FrequencyBands[i].ValueChanged += EQBAND_ValueChanged;
-                        YAMPVars.FrequencyBands[i].DoubleClick += EQBAND_DoubleClick;
-                    }
-                }
+                RebuildFrequencyBands(equalizerEffect);
 
                 for (int i = 0; i < YAMPVars.FrequencyBands.Length; i++)
                 {
@@ -114,7 +102,7 @@ namespace YAMP_alpha
         private void SingleBlockNotificationStream_SingleBlockRead(object sender, SingleBlockReadEventArgs e)
         {
             SpectrumProvider.Add(e.Left, e.Right);
-            YAMPVars.FftProvider.Add(e.Left, e.Right);
+            //YAMPVars.FftProvider.Add(e.Left, e.Right);
         }
 
         private void GainBand_ValueChanged(object sender, EventArgs e)
@@ -413,6 +401,54 @@ namespace YAMP_alpha
         private void EqualizerDialog_FormClosing(object sender, FormClosingEventArgs e)
         {
             GainBand.ValueChanged -= GainBand_ValueChanged;
+            ClearFrequencyBands();
+        }
+
+        private void RebuildFrequencyBands(Equalizer equalizerEffect)
+        {
+            ClearFrequencyBands();
+
+            YAMPVars.FrequencyBands = new EQBand[equalizerEffect.SampleFilters.Count];
+            for (int i = 0; i < YAMPVars.FrequencyBands.Length; i++)
+            {
+                EqualizerFilter item = equalizerEffect.SampleFilters[i];
+                int filterFreq = (int)item.Filters[0].Frequency;
+                string freqText = filterFreq < 1000
+                    ? filterFreq.ToString() + " Hz"
+                    : (filterFreq / 1000).ToString() + " KHz";
+
+                EQBand band = new EQBand(freqText, -MaxDB, MaxDB, 0, "")
+                {
+                    Dock = DockStyle.Left,
+                    Tag = i,
+                    ShowBandValueInFooter = true,
+                    FooterVisibilityMode = EQBand.FooterVisibility.Always,
+                    FooterContentMode = EQBand.FooterContentSelect.Value
+                };
+
+                band.BandValue = (int)(item.AverageGainDB / MaxDB * band.BandMax);
+                band.ValueChanged += EQBAND_ValueChanged;
+                band.DoubleClick += EQBAND_DoubleClick;
+                YAMPVars.FrequencyBands[i] = band;
+            }
+        }
+
+        private void ClearFrequencyBands()
+        {
+            if (YAMPVars.FrequencyBands == null)
+                return;
+
+            for (int i = 0; i < YAMPVars.FrequencyBands.Length; i++)
+            {
+                EQBand band = YAMPVars.FrequencyBands[i];
+                if (band == null)
+                    continue;
+
+                band.ValueChanged -= EQBAND_ValueChanged;
+                band.DoubleClick -= EQBAND_DoubleClick;
+            }
+
+            YAMPVars.FrequencyBands = null;
         }
     }
 }
