@@ -19,6 +19,8 @@ namespace YAMP_alpha
     /// </summary>
     public enum StopReason
     {
+        /// <summary>No stop has been requested for the current source</summary>
+        None,
         /// <summary>Track finished naturally (reached end)</summary>
         TrackFinished,
         /// <summary>User manually stopped playback</summary>
@@ -486,6 +488,7 @@ namespace YAMP_alpha
                     PlayerStopped = false;
                     PlayerPaused = false;
                     _trackEndedRaised = false;
+                    LastStopReason = StopReason.None;
                     State = CorePlaybackState.Ready;
                     return true;
                 }
@@ -519,6 +522,7 @@ namespace YAMP_alpha
                         PlayerStopped = false;
                         PlayerPaused = false;
                         _trackEndedRaised = false;
+                        LastStopReason = StopReason.None;
                         State = CorePlaybackState.Ready;
                         return true;
                     }
@@ -751,14 +755,11 @@ namespace YAMP_alpha
         {
             if (!NetPlay || PlayerSource.CanSeek)
             {
-                var priorReason = LastStopReason;
-                LastStopReason = StopReason.TrackFinished;
                 PlayerPaused = false;
 
-                // Only treat this as a finished track when the stop was not initiated by the user or a track change
-                if (priorReason != StopReason.UserStopped && priorReason != StopReason.TrackChanging)
+                if (LastStopReason == StopReason.None)
                 {
-                    // mark stopped for UI/logic that expects natural end and raise the event
+                    LastStopReason = StopReason.TrackFinished;
                     PlayerStopped = true;
                     RaiseTrackEnded();
                 }
@@ -834,6 +835,7 @@ namespace YAMP_alpha
                 if (!PlayerInitialized)
                     return;
 
+                LastStopReason = StopReason.None;
                 Player.Play();
                 PlayerStopped = false;
                 PlayerPaused = false;
@@ -888,6 +890,7 @@ namespace YAMP_alpha
             DisposePlayer();
             DisposePlayerSource();
             Player = CreatePlayer();
+            LastStopReason = StopReason.None;
             PlayerStopped = false;
             PlayerPaused = false;
             _trackEndedRaised = false;
