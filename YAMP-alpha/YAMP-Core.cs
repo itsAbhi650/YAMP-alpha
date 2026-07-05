@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Security;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Security.Cryptography.X509Certificates;
 
@@ -48,6 +49,7 @@ namespace YAMP_alpha
     {
         private TrackInfo _curtrack;
         private readonly object _playerLock = new object();
+        private readonly SynchronizationContext _eventContext;
         private CorePlaybackState _state = CorePlaybackState.Idle;
         private float _volume = 1.0f;
 
@@ -88,7 +90,7 @@ namespace YAMP_alpha
                 if (_state != value)
                 {
                     _state = value;
-                    StateChanged?.Invoke(this, EventArgs.Empty);
+                    RaiseEvent(StateChanged, EventArgs.Empty);
                 }
             }
         }
@@ -128,12 +130,12 @@ namespace YAMP_alpha
 
         private void OnTrackChanged()
         {
-            TrackChanged?.Invoke(this, EventArgs.Empty);
+            RaiseEvent(TrackChanged, EventArgs.Empty);
         }
 
         private void OnTrackLoadFailed(string path, string error)
         {
-            TrackLoadFailed?.Invoke(this, new TrackLoadFailedEventArgs(path, error));
+            RaiseEvent(TrackLoadFailed, new TrackLoadFailedEventArgs(path, error));
         }
 
         public CSCore.SoundOut.PlaybackState PlayerPlaybackState
@@ -151,8 +153,13 @@ namespace YAMP_alpha
             get { return PlayerSource != null ? (int)PlayerSource.Position : 0; }
         }
 
-        public YAMP_Core()
+        public YAMP_Core() : this(SynchronizationContext.Current)
         {
+        }
+
+        internal YAMP_Core(SynchronizationContext eventContext)
+        {
+            _eventContext = eventContext;
             EnsureGlobalCertificateBypass();
             Player = CreatePlayer();
             YAMPVars.MediaDevice = new MMDeviceEnumerator().GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
@@ -773,7 +780,7 @@ namespace YAMP_alpha
 
             _trackEndedRaised = true;
             State = CorePlaybackState.Ended;
-            TrackEnded?.Invoke(this, EventArgs.Empty);
+            RaiseEvent(TrackEnded, EventArgs.Empty);
         }
 
         public void ReleasePlayer()
@@ -959,6 +966,34 @@ namespace YAMP_alpha
             PlayerStopped = false;
             PlayerPaused = false;
             State = CorePlaybackState.Error;
+        }
+
+        private void RaiseEvent(EventHandler handler, EventArgs args)
+        {
+            if (handler == null)
+                return;
+
+            if (_eventContext == null || SynchronizationContext.Current == _eventContext)
+            {
+                handler(this, args);
+                return;
+            }
+
+            _eventContext.Post(_ => handler(this, args), null);
+        }
+
+        private void RaiseEvent<TEventArgs>(EventHandler<TEventArgs> handler, TEventArgs args)
+        {
+            if (handler == null)
+                return;
+
+            if (_eventContext == null || SynchronizationContext.Current == _eventContext)
+            {
+                handler(this, args);
+                return;
+            }
+
+            _eventContext.Post(_ => handler(this, args), null);
         }
 
         private bool _disposed = false;
