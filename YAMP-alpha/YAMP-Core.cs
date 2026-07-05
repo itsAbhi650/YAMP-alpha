@@ -544,21 +544,69 @@ namespace YAMP_alpha
 
         public bool InitializePlayerNet(string StreamURL)
         {
+            try
+            {
+                return InitializePlayerNetAsync(StreamURL).GetAwaiter().GetResult();
+            }
+            catch
+            {
+                CleanupAfterLoadFailure();
+                return false;
+            }
+        }
+
+        public async Task<bool> InitializePlayerNetAsync(string StreamURL, CancellationToken cancellationToken = default(CancellationToken), int timeoutMs = 10000)
+        {
+            if (timeoutMs <= 0)
+                timeoutMs = 10000;
+
+            var loadTask = Task.Run(() => InitializePlayerNetInternal(StreamURL, cancellationToken), cancellationToken);
+            var completedTask = await Task.WhenAny(loadTask, Task.Delay(timeoutMs, cancellationToken)).ConfigureAwait(false);
+
+            if (!ReferenceEquals(completedTask, loadTask))
+            {
+                CleanupAfterLoadFailure();
+                return false;
+            }
+
+            try
+            {
+                return await loadTask.ConfigureAwait(false);
+            }
+            catch (OperationCanceledException)
+            {
+                CleanupAfterLoadFailure();
+                return false;
+            }
+            catch
+            {
+                CleanupAfterLoadFailure();
+                return false;
+            }
+        }
+
+        private bool InitializePlayerNetInternal(string streamUrl, CancellationToken cancellationToken)
+        {
             lock (_playerLock)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 State = CorePlaybackState.Loading;
                 NetPlay = true;
                 PrepareForNewSource(StopReason.TrackChanging);
-                PlayingFile = StreamURL;
+                PlayingFile = streamUrl;
+
                 try
                 {
-                    PlayerSource = CheckStreamSource(StreamURL, out string LocalPath);
+                    cancellationToken.ThrowIfCancellationRequested();
+                    PlayerSource = CheckStreamSource(streamUrl, out string localPath);
+                    cancellationToken.ThrowIfCancellationRequested();
+
                     if (PlayerSource != null)
                     {
                         PlayerSource = AppendEffectSources(PlayerSource);
                         InitializeCurrentSource();
-                        CurrentTrack = !string.IsNullOrEmpty(LocalPath) && File.Exists(LocalPath)
-                            ? new TrackInfo(LocalPath)
+                        CurrentTrack = !string.IsNullOrEmpty(localPath) && File.Exists(localPath)
+                            ? new TrackInfo(localPath)
                             : new TrackInfo();
                         PlayerStopped = false;
                         PlayerPaused = false;
@@ -567,6 +615,10 @@ namespace YAMP_alpha
                         State = CorePlaybackState.Ready;
                         return true;
                     }
+                }
+                catch (OperationCanceledException)
+                {
+                    throw;
                 }
                 catch
                 {
