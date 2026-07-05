@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -14,30 +14,33 @@ namespace YAMP_alpha
 
         private void PeakMeterDialog_Load(object sender, EventArgs e)
         {
-            if (YAMPVars.CORE != null && YAMPVars.AudioPeakMeter != null)
+            var peakMeter = YAMPVars.CORE?.AudioPeakMeter;
+            if (peakMeter != null)
             {
-                YAMPVars.AudioPeakMeter.PeakCalculated += AudioPeakMeter_PeakCalculated;
+                peakMeter.PeakCalculated += AudioPeakMeter_PeakCalculated;
             }
         }
 
         private void PeakMeterDialog_FormClosing(object sender, FormClosingEventArgs e)
         {
             // Unsubscribe from event to prevent memory leaks
-            if (YAMPVars.AudioPeakMeter != null)
+            var peakMeter = YAMPVars.CORE?.AudioPeakMeter;
+            if (peakMeter != null)
             {
-                YAMPVars.AudioPeakMeter.PeakCalculated -= AudioPeakMeter_PeakCalculated;
+                peakMeter.PeakCalculated -= AudioPeakMeter_PeakCalculated;
             }
         }
 
         private void AudioPeakMeter_PeakCalculated(object sender, CSCore.Streams.PeakEventArgs e)
         {
-            if (!YAMPVars.CORE.PlayerStopped)
+            var peakMeter = YAMPVars.CORE?.AudioPeakMeter;
+            if (peakMeter != null && !YAMPVars.CORE.PlayerStopped)
             {
                 // Clone or snapshot peak values to avoid cross-thread issues
                 float[] channelPeaks;
-                lock (YAMPVars.AudioPeakMeter)
+                lock (peakMeter)
                 {
-                    channelPeaks = YAMPVars.AudioPeakMeter.ChannelPeakValues.ToArray();
+                    channelPeaks = peakMeter.ChannelPeakValues.ToArray();
                 }
 
                 int[] PeakVals = channelPeaks.Select(x => (int)(x * 100F)).ToArray();

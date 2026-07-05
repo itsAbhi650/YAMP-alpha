@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows.Forms;
 
 namespace YAMP_alpha
@@ -13,9 +13,10 @@ namespace YAMP_alpha
 
         private void PitchShiftDialog_Load(object sender, EventArgs e)
         {
-            if (YAMPVars.CORE.Player != null && YAMPVars.PitchShiftEffect != null)
+            var pitchShiftEffect = YAMPVars.CORE?.PitchShiftEffect;
+            if (YAMPVars.CORE?.Player != null && pitchShiftEffect != null)
             {
-                var value = Math.Log10(YAMPVars.PitchShiftEffect.PitchShiftFactor) / Math.Log10(2) * 120;
+                var value = Math.Log10(pitchShiftEffect.PitchShiftFactor) / Math.Log10(2) * 120;
                 Tb_PitchShiftingBar.Value = (int)value;
                 textBox1.Text = "1";
             }
@@ -28,9 +29,10 @@ namespace YAMP_alpha
 
         private void Tb_PitchShiftingBar_ValueChanged(object sender, EventArgs e)
         {
-            if (YAMPVars.PitchShiftEffect != null)
+            var pitchShiftEffect = YAMPVars.CORE?.PitchShiftEffect;
+            if (pitchShiftEffect != null)
             {
-                YAMPVars.PitchShiftEffect.PitchShiftFactor = (float)Math.Pow(2, Tb_PitchShiftingBar.Value / 120.0);
+                pitchShiftEffect.PitchShiftFactor = (float)Math.Pow(2, Tb_PitchShiftingBar.Value / 120.0);
             }
         }
 

@@ -710,7 +710,7 @@ namespace YAMP_alpha
         {
             LoopStream trackLoop;
             source = source.AppendSource(x => new LoopStream(x) { EnableLoop = false }, out trackLoop);
-            TrackLoop = YAMPVars.TrackLoop = trackLoop;
+            TrackLoop = trackLoop;
             return source;
         }
 
@@ -725,8 +725,8 @@ namespace YAMP_alpha
                 .AppendSource(x => new VolumeSource(x) { Volume = 1.0f }, out volumeSource)
                 .ToWaveSource();
 
-            GainSource = YAMPVars.GainSource = gainSource;
-            VolumeSource = YAMPVars.VolumeSource = volumeSource;
+            GainSource = gainSource;
+            VolumeSource = volumeSource;
 
             return source;
         }
@@ -740,7 +740,7 @@ namespace YAMP_alpha
                 .AppendSource(x => new PeakMeter(x) { Interval = 25 }, out audioPeakMeter)
                 .ToWaveSource();
 
-            AudioPeakMeter = YAMPVars.AudioPeakMeter = audioPeakMeter;
+            AudioPeakMeter = audioPeakMeter;
 
             return source;
         }
@@ -757,7 +757,7 @@ namespace YAMP_alpha
                 .ToWaveSource();
 
             PitchShiftEffect = YAMPVars.PitchShiftEffect = pitchShiftEffect;
-            FadeEffect = YAMPVars.FadeEffect = fadeEffect;
+            FadeEffect = fadeEffect;
 
             return source;
         }
@@ -774,7 +774,7 @@ namespace YAMP_alpha
                 .AppendSource(x => new PanSource(x) { Pan = 0.0F }, out channelPan)
                 .ToWaveSource();
 
-            ChannelPan = YAMPVars.ChannelPan = channelPan;
+            ChannelPan = channelPan;
 
             return source;
         }
@@ -791,7 +791,7 @@ namespace YAMP_alpha
                 .AppendSource(x => Equalizer.Create10BandEqualizer(x), out equalizerEffect)
                 .ToWaveSource();
 
-            EqualizerEffect = YAMPVars.EqualizerEffect = equalizerEffect;
+            EqualizerEffect = equalizerEffect;
 
             return source;
         }
@@ -809,8 +809,8 @@ namespace YAMP_alpha
                 .ToWaveSource();
 
             source = source.AppendSource(x => new SingleBlockNotificationStream(x.ToSampleSource(), NOTIFICATION_BLOCK_SIZE), out singleBlockNotificationStream).ToWaveSource();
-            NotificationSource = YAMPVars.NotificationSource = notificationSource;
-            SingleBlockNotificationStream = YAMPVars.SingleBlockNotificationStream = singleBlockNotificationStream;
+            NotificationSource = notificationSource;
+            SingleBlockNotificationStream = singleBlockNotificationStream;
             SingleBlockNotificationStream.SingleBlockRead += NotificationStream_SingleBlockRead;
             SingleBlockNotificationStream.SingleBlockStreamAlmostFinished += NotificationStream_SingleBlockStreamAlmostFinished;
             SingleBlockNotificationStream.SingleBlockStreamFinished += NotificationStream_SingleBlockStreamFinished;
@@ -1009,21 +1009,21 @@ namespace YAMP_alpha
             CompressorEffect = null;
             GargleEffect = null;
             ChorusEffect = null;
-            TrackLoop = YAMPVars.TrackLoop = null;
-            GainSource = YAMPVars.GainSource = null;
-            VolumeSource = YAMPVars.VolumeSource = null;
-            AudioPeakMeter = YAMPVars.AudioPeakMeter = null;
+            TrackLoop = null;
+            GainSource = null;
+            VolumeSource = null;
+            AudioPeakMeter = null;
             PitchShiftEffect = YAMPVars.PitchShiftEffect = null;
-            FadeEffect = YAMPVars.FadeEffect = null;
-            ChannelPan = YAMPVars.ChannelPan = null;
-            EqualizerEffect = YAMPVars.EqualizerEffect = null;
+            FadeEffect = null;
+            ChannelPan = null;
+            EqualizerEffect = null;
         }
 
         private void ResetOwnedNotificationReferences()
         {
             YAMPVars.ResetStreamNotifications();
-            NotificationSource = YAMPVars.NotificationSource = null;
-            SingleBlockNotificationStream = YAMPVars.SingleBlockNotificationStream = null;
+            NotificationSource = null;
+            SingleBlockNotificationStream = null;
         }
 
         private void DisposePlayer()

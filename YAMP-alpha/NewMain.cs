@@ -125,9 +125,9 @@ namespace YAMP_alpha
             DurationTracker.Value = 0;
             PlayTimer.Start();
             YAMPVars.CORE.Play();
-            if (YAMPVars.CORE.EnableFade && FadeTrack)
+            if (YAMPVars.CORE.EnableFade && FadeTrack && YAMPVars.CORE.FadeEffect != null)
             {
-                YAMPVars.FadeEffect.FadeStrategy.StartFading(0, 1, 5000D);
+                YAMPVars.CORE.FadeEffect.FadeStrategy.StartFading(0, 1, 5000D);
             }
         }
 
@@ -150,7 +150,7 @@ namespace YAMP_alpha
             YAMPVars.DrawRightChannelSpectrum = rightChannelToolStripMenuItem.Checked;
             YAMPVars.CORE.TrackChanged += CORE_TrackChanged;
             YAMPVars.CORE.TrackEnded += CORE_TrackEnded;
-            //YAMPVars.NotificationSource.BlockRead += NotificationSource_BlockRead;
+            //YAMPVars.CORE.NotificationSource.BlockRead += NotificationSource_BlockRead;
         }
 
         private void CORE_TrackEnded(object sender, EventArgs e)
@@ -558,9 +558,9 @@ namespace YAMP_alpha
 
         private void CB_ToggleTrackLoop_CheckedChanged(object sender, EventArgs e)
         {
-            if (YAMPVars.TrackLoop != null)
+            if (YAMPVars.CORE?.TrackLoop != null)
             {
-                YAMPVars.TrackLoop.EnableLoop = CB_ToggleTrackLoop.Checked;
+                YAMPVars.CORE.TrackLoop.EnableLoop = CB_ToggleTrackLoop.Checked;
             }
         }
 
@@ -600,12 +600,12 @@ namespace YAMP_alpha
                 {
                     case "*":
                         YAMPVars.TrackPositionLoop = new PositionLoop() { A = DurationTracker.Value };
-                        Btn.Text = "A→";
+                        Btn.Text = "A?";
                         Btn.Tag = "A";
                         break;
                     case "A":
                         YAMPVars.TrackPositionLoop.B = DurationTracker.Value;
-                        Btn.Text = "A↔B";
+                        Btn.Text = "A?B";
                         Btn.Tag = "B";
                         DurationTracker.Value = YAMPVars.TrackPositionLoop.A;
                         YAMPVars.CORE.Seek(YAMPVars.TrackPositionLoop.A);
@@ -664,8 +664,11 @@ namespace YAMP_alpha
         private void UpdatePanel(YAMPEnums.PanelMode mode)
         {
             // Clean up event handlers first
-            //YAMPVars.NotificationSource.BlockRead -= NotificationSource_BlockRead;
-            YAMPVars.SingleBlockNotificationStream.SingleBlockRead -= SingleBlockNotificationStream_SingleBlockRead;
+            //YAMPVars.CORE.NotificationSource.BlockRead -= NotificationSource_BlockRead;
+            if (YAMPVars.CORE?.SingleBlockNotificationStream != null)
+            {
+                YAMPVars.CORE.SingleBlockNotificationStream.SingleBlockRead -= SingleBlockNotificationStream_SingleBlockRead;
+            }
             CoverImageBox.Paint -= CoverImageBox_Paint;
             LyricLineChanged -= NewMain_LyricLineChanged;
 
@@ -737,7 +740,10 @@ namespace YAMP_alpha
                 EnableRotation = false // Set to true for rotating effect
             };
 
-            YAMPVars.SingleBlockNotificationStream.SingleBlockRead += SingleBlockNotificationStream_SingleBlockRead;
+            if (YAMPVars.CORE?.SingleBlockNotificationStream != null)
+            {
+                YAMPVars.CORE.SingleBlockNotificationStream.SingleBlockRead += SingleBlockNotificationStream_SingleBlockRead;
+            }
 
             visualizer.Start();
         }
@@ -796,7 +802,10 @@ namespace YAMP_alpha
                 RenderDirection = BarSpectrumRenderDirection.VerticalBottomToTop
             };
 
-            YAMPVars.SingleBlockNotificationStream.SingleBlockRead += SingleBlockNotificationStream_SingleBlockRead;
+            if (YAMPVars.CORE?.SingleBlockNotificationStream != null)
+            {
+                YAMPVars.CORE.SingleBlockNotificationStream.SingleBlockRead += SingleBlockNotificationStream_SingleBlockRead;
+            }
 
             visualizer.Start();
         }
@@ -862,7 +871,10 @@ namespace YAMP_alpha
             rightChannelToolStripMenuItem.Checked = YAMPVars.DrawRightChannelSpectrum;
 
             visualisation = new GraphVisualization();
-            YAMPVars.SingleBlockNotificationStream.SingleBlockRead += SingleBlockNotificationStream_SingleBlockRead;
+            if (YAMPVars.CORE?.SingleBlockNotificationStream != null)
+            {
+                YAMPVars.CORE.SingleBlockNotificationStream.SingleBlockRead += SingleBlockNotificationStream_SingleBlockRead;
+            }
             visualizer.Start();
         }
 
@@ -873,7 +885,7 @@ namespace YAMP_alpha
 
             if (YAMPVars.CORE?.CurrentTrack?.Lyrics != null)
             {
-                //YAMPVars.NotificationSource.BlockRead += NotificationSource_BlockRead;
+                //YAMPVars.CORE.NotificationSource.BlockRead += NotificationSource_BlockRead;
             }
             else
             {
@@ -1016,7 +1028,7 @@ namespace YAMP_alpha
                     ParseLRC(OFD.FileName);
                     if (PanelMode == YAMPEnums.PanelMode.Lyrics)
                     {
-                        //YAMPVars.NotificationSource.BlockRead += NotificationSource_BlockRead;
+                        //YAMPVars.CORE.NotificationSource.BlockRead += NotificationSource_BlockRead;
                     }
                 }
             }

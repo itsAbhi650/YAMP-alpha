@@ -1,4 +1,4 @@
-﻿using CSCore.Streams.Effects;
+using CSCore.Streams.Effects;
 using System;
 using System.Windows.Forms;
 
@@ -16,9 +16,9 @@ namespace YAMP_alpha
             if (YAMPVars.CORE != null && YAMPVars.CORE.PlayerSource != null)
             {
                 Enabled = true;
-                trackBar1.Value = YAMPVars.GargleEffect.RateHz;
-                comboBox1.SelectedIndex = (int)YAMPVars.GargleEffect.WaveShape;
-                checkBox1.Checked = YAMPVars.GargleEffect.IsEnabled;
+                trackBar1.Value = YAMPVars.CORE.GargleEffect.RateHz;
+                comboBox1.SelectedIndex = (int)YAMPVars.CORE.GargleEffect.WaveShape;
+                checkBox1.Checked = YAMPVars.CORE.GargleEffect.IsEnabled;
             }
             else
             {
@@ -29,13 +29,13 @@ namespace YAMP_alpha
 
         private void trackBar1_ValueChanged(object sender, EventArgs e)
         {
-            YAMPVars.GargleEffect.RateHz = trackBar1.Value;
+            YAMPVars.CORE.GargleEffect.RateHz = trackBar1.Value;
             updateInfo();
         }
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            YAMPVars.GargleEffect.WaveShape = (GargleWaveShape)comboBox1.SelectedIndex;
+            YAMPVars.CORE.GargleEffect.WaveShape = (GargleWaveShape)comboBox1.SelectedIndex;
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -60,12 +60,12 @@ namespace YAMP_alpha
 
         private void updateInfo()
         {
-            label1.Text = string.Format("Change the value ({0} Hz) to observe a change in effect", YAMPVars.GargleEffect.RateHz);
+            label1.Text = string.Format("Change the value ({0} Hz) to observe a change in effect", YAMPVars.CORE.GargleEffect.RateHz);
         }
 
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
-            YAMPVars.GargleEffect.IsEnabled = checkBox1.Checked;
+            YAMPVars.CORE.GargleEffect.IsEnabled = checkBox1.Checked;
         }
     }
 }

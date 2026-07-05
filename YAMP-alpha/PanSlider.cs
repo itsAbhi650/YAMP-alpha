@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -27,15 +27,18 @@ namespace YAMP_alpha
 
         private void Tb_PanSlider_ValueChanged(object sender, EventArgs e)
         {
-            if (YAMPVars.CORE.Player != null)
+            if (YAMPVars.CORE?.ChannelPan != null)
             {
-                YAMPVars.ChannelPan.Pan = (Tb_PanSlider.Value / (float)Tb_PanSlider.Maximum);
+                YAMPVars.CORE.ChannelPan.Pan = (Tb_PanSlider.Value / (float)Tb_PanSlider.Maximum);
             }
         }
 
         private void PanSlider_Load(object sender, EventArgs e)
         {
-            Tb_PanSlider.Value = (int)YAMPVars.ChannelPan.Pan * 10;
+            if (YAMPVars.CORE?.ChannelPan != null)
+            {
+                Tb_PanSlider.Value = (int)(YAMPVars.CORE.ChannelPan.Pan * 10);
+            }
         }
     }
 }

@@ -43,20 +43,23 @@ namespace YAMP_alpha
             SpectroBitmap = new Bitmap(2140, 702);
             GainMeter.Maximum = GainBand.BandMax;
             GainBand.BandValue = 101;
-            if (YAMPVars.CORE != null && YAMPVars.CORE.PlayerSource != null)
+            var core = YAMPVars.CORE;
+            var gainSource = core?.GainSource;
+            var equalizerEffect = core?.EqualizerEffect;
+            if (core != null && core.PlayerSource != null && gainSource != null && equalizerEffect != null)
             {
                 GainBand.ValueChanged += GainBand_ValueChanged;
-                GainBand.BandValue = (int)(YAMPVars.GainSource.Volume * 100f);
+                GainBand.BandValue = (int)(gainSource.Volume * 100f);
                 splitContainer1.Panel2.Controls.Add(GainBand);
 
                 //Scope.Start();
                 //Spectrogram.Start();
                 if (YAMPVars.FrequencyBands == null)
                 {
-                    YAMPVars.FrequencyBands = new EQBand[YAMPVars.EqualizerEffect.SampleFilters.Count];
+                    YAMPVars.FrequencyBands = new EQBand[equalizerEffect.SampleFilters.Count];
                     for (int i = 0; i < YAMPVars.FrequencyBands.Length; i++)
                     {
-                        EqualizerFilter item = YAMPVars.EqualizerEffect.SampleFilters[i];
+                        EqualizerFilter item = equalizerEffect.SampleFilters[i];
                         int FilterFreq = (int)item.Filters[0].Frequency;
                         string FreqText = (FilterFreq < 1000) ? (FilterFreq.ToString() + " Hz") : ((FilterFreq / 1000).ToString() + " KHz");
                         YAMPVars.FrequencyBands[i] = new EQBand(FreqText, -MaxDB, MaxDB, 0, "")
@@ -86,10 +89,14 @@ namespace YAMP_alpha
 
         private void EQBAND_DoubleClick(object sender, EventArgs e)
         {
-            inBand = true;
             var Band = (EQBand)sender;
             int filterIndex = (int)Band.Tag;
-            var EQFilter = YAMPVars.EqualizerEffect.SampleFilters[filterIndex];
+            var equalizerEffect = YAMPVars.CORE?.EqualizerEffect;
+            if (equalizerEffect == null)
+                return;
+
+            inBand = true;
+            var EQFilter = equalizerEffect.SampleFilters[filterIndex];
             using (var BandConfigurator = new EQBandConfigDialog(EQFilter, MaxDB))
             {
                 BandConfigurator.ShowDialog();
@@ -112,7 +119,10 @@ namespace YAMP_alpha
 
         private void GainBand_ValueChanged(object sender, EventArgs e)
         {
-            YAMPVars.GainSource.Volume = (sender as EQBand).BandValue / 100f;
+            if (YAMPVars.CORE?.GainSource != null)
+            {
+                YAMPVars.CORE.GainSource.Volume = (sender as EQBand).BandValue / 100f;
+            }
             GainMeter.Level = GainBand.BandValue;
         }
 
@@ -121,11 +131,12 @@ namespace YAMP_alpha
             if (!inBand)
             {
                 EQBand EQBAND;
-                bool flag = (EQBAND = sender as EQBand) != null && YAMPVars.EqualizerEffect != null;
+                var equalizerEffect = YAMPVars.CORE?.EqualizerEffect;
+                bool flag = (EQBAND = sender as EQBand) != null && equalizerEffect != null;
                 if (flag)
                 {
                     int filterIndex = (int)EQBAND.Tag;
-                    YAMPVars.EqualizerEffect.SampleFilters[filterIndex].AverageGainDB = EQBAND.BandValue;// BandToGain(EQBAND.BandValue, MaxDB, MaxDB);
+                    equalizerEffect.SampleFilters[filterIndex].AverageGainDB = EQBAND.BandValue;// BandToGain(EQBAND.BandValue, MaxDB, MaxDB);
                     EqCurve.Image = RenderEQCurve(YAMPVars.FrequencyBands, EqCurve.Width, EqCurve.Height);
                 }
             }
