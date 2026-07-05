@@ -1017,40 +1017,6 @@ namespace YAMP_alpha
             }
         }
 
-        private void NewMain_SizeChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void lyricsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            using (OpenFileDialog OFD = new OpenFileDialog())
-            {
-                if (OFD.ShowDialog() == DialogResult.OK)
-                {
-                    ParseLRC(OFD.FileName);
-                    if (PanelMode == YAMPEnums.PanelMode.Lyrics)
-                    {
-                        //YAMPVars.NotificationSource.BlockRead += NotificationSource_BlockRead;
-                    }
-                }
-            }
-        }
-
-        private void lyricsToolStripMenuItem1_Click(object sender, EventArgs e)
-        {
-            using (LyricsConfig LCDiag = new LyricsConfig())
-            {
-                RefreshBrushes = false;
-                LCDiag.ShowDialog();
-                //LyricsHelper.UpdateLyricsBorderBrush(LyricsHelper.UpdateLyricRect(CurrentLyricLine, CoverImageBox.DisplayRectangle, LyricsHelper.LyricsFont));
-                //LyricsHelper.UpdateLyricsWriterBrushArea(DisplayRectangle);
-                //LyricsHelper.UpdateLyricsBorderBrush(DisplayRectangle);
-                RefreshBrushes = true;
-                CoverImageBox.Refresh();
-            }
-        }
-
         private void oneDriveToolStripMenuItem_Click(object sender, EventArgs e)
         {
             using (OneDriveIntegrationDialog ODID = new OneDriveIntegrationDialog())
@@ -1069,5 +1035,33 @@ namespace YAMP_alpha
             }
         }
 
+        private void loadToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (OpenFileDialog OFD = new OpenFileDialog())
+            {
+                if (OFD.ShowDialog() == DialogResult.OK)
+                {
+                    ParseLRC(OFD.FileName);
+                    if (PanelMode == YAMPEnums.PanelMode.Lyrics)
+                    {
+                        //YAMPVars.NotificationSource.BlockRead += NotificationSource_BlockRead;
+                    }
+                }
+            }
+        }
+
+        private void optionsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (LyricsConfig LCDiag = new LyricsConfig())
+            {
+                RefreshBrushes = false;
+                LCDiag.ShowDialog();
+                //LyricsHelper.UpdateLyricsBorderBrush(LyricsHelper.UpdateLyricRect(CurrentLyricLine, CoverImageBox.DisplayRectangle, LyricsHelper.LyricsFont));
+                //LyricsHelper.UpdateLyricsWriterBrushArea(DisplayRectangle);
+                //LyricsHelper.UpdateLyricsBorderBrush(DisplayRectangle);
+                RefreshBrushes = true;
+                CoverImageBox.Refresh();
+            }
+        }
     }
 }
