@@ -80,6 +80,7 @@ namespace YAMP_alpha
         public FadeInOut FadeEffect { get; private set; }
         public PanSource ChannelPan { get; private set; }
         public Equalizer EqualizerEffect { get; private set; }
+        public BiQuadFiltersSource BiQuadFiltersEffect { get; private set; }
         public NotificationSource NotificationSource { get; private set; }
         public SingleBlockNotificationStream SingleBlockNotificationStream { get; private set; }
         public CorePlaybackState State
@@ -666,8 +667,8 @@ namespace YAMP_alpha
             source = AppendPitchFadeStage(source);
             source = AppendPanStage(source);
             source = AppendEqualizerStage(source);
+            source = AppendBiQuadFilterStage(source);
             source = AppendNotificationStage(source);
-
             return source;
         }
 
@@ -792,6 +793,20 @@ namespace YAMP_alpha
                 .ToWaveSource();
 
             EqualizerEffect = equalizerEffect;
+
+            return source;
+        }
+
+        private IWaveSource AppendBiQuadFilterStage(IWaveSource source)
+        {
+            BiQuadFiltersSource biQuadFiltersEffect;
+
+            source = source
+                .ToSampleSource()
+                .AppendSource(x => new BiQuadFiltersSource(x), out biQuadFiltersEffect)
+                .ToWaveSource();
+
+            BiQuadFiltersEffect = biQuadFiltersEffect;
 
             return source;
         }
@@ -1012,6 +1027,7 @@ namespace YAMP_alpha
             TrackLoop = null;
             GainSource = null;
             VolumeSource = null;
+            BiQuadFiltersEffect = null;
             AudioPeakMeter = null;
             PitchShiftEffect = YAMPVars.PitchShiftEffect = null;
             FadeEffect = null;
