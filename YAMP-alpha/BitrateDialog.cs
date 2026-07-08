@@ -42,11 +42,12 @@ namespace YAMP_alpha
             {
                 if (SFD.ShowDialog() == DialogResult.OK)
                 {
-                    IWaveSource source = null; 
-                    var enc = Encoder.GetEncoder(fileBox.Text, SFD.FileName, out source, Convert.ToInt32(validBitRateBox.SelectedItem));
-                    Encoder.PerformOperation(enc, source, new Progress<int>(per => { bitrateProgressBar.Value = per; }));
-                    enc.Dispose();
-                    source.Dispose();
+                    IWaveSource sourceToEncode = null;
+                    using (var enc = Encoder.GetEncoder(fileBox.Text, SFD.FileName, out sourceToEncode, Convert.ToInt32(validBitRateBox.SelectedItem)))
+                    using (sourceToEncode)
+                    {
+                        Encoder.PerformOperation(enc, sourceToEncode, new Progress<int>(per => { bitrateProgressBar.Value = per; }));
+                    }
                     if (Cb_RetainTags.Checked)
                     {
                         Encoder.TagCopy(fileBox.Text, SFD.FileName);
