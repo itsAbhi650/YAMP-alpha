@@ -222,7 +222,6 @@
     <Compile Include="EchoSignalDialog.Designer.cs">
       <DependentUpon>EchoSignalDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="EffectManager.cs" />
     <Compile Include="EQBandConfigDialog.cs">
       <SubType>Form</SubType>
     </Compile>
