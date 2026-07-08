@@ -168,6 +168,11 @@ namespace YAMP_alpha
             if (rowIndex < 0 || rowIndex >= PlaylistSource.Count)
                 return;
 
+            TrackInfo removedTrack = YAMPVars.TrackList[rowIndex];
+            bool removedCurrentTrack = YAMPVars.CORE != null &&
+                                      YAMPVars.CORE.CurrentTrack != null &&
+                                      string.Equals(YAMPVars.CORE.CurrentTrack.Path, removedTrack.Path, StringComparison.OrdinalIgnoreCase);
+
             // Confirm removal
             string trackTitle = YAMPVars.TrackList[rowIndex].Title;
             DialogResult result = MessageBox.Show(
@@ -179,6 +184,12 @@ namespace YAMP_alpha
             if (result == DialogResult.Yes)
             {
                 PlaylistSource.RemoveAt(rowIndex);
+
+                if (removedCurrentTrack && YAMPVars.CORE != null)
+                {
+                    YAMPVars.CORE.Stop();
+                    YAMPVars.CORE.CurrentTrack = null;
+                }
 
                 // Clear selection and refresh
                 dataGridView1.ClearSelection();
@@ -212,6 +223,9 @@ namespace YAMP_alpha
         {
             if (e.StateChanged == DataGridViewElementStates.Selected)
             {
+                if (e.Row == null || e.Row.Index < 0 || e.Row.Index >= YAMPVars.TrackList.Count)
+                    return;
+
                 pictureBox1.Image = null;
                 if (YAMPVars.TrackList[e.Row.Index].Covers.Count > 0 &&
                     IsUsableImage(YAMPVars.TrackList[e.Row.Index].Covers[0]))
@@ -252,6 +266,9 @@ namespace YAMP_alpha
 
         private void button1_Click(object sender, EventArgs e)
         {
+            if (dataGridView1.CurrentRow == null || PlaylistSource == null || PlaylistSource.Count == 0)
+                return;
+
             int SelectedRowIndex = dataGridView1.CurrentRow.Index;
             int NewTrackIndex = SelectedRowIndex + Convert.ToInt32(((Button)sender).Tag);
             if (NewTrackIndex >= 0 && NewTrackIndex <= PlaylistSource.Count - 1)
@@ -317,7 +334,10 @@ namespace YAMP_alpha
             int CPR = GetCurrentPlayingRowIndex();
             if (CPR >= 0)
             {
-                dataGridView1.Rows[CurrentColoredRowIndex].DefaultCellStyle = new DataGridViewCellStyle();
+                if (CurrentColoredRowIndex >= 0 && CurrentColoredRowIndex < dataGridView1.Rows.Count)
+                {
+                    dataGridView1.Rows[CurrentColoredRowIndex].DefaultCellStyle = new DataGridViewCellStyle();
+                }
                 dataGridView1.Rows[CPR].DefaultCellStyle.BackColor = Color.SeaGreen;
                 dataGridView1.Rows[CPR].DefaultCellStyle.ForeColor = Color.White;
                 CurrentColoredRowIndex = CPR;
@@ -331,7 +351,8 @@ namespace YAMP_alpha
             {
                 foreach (DataGridViewRow item in dataGridView1.Rows)
                 {
-                    if (item.Cells["Path"].EditedFormattedValue.ToString() == YAMPVars.CORE.CurrentTrack.Path)
+                    object pathValue = item.Cells["Path"].EditedFormattedValue;
+                    if (pathValue != null && pathValue.ToString() == YAMPVars.CORE.CurrentTrack.Path)
                     {
                         CurrentPlayingIndex = item.Index;
                         break;
@@ -373,26 +394,10 @@ namespace YAMP_alpha
 
         private void delselectedToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var CurrentowIndex = dataGridView1.CurrentRow.Index;
-            PlaylistSource.RemoveAt(CurrentowIndex);
-            dataGridView1.ClearSelection();
-            if (PlaylistSource.Count > 0)
-            {
-                if (CurrentowIndex >= PlaylistSource.Count - 1)
-                {
-                    dataGridView1.CurrentCell = dataGridView1[0, PlaylistSource.Count - 1];
-                }
-                else
-                {
-                    dataGridView1.CurrentCell = dataGridView1[0, CurrentowIndex];
-                }
-                dataGridView1.CurrentCell.Selected = true;
-            }
-            else
-            {
-                pictureBox1.Image = null;
-            }
-            dataGridView1.RefreshEdit();
+            if (dataGridView1.CurrentRow == null || PlaylistSource == null || PlaylistSource.Count == 0)
+                return;
+
+            RemoveTrackAt(dataGridView1.CurrentRow.Index);
         }
 
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
