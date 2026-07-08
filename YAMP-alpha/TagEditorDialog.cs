@@ -844,5 +844,10 @@ namespace YAMP_alpha
             public uint Track;
             public string Copyright;
         }
+
+        private void btnCancel_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
     }
 }
