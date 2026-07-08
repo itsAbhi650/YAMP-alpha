@@ -25,9 +25,9 @@ namespace YAMP_alpha
 
         private void BtnReset_Click(object sender, EventArgs e)
         {
-            if (YAMPVars.biQuadFilterSrc != null)
+            if (YAMPVars.CORE.BiQuadFiltersEffect != null)
             {
-                foreach (BiQuad filter in YAMPVars.biQuadFilterSrc.Filters)
+                foreach (BiQuad filter in YAMPVars.CORE.BiQuadFiltersEffect.Filters)
                 {
                     filter.Frequency = (double)nudInitFreq.Value;
                     filter.GainDB = Convert.ToInt32(nudInitGain.Value);
@@ -58,7 +58,7 @@ namespace YAMP_alpha
                 FreqVal = Convert.ToDouble(((TrackBar)sender).Value);
                 nudFreq.Value = (decimal)FreqVal;
             }
-            if (YAMPVars.biQuadFilterSrc.Filters != null)
+            if (YAMPVars.CORE.BiQuadFiltersEffect.Filters != null)
             {
                 Filters[(int)filterType].Frequency = FreqVal;
             }
@@ -77,7 +77,7 @@ namespace YAMP_alpha
                 GainVal = Convert.ToInt32(((TrackBar)sender).Value);
                 nudGain.Value = GainVal;
             }
-            if (YAMPVars.biQuadFilterSrc.Filters != null)
+            if (YAMPVars.CORE.BiQuadFiltersEffect.Filters != null)
             {
                 Filters[(int)filterType].GainDB = GainVal;
             }
@@ -119,12 +119,12 @@ namespace YAMP_alpha
 
         private void toggleFilterCheck_CheckedChanged(object sender, EventArgs e)
         {
-            if (YAMPVars.biQuadFilterSrc != null)
+            if (YAMPVars.CORE.BiQuadFiltersEffect != null)
             {
                 filterGroupBox.Enabled =
                 InitParamGroupBox.Enabled =
                 FltCtrGroupBox.Enabled =
-                YAMPVars.biQuadFilterSrc.FilteringEnabled = toggleFilterCheck.Checked;
+                YAMPVars.CORE.BiQuadFiltersEffect.FilteringEnabled = toggleFilterCheck.Checked;
                 if (toggleFilterCheck.Checked)
                 {
                     if (Filters == null)
@@ -152,7 +152,7 @@ namespace YAMP_alpha
                 rbFilter.ForeColor = Color.Black;
                 rbFilter.BackColor = SystemColors.Control;
             }
-            YAMPVars.biQuadFilterSrc.Filters = FilterList.ToArray();
+            YAMPVars.CORE.BiQuadFiltersEffect.Filters = FilterList.ToArray();
         }
     }
 }
