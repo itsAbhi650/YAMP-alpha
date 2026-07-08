@@ -141,7 +141,10 @@ namespace YAMP_alpha
 
         private void dataGridView1_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex >= 0 && dataGridView1[e.ColumnIndex, e.RowIndex].OwningColumn.GetType() == typeof(DataGridViewButtonColumn))
+            if (e.RowIndex < 0 || e.ColumnIndex < 0 || e.RowIndex >= YAMPVars.TrackList.Count)
+                return;
+
+            if (dataGridView1[e.ColumnIndex, e.RowIndex].OwningColumn.GetType() == typeof(DataGridViewButtonColumn))
             {
                 string columnName = dataGridView1.Columns[e.ColumnIndex].Name;
 
@@ -322,7 +325,7 @@ namespace YAMP_alpha
 
         private void dataGridView1_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex >= 0)
+            if (e.RowIndex >= 0 && e.RowIndex < YAMPVars.TrackList.Count)
             {
                 TrackSelected?.Invoke(this, new TrackSelectedEventArgs(YAMPVars.TrackList[e.RowIndex]));
                 UpdateCurrentPlayingRowStyle();
