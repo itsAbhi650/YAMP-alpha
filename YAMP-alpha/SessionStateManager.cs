@@ -58,6 +58,21 @@ namespace YAMP_alpha
                 "session-state.lastgood.xml");
         }
 
+        private static bool CanSeekSourceSafe(YAMP_Core core)
+        {
+            if (core == null || core.PlayerSource == null)
+                return false;
+
+            try
+            {
+                return core.PlayerSource.CanSeek;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         private static SessionState LoadStateInternal()
         {
             bool fromBackup;
@@ -239,7 +254,7 @@ namespace YAMP_alpha
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToList();
 
-            if (core != null && core.PlayerSource != null && (!core.NetPlay || core.PlayerSource.CanSeek))
+            if (core != null && core.PlayerSource != null && (!core.NetPlay || CanSeekSourceSafe(core)))
             {
                 state.CurrentPositionSeconds = core.CurrentTime.TotalSeconds;
             }
@@ -342,7 +357,7 @@ namespace YAMP_alpha
             {
                 result.TrackLoaded = true;
 
-                if (state.CurrentPositionSeconds > 0 && (!core.NetPlay || core.PlayerSource.CanSeek))
+                if (state.CurrentPositionSeconds > 0 && (!core.NetPlay || CanSeekSourceSafe(core)))
                 {
                     core.Seek(TimeSpan.FromSeconds(state.CurrentPositionSeconds));
                     result.PositionRestored = true;

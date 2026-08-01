@@ -53,14 +53,21 @@ namespace YAMP_alpha
         private List<int> _shuffleOrder = new List<int>();
         private int _shufflePointer = -1;
         private readonly object _playerLock = new object();
+        private readonly object _transitionPrefetchLock = new object();
         private readonly SynchronizationContext _eventContext;
         private CorePlaybackState _state = CorePlaybackState.Idle;
         private float _volume = 1.0f;
+        private readonly bool _useTransitionEngine = true;
+        private readonly PlaybackTransitionEngine _transitionEngine;
+        private TrackInfo _prefetchedTrack;
+        private IWaveSource _prefetchedSource;
+        private bool _prefetchInProgress;
 
         // Restored: global certificate validation bypass (used for some HTTPS streams).
         // This is intentionally global and should be treated as a last resort.
         private static bool _globalCertBypassEnabled;
         private static readonly object _globalCertBypassLock = new object();
+        private readonly PlaybackTransitionController _transitionController;
         public bool EnableFade;
         public ID3Info TagInfo { get; set; }
         public CSCore.SoundOut.ISoundOut Player { get; private set; }
@@ -87,6 +94,7 @@ namespace YAMP_alpha
         public BiQuadFiltersSource BiQuadFiltersEffect { get; private set; }
         public NotificationSource NotificationSource { get; private set; }
         public SingleBlockNotificationStream SingleBlockNotificationStream { get; private set; }
+        public PlaybackTransitionController TransitionController { get { return _transitionController; } }
         public CorePlaybackState State
         {
             get { return _state; }
@@ -191,6 +199,11 @@ namespace YAMP_alpha
         internal YAMP_Core(SynchronizationContext eventContext)
         {
             _eventContext = eventContext;
+            _transitionEngine = new PlaybackTransitionEngine();
+            _transitionController = new PlaybackTransitionController();
+            _transitionEngine.NextTrackRequested += TransitionEngine_NextTrackRequested;
+            _transitionEngine.TrackSwitched += TransitionEngine_TrackSwitched;
+            _transitionEngine.StreamEnded += TransitionEngine_StreamEnded;
             EnsureGlobalCertificateBypass();
             Player = CreatePlayer();
             YAMPVars.MediaDevice = new MMDeviceEnumerator().GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
@@ -261,14 +274,40 @@ namespace YAMP_alpha
                 if (!PlayerInitialized)
                     return;
 
-                if (!NetPlay || PlayerSource.CanSeek)
+                if (PlayerSource == null)
+                    return;
+
+                bool canSeek = !NetPlay || CanSeekSourceSafe(PlayerSource);
+                if (canSeek)
                 {
                     TimeSpan clampedPosition = position < TimeSpan.Zero ? TimeSpan.Zero : position;
                     if (clampedPosition > Duration)
                         clampedPosition = Duration;
 
-                    Extensions.SetPosition(PlayerSource, clampedPosition);
+                    try
+                    {
+                        Extensions.SetPosition(PlayerSource, clampedPosition);
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        // Source can be in a transient non-seekable state during transition/shutdown.
+                    }
                 }
+            }
+        }
+
+        private static bool CanSeekSourceSafe(IWaveSource source)
+        {
+            if (source == null)
+                return false;
+
+            try
+            {
+                return source.CanSeek;
+            }
+            catch
+            {
+                return false;
             }
         }
 
@@ -569,27 +608,7 @@ namespace YAMP_alpha
         /// <returns>True if next track was loaded and started, false if no track available</returns>
         public bool PlayNextTrackDirected(int direction)
         {
-            TrackInfo nextTrack = null;
-
-            if (direction == 1 && CurrentTrack != null && YAMPVars.PlaylistLoopMode == PlaylistLoopMode.One)
-            {
-                nextTrack = CurrentTrack;
-            }
-            else if (direction == 1)
-            {
-                nextTrack = DequeueNextTrack();
-
-                if (nextTrack == null)
-                {
-                    nextTrack = YAMPVars.ShuffleEnabled
-                        ? GetShuffleNextTrack()
-                        : GetTrackAt(direction);
-                }
-            }
-            else
-            {
-                nextTrack = GetTrackAt(direction);
-            }
+            TrackInfo nextTrack = ResolveNextTrackForDirection(direction);
 
             if (nextTrack != null)
             {
@@ -601,11 +620,153 @@ namespace YAMP_alpha
             return false;
         }
 
+        private TrackInfo ResolveNextTrackForDirection(int direction)
+        {
+            if (direction == 1 && CurrentTrack != null && YAMPVars.PlaylistLoopMode == PlaylistLoopMode.One)
+            {
+                return CurrentTrack;
+            }
+
+            if (direction == 1)
+            {
+                TrackInfo queuedTrack = DequeueNextTrack();
+                if (queuedTrack != null)
+                    return queuedTrack;
+
+                return YAMPVars.ShuffleEnabled
+                    ? GetShuffleNextTrack()
+                    : GetTrackAt(direction);
+            }
+
+            return GetTrackAt(direction);
+        }
+
+        private TrackInfo PeekNextTrackForTransition()
+        {
+            if (CurrentTrack == null || YAMPVars.TrackList == null || YAMPVars.TrackList.Count == 0)
+                return null;
+
+            if (YAMPVars.PlaylistLoopMode == PlaylistLoopMode.One)
+                return CurrentTrack;
+
+            if (YAMPVars.PendingQueue != null)
+            {
+                for (int i = 0; i < YAMPVars.PendingQueue.Count; i++)
+                {
+                    TrackInfo queued = YAMPVars.PendingQueue[i];
+                    if (queued != null && File.Exists(queued.Path))
+                        return queued;
+                }
+            }
+
+            if (YAMPVars.ShuffleEnabled)
+            {
+                if (_shuffleOrder.Count != YAMPVars.TrackList.Count)
+                {
+                    RebuildShuffleOrder();
+                }
+
+                int currentIndex = GetCurrentTrackIndex();
+                int previewPointer = _shufflePointer;
+                if (currentIndex >= 0)
+                {
+                    int currentOrderIndex = _shuffleOrder.IndexOf(currentIndex);
+                    if (currentOrderIndex >= 0)
+                        previewPointer = currentOrderIndex;
+                }
+
+                int nextPointer = previewPointer + 1;
+                if (nextPointer >= _shuffleOrder.Count)
+                {
+                    if (YAMPVars.PlaylistLoopMode != PlaylistLoopMode.All)
+                        return null;
+
+                    nextPointer = 0;
+                }
+
+                if (nextPointer >= 0 && nextPointer < _shuffleOrder.Count)
+                    return YAMPVars.TrackList[_shuffleOrder[nextPointer]];
+
+                return null;
+            }
+
+            return GetTrackAt(1);
+        }
+
+        internal void SchedulePrefetchNextTrackForTransition()
+        {
+            if (NetPlay)
+                return;
+
+            TrackInfo candidate = PeekNextTrackForTransition();
+            if (candidate == null)
+                return;
+
+            lock (_transitionPrefetchLock)
+            {
+                if (_prefetchInProgress)
+                    return;
+
+                if (_prefetchedTrack != null && _prefetchedSource != null &&
+                    string.Equals(_prefetchedTrack.Path, candidate.Path, StringComparison.OrdinalIgnoreCase))
+                {
+                    return;
+                }
+
+                _prefetchInProgress = true;
+            }
+
+            ThreadPool.QueueUserWorkItem(_ =>
+            {
+                IWaveSource preloadedSource = null;
+                try
+                {
+                    if (File.Exists(candidate.Path) && AudioFileSupport.IsSupportedAudioFile(candidate.Path))
+                    {
+                        preloadedSource = CSCore.Codecs.CodecFactory.Instance.GetCodec(candidate.Path);
+                    }
+
+                    lock (_transitionPrefetchLock)
+                    {
+                        if (_prefetchedSource != null)
+                        {
+                            try { _prefetchedSource.Dispose(); } catch { }
+                        }
+
+                        _prefetchedTrack = preloadedSource != null ? candidate : null;
+                        _prefetchedSource = preloadedSource;
+                    }
+                }
+                catch
+                {
+                    try { preloadedSource?.Dispose(); } catch { }
+                }
+                finally
+                {
+                    lock (_transitionPrefetchLock)
+                    {
+                        _prefetchInProgress = false;
+                    }
+                }
+            });
+        }
+
         public bool LoadTrackInfo(TrackInfo trackInfo)
         {
             if (trackInfo != null)
             {
-                if (TryLoadTrack(trackInfo.Path, out string error))
+                string error;
+                bool loaded;
+                if (_useTransitionEngine && !NetPlay && (TransitionController == null || TransitionController.Settings.EnableGaplessPlayback))
+                {
+                    loaded = TryLoadTrackInfoWithTransitionEngine(trackInfo, out error);
+                }
+                else
+                {
+                    loaded = TryLoadTrackInfoWithPrefetch(trackInfo, out error);
+                }
+
+                if (loaded)
                 {
                     trackInfo.PlayCount++;
                     trackInfo.LastPlayedAt = DateTime.Now;
@@ -617,6 +778,205 @@ namespace YAMP_alpha
             }
 
             return false;
+        }
+
+        private bool TryLoadTrackInfoWithTransitionEngine(TrackInfo trackInfo, out string error)
+        {
+            error = string.Empty;
+
+            if (trackInfo == null || string.IsNullOrWhiteSpace(trackInfo.Path))
+            {
+                error = "No file was selected.";
+                return false;
+            }
+
+            if (!File.Exists(trackInfo.Path))
+            {
+                error = "File does not exist.";
+                return false;
+            }
+
+            if (!AudioFileSupport.IsSupportedAudioFile(trackInfo.Path))
+            {
+                error = "Unsupported audio format.";
+                return false;
+            }
+
+            lock (_playerLock)
+            {
+                State = CorePlaybackState.Loading;
+                NetPlay = false;
+                PlayingFile = trackInfo.Path;
+
+                try
+                {
+                    IWaveSource prepared = CreateTransitionCompatibleSource(trackInfo.Path);
+                    if (!_transitionEngine.IsActive)
+                    {
+                        PrepareForNewSource(StopReason.TrackChanging);
+
+                        _transitionEngine.Initialize(prepared, TransitionController != null ? TransitionController.Settings : null);
+
+                        PlayerSource = AppendEffectSources(_transitionEngine.Source);
+                        InitializeCurrentSource();
+                    }
+                    else
+                    {
+                        _transitionEngine.ReplaceCurrent(prepared, TransitionController != null ? TransitionController.Settings : null);
+                    }
+
+                    TagInfo = GetID3Info();
+                    PlayerStopped = false;
+                    PlayerPaused = false;
+                    _trackEndedRaised = false;
+                    LastStopReason = StopReason.None;
+                    State = CorePlaybackState.Ready;
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    CleanupAfterLoadFailure();
+                    error = ex.Message;
+                    return false;
+                }
+            }
+        }
+
+        private IWaveSource CreateTransitionCompatibleSource(string path)
+        {
+            IWaveSource codec = CSCore.Codecs.CodecFactory.Instance.GetCodec(path);
+            return codec.ToSampleSource().ToWaveSource();
+        }
+
+        private void TransitionEngine_NextTrackRequested(object sender, EventArgs e)
+        {
+            if (!_transitionEngine.IsActive)
+                return;
+
+            TrackInfo nextTrack = ResolveNextTrackForDirection(1);
+            if (nextTrack == null)
+                return;
+
+            try
+            {
+                IWaveSource nextSource = CreateTransitionCompatibleSource(nextTrack.Path);
+                if (_transitionEngine.QueueNext(nextTrack, nextSource))
+                {
+                }
+                else
+                {
+                    try { nextSource.Dispose(); } catch { }
+                }
+            }
+            catch
+            {
+            }
+        }
+
+        private void TransitionEngine_TrackSwitched(object sender, TransitionTrackSwitchedEventArgs e)
+        {
+            TrackInfo transitionedTrack = e != null ? e.Track : null;
+
+            if (transitionedTrack == null)
+                return;
+
+            try
+            {
+                transitionedTrack.PlayCount++;
+                transitionedTrack.LastPlayedAt = DateTime.Now;
+                PlayingFile = transitionedTrack.Path;
+                CurrentTrack = transitionedTrack;
+                TagInfo = GetID3Info();
+            }
+            catch
+            {
+            }
+        }
+
+        private void TransitionEngine_StreamEnded(object sender, EventArgs e)
+        {
+            if (LastStopReason != StopReason.None)
+                return;
+
+            LastStopReason = StopReason.TrackFinished;
+            PlayerStopped = true;
+            RaiseTrackEnded();
+        }
+
+        private bool TryLoadTrackInfoWithPrefetch(TrackInfo trackInfo, out string error)
+        {
+            error = string.Empty;
+            IWaveSource prefetchedSource = null;
+
+            lock (_transitionPrefetchLock)
+            {
+                if (_prefetchedTrack != null && _prefetchedSource != null &&
+                    string.Equals(_prefetchedTrack.Path, trackInfo.Path, StringComparison.OrdinalIgnoreCase))
+                {
+                    prefetchedSource = _prefetchedSource;
+                    _prefetchedSource = null;
+                    _prefetchedTrack = null;
+                }
+            }
+
+            if (prefetchedSource == null)
+                return TryLoadTrack(trackInfo.Path, out error);
+
+            return TryLoadTrackFromSource(trackInfo.Path, prefetchedSource, out error);
+        }
+
+        private bool TryLoadTrackFromSource(string path, IWaveSource source, out string error)
+        {
+            lock (_playerLock)
+            {
+                error = string.Empty;
+                State = CorePlaybackState.Loading;
+                NetPlay = false;
+
+                if (string.IsNullOrWhiteSpace(path) || source == null)
+                {
+                    CleanupAfterLoadFailure();
+                    error = "Unable to initialize preloaded source.";
+                    return false;
+                }
+
+                if (!File.Exists(path))
+                {
+                    CleanupAfterLoadFailure();
+                    error = "File does not exist.";
+                    return false;
+                }
+
+                if (!AudioFileSupport.IsSupportedAudioFile(path))
+                {
+                    CleanupAfterLoadFailure();
+                    error = "Unsupported audio format.";
+                    return false;
+                }
+
+                try
+                {
+                    PrepareForNewSource(StopReason.TrackChanging);
+                    PlayingFile = path;
+                    PlayerSource = source;
+                    PlayerSource = AppendEffectSources(PlayerSource);
+                    InitializeCurrentSource();
+                    TagInfo = GetID3Info();
+                    PlayerStopped = false;
+                    PlayerPaused = false;
+                    _trackEndedRaised = false;
+                    LastStopReason = StopReason.None;
+                    State = CorePlaybackState.Ready;
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    try { source.Dispose(); } catch { }
+                    CleanupAfterLoadFailure();
+                    error = ex.Message;
+                    return false;
+                }
+            }
         }
 
         public void InitializePlayer()
@@ -986,6 +1346,17 @@ namespace YAMP_alpha
 
         private void NotificationStream_SingleBlockStreamAlmostFinished(object sender, SingleBlockStreamAlmostFinishedEventArgs e)
         {
+            if (_transitionEngine != null && _transitionEngine.IsActive)
+                return;
+
+            if (TransitionController != null && TransitionController.Settings.EnableGaplessPlayback && !TransitionController.Settings.EnableCrossfadeOverlap)
+                return;
+
+            SchedulePrefetchNextTrackForTransition();
+
+            if (TransitionController != null && TransitionController.HandleAlmostFinished(this))
+                return;
+
             // Apply fade-out effect near the end of the track if enabled
             if (EnableFade && FadeEffect != null)
             {
@@ -1000,17 +1371,97 @@ namespace YAMP_alpha
 
         private void NotificationStream_SingleBlockStreamFinished(object sender, SingleBlockStreamFinishedEventArgs e)
         {
-            if (!NetPlay || PlayerSource.CanSeek)
+            if (_transitionEngine != null && _transitionEngine.IsActive)
+                return;
+
+            if (!NetPlay || CanSeekSourceSafe(PlayerSource))
             {
                 PlayerPaused = false;
 
                 if (LastStopReason == StopReason.None)
                 {
                     LastStopReason = StopReason.TrackFinished;
-                    PlayerStopped = true;
-                    RaiseTrackEnded();
+                    bool handledByTransition = TransitionController != null && TransitionController.HandleNaturalTrackFinished(this);
+                    if (!handledByTransition)
+                    {
+                        PlayerStopped = true;
+                        RaiseTrackEnded();
+                    }
                 }
             }
+        }
+
+        internal bool IsTransitionAdvanceSafe()
+        {
+            if (YAMPVars.TrackList == null || YAMPVars.TrackList.Count == 0)
+                return false;
+
+            if (State == CorePlaybackState.Disposed || State == CorePlaybackState.Error)
+                return false;
+
+            return true;
+        }
+
+        internal bool TryAdvanceToNextTrackForTransition(TransitionEngineSettings settings)
+        {
+            TrackInfo nextTrack = ResolveNextTrackForDirection(1);
+            if (nextTrack == null)
+                return false;
+
+            bool normalizeGain = settings != null && settings.EnableTransitionGainNormalization;
+            bool applyFadeIn = settings != null && settings.EnableTransitionFadeIn;
+            int fadeInMs = settings != null ? settings.FadeInMilliseconds : 250;
+
+            ThreadPool.QueueUserWorkItem(_ =>
+            {
+                try
+                {
+                    if (LoadTrackInfo(nextTrack))
+                    {
+                        if (normalizeGain)
+                        {
+                            ApplyTransitionGainNormalization();
+                        }
+
+                        Play();
+
+                        if (applyFadeIn)
+                        {
+                            ApplyTransitionFadeIn(fadeInMs);
+                        }
+
+                        return;
+                    }
+                }
+                catch
+                {
+                }
+
+                PlayerPaused = false;
+                LastStopReason = StopReason.TrackFinished;
+                PlayerStopped = true;
+                RaiseTrackEnded();
+            });
+
+            return true;
+        }
+
+        internal void ApplyTransitionFadeIn(int fadeInMilliseconds)
+        {
+            if (!EnableFade || FadeEffect == null)
+                return;
+
+            int ms = Math.Max(50, fadeInMilliseconds);
+            FadeEffect.FadeStrategy.StartFading(0, 1, TimeSpan.FromMilliseconds(ms));
+        }
+
+        internal void ApplyTransitionGainNormalization()
+        {
+            if (GainSource == null)
+                return;
+
+            // Phase 3 hook: keep neutral gain by default.
+            GainSource.Volume = 1.0f;
         }
 
         private void RaiseTrackEnded()
@@ -1099,7 +1550,8 @@ namespace YAMP_alpha
 
                 LastStopReason = StopReason.UserStopped;
                 State = CorePlaybackState.Stopping;
-                if (!NetPlay || PlayerSource.CanSeek)
+                bool canSeek = !NetPlay || CanSeekSourceSafe(PlayerSource);
+                if (canSeek)
                 {
                     Seek(TimeSpan.Zero);
                 }
@@ -1136,11 +1588,28 @@ namespace YAMP_alpha
             UnsubscribeNotificationEvents();
             DisposePlayer();
             DisposePlayerSource();
+            ClearTransitionPrefetch();
+            _transitionEngine.Reset();
             Player = CreatePlayer();
             LastStopReason = StopReason.None;
             PlayerStopped = false;
             PlayerPaused = false;
             _trackEndedRaised = false;
+        }
+
+        private void ClearTransitionPrefetch()
+        {
+            lock (_transitionPrefetchLock)
+            {
+                if (_prefetchedSource != null)
+                {
+                    try { _prefetchedSource.Dispose(); } catch { }
+                    _prefetchedSource = null;
+                }
+
+                _prefetchedTrack = null;
+                _prefetchInProgress = false;
+            }
         }
 
         private void UnsubscribeNotificationEvents()
@@ -1203,6 +1672,8 @@ namespace YAMP_alpha
             UnsubscribeNotificationEvents();
             DisposePlayer();
             DisposePlayerSource();
+            ClearTransitionPrefetch();
+            _transitionEngine.Reset();
             Player = CreatePlayer();
             PlayerStopped = false;
             PlayerPaused = false;
@@ -1263,6 +1734,8 @@ namespace YAMP_alpha
                         UnsubscribeNotificationEvents();
                         DisposePlayer();
                         DisposePlayerSource();
+                        ClearTransitionPrefetch();
+                        _transitionEngine.Reset();
                         State = CorePlaybackState.Disposed;
                     }
                     catch

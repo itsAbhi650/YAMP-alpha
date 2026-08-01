@@ -88,9 +88,39 @@ namespace YAMP_alpha
         {
             DurationTracker.Value = 0;
             VolumeTracker.Value = YAMPVars.CORE.SoundOutVolume;
-            if (YAMPVars.CORE.PlayerSource.CanSeek || !YAMPVars.CORE.NetPlay)
+
+            var playerSource = YAMPVars.CORE != null ? YAMPVars.CORE.PlayerSource : null;
+            if (playerSource == null)
+                return;
+
+            bool canSeek;
+            try
             {
-                DurationTracker.Maximum = (int)Extensions.GetLength(YAMPVars.CORE.PlayerSource).TotalSeconds;
+                canSeek = playerSource.CanSeek;
+            }
+            catch
+            {
+                canSeek = false;
+            }
+
+            if (canSeek || !YAMPVars.CORE.NetPlay)
+            {
+                DurationTracker.Maximum = (int)Extensions.GetLength(playerSource).TotalSeconds;
+            }
+        }
+
+        private static bool CanSeekSourceSafe(IWaveSource source)
+        {
+            if (source == null)
+                return false;
+
+            try
+            {
+                return source.CanSeek;
+            }
+            catch
+            {
+                return false;
             }
         }
 
@@ -212,6 +242,11 @@ namespace YAMP_alpha
         {
             if (YAMPVars.CORE.CurrentTrack != null && YAMPVars.CORE.PlayerSource != null)
             {
+                if (YAMPVars.CORE.PlayerPlaybackState == CSCore.SoundOut.PlaybackState.Playing && !PlayTimer.Enabled)
+                {
+                    PlayTimer.Start();
+                }
+
                 UpdateTrackers();
 
                 // Get cover image (belongs to TrackInfo, don't dispose)
@@ -387,7 +422,7 @@ namespace YAMP_alpha
             }
 
             // Priority 3: Normal playback - update UI
-            if (!YAMPVars.CORE.NetPlay || YAMPVars.CORE.PlayerSource.CanSeek)
+            if (!YAMPVars.CORE.NetPlay || CanSeekSourceSafe(YAMPVars.CORE.PlayerSource))
             {
                 Lbl_Duration.Text = TrackDurationText();
             }
@@ -410,10 +445,17 @@ namespace YAMP_alpha
         {
             if (!YAMPVars.CORE.PlayerStopped)
             {
-                if (!YAMPVars.CORE.NetPlay || YAMPVars.CORE.PlayerSource.CanSeek)
+                if (!YAMPVars.CORE.NetPlay || CanSeekSourceSafe(YAMPVars.CORE.PlayerSource))
                 {
                     DurationTracker.Value = 0;
-                    YAMPVars.CORE.PlayerSource.Position = 0;
+                    try
+                    {
+                        if (YAMPVars.CORE.PlayerSource != null)
+                            YAMPVars.CORE.PlayerSource.Position = 0;
+                    }
+                    catch
+                    {
+                    }
                 }
                 YAMPVars.CORE.Stop();
             }

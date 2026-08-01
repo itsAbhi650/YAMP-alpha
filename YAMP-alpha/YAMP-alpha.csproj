@@ -215,6 +215,9 @@
     <Compile Include="DownloadProgress.Designer.cs">
       <DependentUpon>DownloadProgress.cs</DependentUpon>
     </Compile>
+    <Compile Include="GaplessCrossfade\GaplessCrossfadeWaveSource.cs" />
+    <Compile Include="GaplessCrossfade\PlaybackTransitionController.cs" />
+    <Compile Include="GaplessCrossfade\PlaybackTransitionEngine.cs" />
     <Compile Include="dump.cs" />
     <Compile Include="EchoSignalDialog.cs">
       <SubType>Form</SubType>
