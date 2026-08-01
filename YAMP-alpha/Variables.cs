@@ -8,6 +8,13 @@ using YAMP_alpha.Controls;
 
 namespace YAMP_alpha
 {
+    public enum PlaylistLoopMode
+    {
+        None,
+        One,
+        All
+    }
+
     public static class YAMPVars
     {
         public static YAMP_Core CORE;
@@ -29,6 +36,9 @@ namespace YAMP_alpha
         public static AudioSessionEnumerator SessionEnumerator;
         public static SimpleNotificationSource SimpleNotificationSource;
         public static List<TrackInfo> TrackList = new List<TrackInfo>();
+        public static List<TrackInfo> PendingQueue = new List<TrackInfo>();
+        public static bool ShuffleEnabled = false;
+        public static PlaylistLoopMode PlaylistLoopMode = PlaylistLoopMode.None;
         public static string[] ValidBitrates;
         internal static bool PLTRACKFLAG;
         public static bool DrawLeftChannelSpectrum = true;

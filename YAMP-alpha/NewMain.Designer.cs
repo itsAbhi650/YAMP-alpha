@@ -97,6 +97,8 @@
             this.Btn_ToggleFade = new System.Windows.Forms.CheckBox();
             this.CB_ToggleTrackLoop = new System.Windows.Forms.CheckBox();
             this.visualizer = new System.Windows.Forms.Timer(this.components);
+            this.button5 = new System.Windows.Forms.Button();
+            this.label3 = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.VolumeTracker)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DurationTracker)).BeginInit();
@@ -111,11 +113,13 @@
             this.panel1.BackColor = System.Drawing.SystemColors.Control;
             this.panel1.Controls.Add(this.Btn_ToggleExtras);
             this.panel1.Controls.Add(this.label2);
+            this.panel1.Controls.Add(this.label3);
             this.panel1.Controls.Add(this.label1);
             this.panel1.Controls.Add(this.Btn_PlayNext);
             this.panel1.Controls.Add(this.Btn_SkipSecFwrd);
             this.panel1.Controls.Add(this.Btn_SkipSecBack);
             this.panel1.Controls.Add(this.Btn_PlayPrev);
+            this.panel1.Controls.Add(this.button5);
             this.panel1.Controls.Add(this.button4);
             this.panel1.Controls.Add(this.button3);
             this.panel1.Controls.Add(this.button2);
@@ -123,16 +127,16 @@
             this.panel1.Controls.Add(this.VolumeTracker);
             this.panel1.Controls.Add(this.DurationTracker);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel1.Location = new System.Drawing.Point(0, 363);
+            this.panel1.Location = new System.Drawing.Point(0, 463);
             this.panel1.Margin = new System.Windows.Forms.Padding(0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(383, 73);
+            this.panel1.Size = new System.Drawing.Size(444, 73);
             this.panel1.TabIndex = 0;
             // 
             // Btn_ToggleExtras
             // 
             this.Btn_ToggleExtras.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.Btn_ToggleExtras.Location = new System.Drawing.Point(229, 35);
+            this.Btn_ToggleExtras.Location = new System.Drawing.Point(267, 35);
             this.Btn_ToggleExtras.Name = "Btn_ToggleExtras";
             this.Btn_ToggleExtras.Size = new System.Drawing.Size(23, 26);
             this.Btn_ToggleExtras.TabIndex = 13;
@@ -145,7 +149,7 @@
             this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label2.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.label2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.label2.Location = new System.Drawing.Point(227, 34);
+            this.label2.Location = new System.Drawing.Point(265, 34);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(2, 29);
             this.label2.TabIndex = 12;
@@ -163,7 +167,7 @@
             // Btn_PlayNext
             // 
             this.Btn_PlayNext.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.Btn_PlayNext.Location = new System.Drawing.Point(194, 33);
+            this.Btn_PlayNext.Location = new System.Drawing.Point(232, 33);
             this.Btn_PlayNext.Margin = new System.Windows.Forms.Padding(0);
             this.Btn_PlayNext.Name = "Btn_PlayNext";
             this.Btn_PlayNext.Size = new System.Drawing.Size(30, 30);
@@ -176,7 +180,7 @@
             // Btn_SkipSecFwrd
             // 
             this.Btn_SkipSecFwrd.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.Btn_SkipSecFwrd.Location = new System.Drawing.Point(164, 33);
+            this.Btn_SkipSecFwrd.Location = new System.Drawing.Point(202, 33);
             this.Btn_SkipSecFwrd.Margin = new System.Windows.Forms.Padding(0);
             this.Btn_SkipSecFwrd.Name = "Btn_SkipSecFwrd";
             this.Btn_SkipSecFwrd.Size = new System.Drawing.Size(30, 30);
@@ -189,7 +193,7 @@
             // Btn_SkipSecBack
             // 
             this.Btn_SkipSecBack.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.Btn_SkipSecBack.Location = new System.Drawing.Point(134, 33);
+            this.Btn_SkipSecBack.Location = new System.Drawing.Point(172, 33);
             this.Btn_SkipSecBack.Margin = new System.Windows.Forms.Padding(0);
             this.Btn_SkipSecBack.Name = "Btn_SkipSecBack";
             this.Btn_SkipSecBack.Size = new System.Drawing.Size(30, 30);
@@ -202,7 +206,7 @@
             // Btn_PlayPrev
             // 
             this.Btn_PlayPrev.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.Btn_PlayPrev.Location = new System.Drawing.Point(104, 33);
+            this.Btn_PlayPrev.Location = new System.Drawing.Point(142, 33);
             this.Btn_PlayPrev.Margin = new System.Windows.Forms.Padding(0);
             this.Btn_PlayPrev.Name = "Btn_PlayPrev";
             this.Btn_PlayPrev.Size = new System.Drawing.Size(30, 30);
@@ -251,7 +255,7 @@
             // button1
             // 
             this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button1.Location = new System.Drawing.Point(260, 37);
+            this.button1.Location = new System.Drawing.Point(321, 37);
             this.button1.Margin = new System.Windows.Forms.Padding(0);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(41, 23);
@@ -264,7 +268,7 @@
             this.VolumeTracker.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.VolumeTracker.AutoSize = false;
             this.VolumeTracker.LargeChange = 0;
-            this.VolumeTracker.Location = new System.Drawing.Point(304, 37);
+            this.VolumeTracker.Location = new System.Drawing.Point(365, 37);
             this.VolumeTracker.Maximum = 100;
             this.VolumeTracker.Name = "VolumeTracker";
             this.VolumeTracker.Size = new System.Drawing.Size(76, 22);
@@ -278,7 +282,7 @@
             this.DurationTracker.Dock = System.Windows.Forms.DockStyle.Top;
             this.DurationTracker.Location = new System.Drawing.Point(0, 0);
             this.DurationTracker.Name = "DurationTracker";
-            this.DurationTracker.Size = new System.Drawing.Size(383, 27);
+            this.DurationTracker.Size = new System.Drawing.Size(444, 27);
             this.DurationTracker.TabIndex = 2;
             this.DurationTracker.TickFrequency = 0;
             this.DurationTracker.Scroll += new System.EventHandler(this.trackBar1_Scroll);
@@ -290,11 +294,11 @@
             this.Pnl_PlayerFooter.Controls.Add(this.Lbl_PlayerLabel);
             this.Pnl_PlayerFooter.Controls.Add(this.Lbl_Duration);
             this.Pnl_PlayerFooter.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.Pnl_PlayerFooter.Location = new System.Drawing.Point(0, 464);
+            this.Pnl_PlayerFooter.Location = new System.Drawing.Point(0, 564);
             this.Pnl_PlayerFooter.Margin = new System.Windows.Forms.Padding(0);
             this.Pnl_PlayerFooter.Name = "Pnl_PlayerFooter";
             this.Pnl_PlayerFooter.Padding = new System.Windows.Forms.Padding(3);
-            this.Pnl_PlayerFooter.Size = new System.Drawing.Size(383, 28);
+            this.Pnl_PlayerFooter.Size = new System.Drawing.Size(444, 28);
             this.Pnl_PlayerFooter.TabIndex = 1;
             // 
             // Lbl_PlayerLabel
@@ -303,7 +307,7 @@
             this.Lbl_PlayerLabel.ForeColor = System.Drawing.SystemColors.ButtonFace;
             this.Lbl_PlayerLabel.Location = new System.Drawing.Point(3, 3);
             this.Lbl_PlayerLabel.Name = "Lbl_PlayerLabel";
-            this.Lbl_PlayerLabel.Size = new System.Drawing.Size(287, 22);
+            this.Lbl_PlayerLabel.Size = new System.Drawing.Size(348, 22);
             this.Lbl_PlayerLabel.TabIndex = 0;
             this.Lbl_PlayerLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
@@ -311,7 +315,7 @@
             // 
             this.Lbl_Duration.Dock = System.Windows.Forms.DockStyle.Right;
             this.Lbl_Duration.ForeColor = System.Drawing.SystemColors.ButtonFace;
-            this.Lbl_Duration.Location = new System.Drawing.Point(290, 3);
+            this.Lbl_Duration.Location = new System.Drawing.Point(351, 3);
             this.Lbl_Duration.Name = "Lbl_Duration";
             this.Lbl_Duration.Size = new System.Drawing.Size(90, 22);
             this.Lbl_Duration.TabIndex = 1;
@@ -328,7 +332,7 @@
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(0);
-            this.menuStrip1.Size = new System.Drawing.Size(383, 19);
+            this.menuStrip1.Size = new System.Drawing.Size(444, 19);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -518,7 +522,7 @@
             this.sampleRateToolStripMenuItem,
             this.bitRateToolStripMenuItem});
             this.changeSampleRateToolStripMenuItem.Name = "changeSampleRateToolStripMenuItem";
-            this.changeSampleRateToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.changeSampleRateToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.changeSampleRateToolStripMenuItem.Text = "Change";
             // 
             // sampleRateToolStripMenuItem
@@ -538,21 +542,21 @@
             // audioCutterToolStripMenuItem
             // 
             this.audioCutterToolStripMenuItem.Name = "audioCutterToolStripMenuItem";
-            this.audioCutterToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.audioCutterToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.audioCutterToolStripMenuItem.Text = "Audio Cutter";
             this.audioCutterToolStripMenuItem.Click += new System.EventHandler(this.audioCutterToolStripMenuItem_Click);
             // 
             // signalFilteringToolStripMenuItem
             // 
             this.signalFilteringToolStripMenuItem.Name = "signalFilteringToolStripMenuItem";
-            this.signalFilteringToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.signalFilteringToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.signalFilteringToolStripMenuItem.Text = "Signal Filtering";
             this.signalFilteringToolStripMenuItem.Click += new System.EventHandler(this.signalFilteringToolStripMenuItem_Click);
             // 
             // tagEditorToolStripMenuItem
             // 
             this.tagEditorToolStripMenuItem.Name = "tagEditorToolStripMenuItem";
-            this.tagEditorToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.tagEditorToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.tagEditorToolStripMenuItem.Text = "Tag Editor";
             this.tagEditorToolStripMenuItem.Click += new System.EventHandler(this.tagEditorToolStripMenuItem_Click);
             // 
@@ -563,7 +567,7 @@
             this.toolStripSeparator1,
             this.optionsToolStripMenuItem});
             this.lyricsToolStripMenuItem1.Name = "lyricsToolStripMenuItem1";
-            this.lyricsToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            this.lyricsToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
             this.lyricsToolStripMenuItem1.Text = "Lyrics";
             // 
             // loadToolStripMenuItem
@@ -590,7 +594,7 @@
             this.cloudToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.oneDriveToolStripMenuItem});
             this.cloudToolStripMenuItem.Name = "cloudToolStripMenuItem";
-            this.cloudToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.cloudToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.cloudToolStripMenuItem.Text = "Cloud";
             // 
             // oneDriveToolStripMenuItem
@@ -609,14 +613,14 @@
             this.circularVisualisationToolStripMenuItem,
             this.lyricsVisualisationToolStripMenuItem});
             this.visualisationsToolStripMenuItem.Name = "visualisationsToolStripMenuItem";
-            this.visualisationsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.visualisationsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.visualisationsToolStripMenuItem.Text = "Visualisations";
             // 
             // coverVisualisationToolStripMenuItem
             // 
             this.coverVisualisationToolStripMenuItem.CheckOnClick = true;
             this.coverVisualisationToolStripMenuItem.Name = "coverVisualisationToolStripMenuItem";
-            this.coverVisualisationToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.coverVisualisationToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
             this.coverVisualisationToolStripMenuItem.Text = "Cover";
             this.coverVisualisationToolStripMenuItem.Click += new System.EventHandler(this.VisualisationModeToolStripMenuItem_Click);
             // 
@@ -627,7 +631,7 @@
             this.leftChannelToolStripMenuItem,
             this.rightChannelToolStripMenuItem});
             this.spectrumToolStripMenuItem.Name = "spectrumToolStripMenuItem";
-            this.spectrumToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.spectrumToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
             this.spectrumToolStripMenuItem.Text = "Waveform";
             this.spectrumToolStripMenuItem.Click += new System.EventHandler(this.VisualisationModeToolStripMenuItem_Click);
             // 
@@ -651,7 +655,7 @@
             // 
             this.barsVisualisationToolStripMenuItem.CheckOnClick = true;
             this.barsVisualisationToolStripMenuItem.Name = "barsVisualisationToolStripMenuItem";
-            this.barsVisualisationToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.barsVisualisationToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
             this.barsVisualisationToolStripMenuItem.Text = "Bars";
             this.barsVisualisationToolStripMenuItem.Click += new System.EventHandler(this.VisualisationModeToolStripMenuItem_Click);
             // 
@@ -659,7 +663,7 @@
             // 
             this.circularVisualisationToolStripMenuItem.CheckOnClick = true;
             this.circularVisualisationToolStripMenuItem.Name = "circularVisualisationToolStripMenuItem";
-            this.circularVisualisationToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.circularVisualisationToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
             this.circularVisualisationToolStripMenuItem.Text = "Circular";
             this.circularVisualisationToolStripMenuItem.Click += new System.EventHandler(this.VisualisationModeToolStripMenuItem_Click);
             // 
@@ -667,7 +671,7 @@
             // 
             this.lyricsVisualisationToolStripMenuItem.CheckOnClick = true;
             this.lyricsVisualisationToolStripMenuItem.Name = "lyricsVisualisationToolStripMenuItem";
-            this.lyricsVisualisationToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.lyricsVisualisationToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
             this.lyricsVisualisationToolStripMenuItem.Text = "Lyrics";
             this.lyricsVisualisationToolStripMenuItem.Click += new System.EventHandler(this.VisualisationModeToolStripMenuItem_Click);
             // 
@@ -682,7 +686,7 @@
             this.CoverImageBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.CoverImageBox.Location = new System.Drawing.Point(0, 19);
             this.CoverImageBox.Name = "CoverImageBox";
-            this.CoverImageBox.Size = new System.Drawing.Size(383, 344);
+            this.CoverImageBox.Size = new System.Drawing.Size(444, 444);
             this.CoverImageBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
             this.CoverImageBox.TabIndex = 2;
             this.CoverImageBox.TabStop = false;
@@ -697,9 +701,9 @@
             this.Pnl_Extras.Controls.Add(this.Btn_ToggleFade);
             this.Pnl_Extras.Controls.Add(this.CB_ToggleTrackLoop);
             this.Pnl_Extras.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.Pnl_Extras.Location = new System.Drawing.Point(0, 436);
+            this.Pnl_Extras.Location = new System.Drawing.Point(0, 536);
             this.Pnl_Extras.Name = "Pnl_Extras";
-            this.Pnl_Extras.Size = new System.Drawing.Size(383, 28);
+            this.Pnl_Extras.Size = new System.Drawing.Size(444, 28);
             this.Pnl_Extras.TabIndex = 14;
             this.Pnl_Extras.Visible = false;
             // 
@@ -757,11 +761,32 @@
             this.visualizer.Interval = 20;
             this.visualizer.Tick += new System.EventHandler(this.visualizer_Tick);
             // 
+            // button5
+            // 
+            this.button5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.button5.Location = new System.Drawing.Point(104, 33);
+            this.button5.Margin = new System.Windows.Forms.Padding(0);
+            this.button5.Name = "button5";
+            this.button5.Size = new System.Drawing.Size(30, 30);
+            this.button5.TabIndex = 6;
+            this.button5.Text = "[ ]";
+            this.button5.UseVisualStyleBackColor = true;
+            // 
+            // label3
+            // 
+            this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label3.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.label3.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.label3.Location = new System.Drawing.Point(137, 34);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(2, 29);
+            this.label3.TabIndex = 11;
+            // 
             // NewMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(383, 492);
+            this.ClientSize = new System.Drawing.Size(444, 592);
             this.Controls.Add(this.CoverImageBox);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.Pnl_Extras);
@@ -857,5 +882,7 @@
         private System.Windows.Forms.ToolStripMenuItem loadToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Button button5;
     }
 }

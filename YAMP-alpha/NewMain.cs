@@ -150,17 +150,33 @@ namespace YAMP_alpha
             YAMPVars.DrawRightChannelSpectrum = rightChannelToolStripMenuItem.Checked;
             YAMPVars.CORE.TrackChanged += CORE_TrackChanged;
             YAMPVars.CORE.TrackEnded += CORE_TrackEnded;
+            RestoreSessionStateAfterInit();
             //YAMPVars.CORE.NotificationSource.BlockRead += NotificationSource_BlockRead;
+        }
+
+        private void RestoreSessionStateAfterInit()
+        {
+            SessionRestoreResult result = SessionStateManager.RestoreSessionState(YAMPVars.CORE);
+
+            if (result.TrackLoaded)
+            {
+                UpdateTrackers();
+                Lbl_Duration.Text = TrackDurationText();
+            }
         }
 
         private void CORE_TrackEnded(object sender, EventArgs e)
         {
-            // Handle UI updates on the UI thread when a track ends naturally.
+            // Handle auto-advance on UI thread when a track ends naturally.
             ThreadSafeCall(() =>
             {
                 if (PlayTimer.Enabled)
                     PlayTimer.Stop();
-                // final UI updates can be added here if needed
+
+                if (YAMPVars.CORE.PlayNextTrackDirected(1))
+                {
+                    PlayFromStart();
+                }
             });
         }
 
@@ -351,13 +367,6 @@ namespace YAMP_alpha
             if (YAMPVars.CORE.PlayerStopped)
             {
                 PlayTimer.Stop();
-                
-                // Auto-play next track (forward direction only)
-                // If no next track exists, playback stops here
-                if (YAMPVars.CORE.PlayNextTrackDirected(1))
-                {
-                    PlayFromStart();
-                }
                 return;
             }
 
@@ -372,6 +381,7 @@ namespace YAMP_alpha
         {
             if (YAMPVars.CORE != null)
             {
+                SessionStateManager.SaveSessionState(YAMPVars.CORE);
                 YAMPVars.CORE.TrackEnded -= CORE_TrackEnded;
                 YAMPVars.CORE.Stop();
                 YAMPVars.CORE.Dispose();
@@ -495,6 +505,11 @@ namespace YAMP_alpha
         private void Btns_TrackShift_Click(object sender, EventArgs e)
         {
             int direction = int.Parse(((Button)sender).Tag.ToString());
+
+            if (direction == 1 && YAMPVars.CORE.CurrentTrack != null)
+            {
+                YAMPVars.CORE.CurrentTrack.SkipCount++;
+            }
             
             // Directly play next/previous track
             // PlayNextTrackDirected already validates boundaries (first/last track, single track, etc.)
@@ -600,12 +615,12 @@ namespace YAMP_alpha
                 {
                     case "*":
                         YAMPVars.TrackPositionLoop = new PositionLoop() { A = DurationTracker.Value };
-                        Btn.Text = "A?";
+                        Btn.Text = "A>";
                         Btn.Tag = "A";
                         break;
                     case "A":
                         YAMPVars.TrackPositionLoop.B = DurationTracker.Value;
-                        Btn.Text = "A?B";
+                        Btn.Text = "A<>B";
                         Btn.Tag = "B";
                         DurationTracker.Value = YAMPVars.TrackPositionLoop.A;
                         YAMPVars.CORE.Seek(YAMPVars.TrackPositionLoop.A);

@@ -25,10 +25,16 @@ namespace YAMP_alpha
         public string BitRate { get; private set; }
         public string SampleRate { get; private set; }
         public List<Image> Covers { get; private set; } = null;
+        public int Rating { get; set; }
+        public int PlayCount { get; set; }
+        public int SkipCount { get; set; }
+        public DateTime? LastPlayedAt { get; set; }
+        public DateTime AddedAt { get; private set; }
 
         public TrackInfo(string filename)
         {
             File = new FileInfo(filename);
+            AddedAt = DateTime.Now;
             Title = File.Name;
             Duration = string.Empty;
             Album = string.Empty;
@@ -37,6 +43,10 @@ namespace YAMP_alpha
             BitRate = string.Empty;
             SampleRate = string.Empty;
             TrackNum = string.Empty;
+            Rating = 0;
+            PlayCount = 0;
+            SkipCount = 0;
+            LastPlayedAt = null;
             Covers = new List<Image>();
 
             try
@@ -68,6 +78,10 @@ namespace YAMP_alpha
 
         public TrackInfo()
         {
+            AddedAt = DateTime.Now;
+            Rating = 0;
+            PlayCount = 0;
+            SkipCount = 0;
         }
 
         private List<Image> GetCoverArts(IEnumerable<CoverInfo> covers)

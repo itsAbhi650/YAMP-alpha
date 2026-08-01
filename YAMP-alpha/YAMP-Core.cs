@@ -3,6 +3,7 @@ using CSCore.CoreAudioAPI;
 using CSCore.Ffmpeg;
 using CSCore.Streams;
 using CSCore.Streams.Effects;
+using System.Collections.Generic;
 using System;
 using System.Drawing;
 using System.IO;
@@ -48,6 +49,9 @@ namespace YAMP_alpha
     public class YAMP_Core : IDisposable
     {
         private TrackInfo _curtrack;
+        private readonly Random _shuffleRandom = new Random();
+        private List<int> _shuffleOrder = new List<int>();
+        private int _shufflePointer = -1;
         private readonly object _playerLock = new object();
         private readonly SynchronizationContext _eventContext;
         private CorePlaybackState _state = CorePlaybackState.Idle;
@@ -437,9 +441,125 @@ namespace YAMP_alpha
 
             int targetIndex = currentIndex + direction;
 
-            return IsValidTrackIndex(targetIndex)
-                ? YAMPVars.TrackList[targetIndex]
-                : null;
+            if (IsValidTrackIndex(targetIndex))
+                return YAMPVars.TrackList[targetIndex];
+
+            if (YAMPVars.PlaylistLoopMode == PlaylistLoopMode.All && YAMPVars.TrackList.Count > 0)
+            {
+                if (targetIndex < 0)
+                    return YAMPVars.TrackList[YAMPVars.TrackList.Count - 1];
+
+                if (targetIndex >= YAMPVars.TrackList.Count)
+                    return YAMPVars.TrackList[0];
+            }
+
+            return null;
+        }
+
+        public void ToggleShuffle()
+        {
+            YAMPVars.ShuffleEnabled = !YAMPVars.ShuffleEnabled;
+            _shufflePointer = -1;
+            if (!YAMPVars.ShuffleEnabled)
+            {
+                _shuffleOrder.Clear();
+            }
+        }
+
+        public PlaylistLoopMode CycleLoopMode()
+        {
+            switch (YAMPVars.PlaylistLoopMode)
+            {
+                case PlaylistLoopMode.None:
+                    YAMPVars.PlaylistLoopMode = PlaylistLoopMode.One;
+                    break;
+                case PlaylistLoopMode.One:
+                    YAMPVars.PlaylistLoopMode = PlaylistLoopMode.All;
+                    break;
+                default:
+                    YAMPVars.PlaylistLoopMode = PlaylistLoopMode.None;
+                    break;
+            }
+            return YAMPVars.PlaylistLoopMode;
+        }
+
+        public void EnqueueNext(TrackInfo track)
+        {
+            if (track == null)
+                return;
+
+            YAMPVars.PendingQueue.RemoveAll(x => x != null && x.Path == track.Path);
+            YAMPVars.PendingQueue.Insert(0, track);
+        }
+
+        public void EnqueueLast(TrackInfo track)
+        {
+            if (track == null)
+                return;
+
+            if (!YAMPVars.PendingQueue.Any(x => x != null && x.Path == track.Path))
+            {
+                YAMPVars.PendingQueue.Add(track);
+            }
+        }
+
+        private TrackInfo DequeueNextTrack()
+        {
+            while (YAMPVars.PendingQueue.Count > 0)
+            {
+                TrackInfo queued = YAMPVars.PendingQueue[0];
+                YAMPVars.PendingQueue.RemoveAt(0);
+                if (queued != null && File.Exists(queued.Path))
+                    return queued;
+            }
+            return null;
+        }
+
+        private void RebuildShuffleOrder()
+        {
+            _shuffleOrder = Enumerable.Range(0, YAMPVars.TrackList.Count).ToList();
+            for (int i = _shuffleOrder.Count - 1; i > 0; i--)
+            {
+                int j = _shuffleRandom.Next(i + 1);
+                int temp = _shuffleOrder[i];
+                _shuffleOrder[i] = _shuffleOrder[j];
+                _shuffleOrder[j] = temp;
+            }
+            _shufflePointer = -1;
+        }
+
+        private TrackInfo GetShuffleNextTrack()
+        {
+            if (YAMPVars.TrackList == null || YAMPVars.TrackList.Count == 0)
+                return null;
+
+            if (_shuffleOrder.Count != YAMPVars.TrackList.Count)
+            {
+                RebuildShuffleOrder();
+            }
+
+            int currentIndex = GetCurrentTrackIndex();
+            if (currentIndex >= 0)
+            {
+                int currentOrderIndex = _shuffleOrder.IndexOf(currentIndex);
+                if (currentOrderIndex >= 0)
+                {
+                    _shufflePointer = currentOrderIndex;
+                }
+            }
+
+            int nextPointer = _shufflePointer + 1;
+            if (nextPointer >= _shuffleOrder.Count)
+            {
+                if (YAMPVars.PlaylistLoopMode != PlaylistLoopMode.All)
+                    return null;
+
+                RebuildShuffleOrder();
+                nextPointer = 0;
+            }
+
+            _shufflePointer = nextPointer;
+            return YAMPVars.TrackList[_shuffleOrder[_shufflePointer]];
         }
 
         /// <summary>
@@ -449,17 +569,34 @@ namespace YAMP_alpha
         /// <returns>True if next track was loaded and started, false if no track available</returns>
         public bool PlayNextTrackDirected(int direction)
         {
-            TrackInfo nextTrack = GetTrackAt(direction);
+            TrackInfo nextTrack = null;
+
+            if (direction == 1 && CurrentTrack != null && YAMPVars.PlaylistLoopMode == PlaylistLoopMode.One)
+            {
+                nextTrack = CurrentTrack;
+            }
+            else if (direction == 1)
+            {
+                nextTrack = DequeueNextTrack();
+
+                if (nextTrack == null)
+                {
+                    nextTrack = YAMPVars.ShuffleEnabled
+                        ? GetShuffleNextTrack()
+                        : GetTrackAt(direction);
+                }
+            }
+            else
+            {
+                nextTrack = GetTrackAt(direction);
+            }
 
             if (nextTrack != null)
             {
-                if (TryLoadTrack(nextTrack.Path, out string error))
+                if (LoadTrackInfo(nextTrack))
                 {
-                    CurrentTrack = nextTrack;
                     return true;
                 }
-
-                OnTrackLoadFailed(nextTrack.Path, error);
             }
             return false;
         }
@@ -470,6 +607,8 @@ namespace YAMP_alpha
             {
                 if (TryLoadTrack(trackInfo.Path, out string error))
                 {
+                    trackInfo.PlayCount++;
+                    trackInfo.LastPlayedAt = DateTime.Now;
                     CurrentTrack = trackInfo;
                     return true;
                 }

@@ -252,6 +252,7 @@
     <Compile Include="GargleEffectDialog.Designer.cs">
       <DependentUpon>GargleEffectDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="SessionStateManager.cs" />
     <Compile Include="Visualization\BarSpectrumRenderDirection.cs" />
     <Compile Include="Visualization\CircularSpectrum.cs" />
     <Compile Include="Visualization\CircularSpectrumStyle.cs" />
