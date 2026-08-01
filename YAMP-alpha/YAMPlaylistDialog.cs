@@ -5,9 +5,11 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using Microsoft.VisualBasic;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.Xml.Schema;
+using System.Xml.Serialization;
 
 namespace YAMP_alpha
 {
@@ -30,7 +32,7 @@ namespace YAMP_alpha
         private readonly List<string> _pendingNewTracks = new List<string>();
         private readonly List<string> _pendingMissingTracks = new List<string>();
         private readonly object _diskSyncLock = new object();
-        private Timer _diskRescanDebounceTimer;
+        private System.Windows.Forms.Timer _diskRescanDebounceTimer;
         private bool _queuePanelVisible = false;
         public event EventHandler<TrackSelectedEventArgs> TrackSelected;
 
@@ -110,7 +112,7 @@ namespace YAMP_alpha
             _diskAutoRefreshCheckBox.CheckedChanged += diskAutoRefreshCheckBox_CheckedChanged;
             _diskPanel.BringToFront();
 
-            _diskRescanDebounceTimer = new Timer();
+            _diskRescanDebounceTimer = new System.Windows.Forms.Timer();
             _diskRescanDebounceTimer.Interval = 900;
             _diskRescanDebounceTimer.Tick += diskRescanDebounceTimer_Tick;
         }
@@ -853,6 +855,374 @@ namespace YAMP_alpha
             _endBehaviorMenuItem.DropDownItems.Add(_endBehaviorLoopPlaylistItem);
             playbackMenu.DropDownItems.Add(new ToolStripSeparator());
             playbackMenu.DropDownItems.Add(_endBehaviorMenuItem);
+        }
+
+        private void relinkMissingItem_Click(object sender, EventArgs e)
+        {
+            RelinkMissingTracksFromFolder();
+        }
+
+        private void autoOrganizeItem_Click(object sender, EventArgs e)
+        {
+            AutoOrganizePlaylist();
+        }
+
+        private void saveQueueProfileItem_Click(object sender, EventArgs e)
+        {
+            SaveQueueProfileInteractive();
+        }
+
+        private void loadQueueProfileItem_Click(object sender, EventArgs e)
+        {
+            LoadQueueProfileInteractive();
+        }
+
+        [Serializable]
+        public class QueueProfileState
+        {
+            public string Name { get; set; }
+            public List<string> QueuePaths { get; set; } = new List<string>();
+        }
+
+        private string GetQueueProfilesDirectory()
+        {
+            string baseDir = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "YAMP-alpha",
+                "queue-profiles");
+
+            if (!Directory.Exists(baseDir))
+            {
+                Directory.CreateDirectory(baseDir);
+            }
+
+            return baseDir;
+        }
+
+        private void SaveQueueProfileInteractive()
+        {
+            string profileName = Interaction.InputBox(
+                "Enter profile name:",
+                "Save Queue Profile",
+                "default");
+
+            if (string.IsNullOrWhiteSpace(profileName))
+                return;
+
+            string safeName = Regex.Replace(profileName.Trim(), "[^a-zA-Z0-9_\\- ]", "_");
+            string filePath = Path.Combine(GetQueueProfilesDirectory(), safeName + ".xml");
+
+            QueueProfileState profile = new QueueProfileState
+            {
+                Name = safeName,
+                QueuePaths = YAMPVars.PendingQueue
+                    .Where(track => track != null && !string.IsNullOrWhiteSpace(track.Path))
+                    .Select(track => track.Path)
+                    .ToList()
+            };
+
+            try
+            {
+                XmlSerializer serializer = new XmlSerializer(typeof(QueueProfileState));
+                using (FileStream fs = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None))
+                {
+                    serializer.Serialize(fs, profile);
+                }
+
+                MessageBox.Show("Queue profile saved.", "Queue Profile", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to save queue profile.\n\n" + ex.Message,
+                    "Queue Profile",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+        }
+
+        private void LoadQueueProfileInteractive()
+        {
+            using (OpenFileDialog ofd = new OpenFileDialog())
+            {
+                ofd.InitialDirectory = GetQueueProfilesDirectory();
+                ofd.Filter = "Queue profile (*.xml)|*.xml";
+                ofd.Multiselect = false;
+
+                if (ofd.ShowDialog(this) != DialogResult.OK)
+                    return;
+
+                try
+                {
+                    XmlSerializer serializer = new XmlSerializer(typeof(QueueProfileState));
+                    QueueProfileState profile;
+                    using (FileStream fs = new FileStream(ofd.FileName, FileMode.Open, FileAccess.Read, FileShare.Read))
+                    {
+                        profile = serializer.Deserialize(fs) as QueueProfileState;
+                    }
+
+                    if (profile == null || profile.QueuePaths == null)
+                        return;
+
+                    YAMPVars.PendingQueue.Clear();
+                    int missing = 0;
+
+                    foreach (string path in profile.QueuePaths)
+                    {
+                        TrackInfo queueTrack = YAMPVars.TrackList.FirstOrDefault(t =>
+                            t != null && string.Equals(t.Path, path, StringComparison.OrdinalIgnoreCase));
+
+                        if (queueTrack != null)
+                        {
+                            YAMPVars.PendingQueue.Add(queueTrack);
+                        }
+                        else
+                        {
+                            missing++;
+                        }
+                    }
+
+                    UpdatePlaylistCounters();
+                    MessageBox.Show(
+                        string.Format("Queue profile loaded. Added: {0}, Missing: {1}", YAMPVars.PendingQueue.Count, missing),
+                        "Queue Profile",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Failed to load queue profile.\n\n" + ex.Message,
+                        "Queue Profile",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private void AutoOrganizePlaylist()
+        {
+            if (YAMPVars.TrackList == null || YAMPVars.TrackList.Count == 0)
+                return;
+
+            DialogResult proceed = MessageBox.Show(
+                "Auto organize playlist?\n\nThis will dedupe tracks, remove unsupported files, and sort by folder then added date.",
+                "Auto Organize",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (proceed != DialogResult.Yes)
+                return;
+
+            int beforeCount = YAMPVars.TrackList.Count;
+            int removedDuplicates = 0;
+            int removedUnsupported = 0;
+
+            HashSet<string> seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            List<TrackInfo> deduped = new List<TrackInfo>();
+            foreach (TrackInfo track in YAMPVars.TrackList)
+            {
+                if (track == null || string.IsNullOrWhiteSpace(track.Path))
+                    continue;
+
+                if (!seen.Add(track.Path))
+                {
+                    removedDuplicates++;
+                    continue;
+                }
+
+                if (File.Exists(track.Path) && !AudioFileSupport.IsSupportedAudioFile(track.Path))
+                {
+                    removedUnsupported++;
+                    continue;
+                }
+
+                deduped.Add(track);
+            }
+
+            List<TrackInfo> sorted = deduped
+                .OrderBy(x => x.File != null ? x.File.DirectoryName : string.Empty, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(x => x.AddedAt)
+                .ToList();
+
+            YAMPVars.TrackList.Clear();
+            YAMPVars.TrackList.AddRange(sorted);
+
+            YAMPVars.PendingQueue = YAMPVars.PendingQueue
+                .Where(q => q != null && YAMPVars.TrackList.Any(t => t != null && string.Equals(t.Path, q.Path, StringComparison.OrdinalIgnoreCase)))
+                .ToList();
+
+            PlaylistSource.ResetBindings(false);
+            UpdateCurrentPlayingRowStyle();
+            UpdatePlaylistCounters();
+
+            MessageBox.Show(
+                string.Format("Auto organize completed.\n\nBefore: {0}\nAfter: {1}\nDuplicates removed: {2}\nUnsupported removed: {3}",
+                    beforeCount,
+                    YAMPVars.TrackList.Count,
+                    removedDuplicates,
+                    removedUnsupported),
+                "Auto Organize",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+        }
+
+        private void RelinkMissingTracksFromFolder()
+        {
+            List<int> missingIndices = new List<int>();
+            for (int i = 0; i < YAMPVars.TrackList.Count; i++)
+            {
+                TrackInfo track = YAMPVars.TrackList[i];
+                if (track != null && !string.IsNullOrWhiteSpace(track.Path) && !File.Exists(track.Path))
+                {
+                    missingIndices.Add(i);
+                }
+            }
+
+            if (missingIndices.Count == 0)
+            {
+                MessageBox.Show("No missing tracks found.", "Relink Missing", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            using (FolderBrowserDialog folderDialog = new FolderBrowserDialog())
+            {
+                folderDialog.Description = "Select a root folder to relink missing tracks";
+                if (folderDialog.ShowDialog(this) != DialogResult.OK)
+                    return;
+
+                Dictionary<string, List<string>> byFileName = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+                foreach (string filePath in EnumerateFilesSafe(folderDialog.SelectedPath))
+                {
+                    string name = Path.GetFileName(filePath);
+                    List<string> list;
+                    if (!byFileName.TryGetValue(name, out list))
+                    {
+                        list = new List<string>();
+                        byFileName[name] = list;
+                    }
+                    list.Add(filePath);
+                }
+
+                int relinked = 0;
+                foreach (int index in missingIndices)
+                {
+                    TrackInfo oldTrack = YAMPVars.TrackList[index];
+                    if (oldTrack == null)
+                        continue;
+
+                    string fileName = Path.GetFileName(oldTrack.Path);
+                    List<string> candidates;
+                    if (!byFileName.TryGetValue(fileName, out candidates) || candidates.Count == 0)
+                        continue;
+
+                    string selected = SelectBestRelinkCandidate(oldTrack, candidates);
+                    if (string.IsNullOrWhiteSpace(selected) || !File.Exists(selected))
+                        continue;
+
+                    TrackInfo newTrack = new TrackInfo(selected)
+                    {
+                        Rating = oldTrack.Rating,
+                        PlayCount = oldTrack.PlayCount,
+                        SkipCount = oldTrack.SkipCount,
+                        LastPlayedAt = oldTrack.LastPlayedAt
+                    };
+
+                    string oldPath = oldTrack.Path;
+                    YAMPVars.TrackList[index] = newTrack;
+
+                    for (int q = 0; q < YAMPVars.PendingQueue.Count; q++)
+                    {
+                        TrackInfo queueTrack = YAMPVars.PendingQueue[q];
+                        if (queueTrack != null && string.Equals(queueTrack.Path, oldPath, StringComparison.OrdinalIgnoreCase))
+                        {
+                            YAMPVars.PendingQueue[q] = newTrack;
+                        }
+                    }
+
+                    if (YAMPVars.CORE != null &&
+                        YAMPVars.CORE.CurrentTrack != null &&
+                        string.Equals(YAMPVars.CORE.CurrentTrack.Path, oldPath, StringComparison.OrdinalIgnoreCase))
+                    {
+                        YAMPVars.CORE.CurrentTrack = newTrack;
+                    }
+
+                    relinked++;
+                }
+
+                PlaylistSource.ResetBindings(false);
+                UpdateCurrentPlayingRowStyle();
+                UpdatePlaylistCounters();
+                PerformDiskScanAndUpdatePanel();
+
+                MessageBox.Show(
+                    string.Format("Relink completed.\n\nMissing: {0}\nRelinked: {1}\nUnresolved: {2}",
+                        missingIndices.Count,
+                        relinked,
+                        missingIndices.Count - relinked),
+                    "Relink Missing",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+            }
+        }
+
+        private static string SelectBestRelinkCandidate(TrackInfo oldTrack, List<string> candidates)
+        {
+            if (candidates == null || candidates.Count == 0)
+                return null;
+
+            if (candidates.Count == 1)
+                return candidates[0];
+
+            if (!string.IsNullOrWhiteSpace(oldTrack.Duration))
+            {
+                foreach (string candidate in candidates)
+                {
+                    try
+                    {
+                        TrackInfo candidateTrack = new TrackInfo(candidate);
+                        if (string.Equals(candidateTrack.Duration, oldTrack.Duration, StringComparison.OrdinalIgnoreCase))
+                        {
+                            return candidate;
+                        }
+                    }
+                    catch
+                    {
+                    }
+                }
+            }
+
+            return candidates[0];
+        }
+
+        private static IEnumerable<string> EnumerateFilesSafe(string root)
+        {
+            if (string.IsNullOrWhiteSpace(root) || Directory.Exists(root) == false)
+                return Enumerable.Empty<string>();
+
+            List<string> files = new List<string>();
+            Stack<string> dirs = new Stack<string>();
+            dirs.Push(root);
+
+            while (dirs.Count > 0)
+            {
+                string current = dirs.Pop();
+                try
+                {
+                    foreach (string sub in Directory.GetDirectories(current))
+                    {
+                        dirs.Push(sub);
+                    }
+
+                    foreach (string file in Directory.GetFiles(current))
+                    {
+                        files.Add(file);
+                    }
+                }
+                catch
+                {
+                }
+            }
+
+            return files;
         }
 
         private void SetLoopMode(PlaylistLoopMode mode)

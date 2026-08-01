@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Windows.Forms;
 using System.Xml.Serialization;
 
 namespace YAMP_alpha
@@ -24,10 +26,16 @@ namespace YAMP_alpha
         public bool PlaylistLoaded { get; set; }
         public bool TrackLoaded { get; set; }
         public bool PositionRestored { get; set; }
+        public bool UsedBackupSnapshot { get; set; }
+        public bool ResumeDeclined { get; set; }
     }
 
     public static class SessionStateManager
     {
+        private static readonly object _checkpointLock = new object();
+        private static System.Threading.Timer _checkpointTimer;
+        private static Func<YAMP_Core> _checkpointCoreAccessor;
+
         private static string GetStateFilePath()
         {
             string baseDir = Path.Combine(
@@ -42,11 +50,43 @@ namespace YAMP_alpha
             return Path.Combine(baseDir, "session-state.xml");
         }
 
+        private static string GetBackupStateFilePath()
+        {
+            return Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "YAMP-alpha",
+                "session-state.lastgood.xml");
+        }
+
         private static SessionState LoadStateInternal()
         {
+            bool fromBackup;
+            return LoadStateInternal(out fromBackup);
+        }
+
+        private static SessionState LoadStateInternal(out bool fromBackup)
+        {
+            fromBackup = false;
             string path = GetStateFilePath();
+            SessionState state = TryLoadStateFromPath(path);
+            if (state != null)
+                return state;
+
+            string backupPath = GetBackupStateFilePath();
+            state = TryLoadStateFromPath(backupPath);
+            if (state != null)
+            {
+                fromBackup = true;
+                return state;
+            }
+
+            return new SessionState();
+        }
+
+        private static SessionState TryLoadStateFromPath(string path)
+        {
             if (!File.Exists(path))
-                return new SessionState();
+                return null;
 
             try
             {
@@ -54,12 +94,12 @@ namespace YAMP_alpha
                 using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
                     var state = serializer.Deserialize(fs) as SessionState;
-                    return state ?? new SessionState();
+                    return state;
                 }
             }
             catch
             {
-                return new SessionState();
+                return null;
             }
         }
 
@@ -74,10 +114,80 @@ namespace YAMP_alpha
             {
                 var serializer = new XmlSerializer(typeof(SessionState));
                 string path = GetStateFilePath();
-                using (var fs = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None))
+                string backupPath = GetBackupStateFilePath();
+                string tempPath = path + ".tmp";
+
+                if (File.Exists(path))
+                {
+                    File.Copy(path, backupPath, true);
+                }
+
+                using (var fs = new FileStream(tempPath, FileMode.Create, FileAccess.Write, FileShare.None))
                 {
                     serializer.Serialize(fs, state);
                 }
+
+                File.Copy(tempPath, path, true);
+                File.Delete(tempPath);
+            }
+            catch
+            {
+            }
+        }
+
+        public static void StartAutoCheckpoint(Func<YAMP_Core> coreAccessor, TimeSpan? interval = null)
+        {
+            if (coreAccessor == null)
+                return;
+
+            lock (_checkpointLock)
+            {
+                _checkpointCoreAccessor = coreAccessor;
+                int dueMs = (int)(interval ?? TimeSpan.FromSeconds(20)).TotalMilliseconds;
+
+                if (_checkpointTimer == null)
+                {
+                    _checkpointTimer = new System.Threading.Timer(AutoCheckpointTick, null, dueMs, dueMs);
+                }
+                else
+                {
+                    _checkpointTimer.Change(dueMs, dueMs);
+                }
+            }
+        }
+
+        public static void StopAutoCheckpoint()
+        {
+            lock (_checkpointLock)
+            {
+                if (_checkpointTimer != null)
+                {
+                    _checkpointTimer.Dispose();
+                    _checkpointTimer = null;
+                }
+
+                _checkpointCoreAccessor = null;
+            }
+        }
+
+        private static void AutoCheckpointTick(object state)
+        {
+            try
+            {
+                Func<YAMP_Core> accessor;
+                lock (_checkpointLock)
+                {
+                    accessor = _checkpointCoreAccessor;
+                }
+
+                if (accessor == null)
+                    return;
+
+                YAMP_Core core = accessor();
+                if (core == null)
+                    return;
+
+                SaveSessionState(core);
             }
             catch
             {
@@ -147,14 +257,44 @@ namespace YAMP_alpha
             SaveStateInternal(state);
         }
 
-        public static SessionRestoreResult RestoreSessionState(YAMP_Core core)
+        public static SessionRestoreResult RestoreSessionState(YAMP_Core core, IWin32Window owner = null, bool promptResume = true)
         {
             var result = new SessionRestoreResult();
             if (core == null)
                 return result;
 
-            SessionState state = LoadSessionState();
+            bool fromBackup = false;
+            SessionState state = LoadStateInternal(out fromBackup);
+            if (state.PlaylistTrackPaths == null)
+            {
+                state.PlaylistTrackPaths = new List<string>();
+            }
+            if (state.PendingQueuePaths == null)
+            {
+                state.PendingQueuePaths = new List<string>();
+            }
+
+            bool hasRecoverableState =
+                !string.IsNullOrWhiteSpace(state.LoadedPlaylistPath) ||
+                (state.PlaylistTrackPaths != null && state.PlaylistTrackPaths.Count > 0);
+
             RestorePlaybackSettings(state);
+
+            if (promptResume && hasRecoverableState)
+            {
+                DialogResult dialog = MessageBox.Show(
+                    owner,
+                    "Resume previous session?",
+                    "Resume Session",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question);
+
+                if (dialog != DialogResult.Yes)
+                {
+                    result.ResumeDeclined = true;
+                    return result;
+                }
+            }
 
             bool loadedPlaylist = false;
             if (state != null && !string.IsNullOrWhiteSpace(state.LoadedPlaylistPath))
@@ -182,6 +322,7 @@ namespace YAMP_alpha
             }
 
             result.PlaylistLoaded = loadedPlaylist;
+            result.UsedBackupSnapshot = fromBackup;
             if (!loadedPlaylist || YAMPVars.TrackList.Count == 0)
                 return result;
 

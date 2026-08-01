@@ -150,18 +150,34 @@ namespace YAMP_alpha
             YAMPVars.DrawRightChannelSpectrum = rightChannelToolStripMenuItem.Checked;
             YAMPVars.CORE.TrackChanged += CORE_TrackChanged;
             YAMPVars.CORE.TrackEnded += CORE_TrackEnded;
+            SessionStateManager.StartAutoCheckpoint(() => YAMPVars.CORE, TimeSpan.FromSeconds(20));
             RestoreSessionStateAfterInit();
             //YAMPVars.CORE.NotificationSource.BlockRead += NotificationSource_BlockRead;
         }
 
         private void RestoreSessionStateAfterInit()
         {
-            SessionRestoreResult result = SessionStateManager.RestoreSessionState(YAMPVars.CORE);
+            SessionRestoreResult result = SessionStateManager.RestoreSessionState(YAMPVars.CORE, this, true);
 
             if (result.TrackLoaded)
             {
                 UpdateTrackers();
                 Lbl_Duration.Text = TrackDurationText();
+
+                if (YAMPVars.CORE.CurrentTrack != null)
+                {
+                    Lbl_PlayerLabel.Text = string.Format("> [Resumed] {0}",
+                        YAMPVars.CORE.CurrentTrack.Title);
+                }
+
+                if (result.UsedBackupSnapshot)
+                {
+                    MessageBox.Show(this,
+                        "Session was restored from backup snapshot.",
+                        "Session Restore",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                }
             }
         }
 
@@ -379,6 +395,8 @@ namespace YAMP_alpha
 
         private void NewMain_FormClosing(object sender, FormClosingEventArgs e)
         {
+            SessionStateManager.StopAutoCheckpoint();
+
             if (YAMPVars.CORE != null)
             {
                 SessionStateManager.SaveSessionState(YAMPVars.CORE);

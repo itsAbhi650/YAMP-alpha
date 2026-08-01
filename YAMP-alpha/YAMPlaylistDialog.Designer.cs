@@ -58,6 +58,12 @@
             this.byFolderMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.smartMenuSeparator = new System.Windows.Forms.ToolStripSeparator();
             this._showAllSmartMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.advancedPlaylistSeparator = new System.Windows.Forms.ToolStripSeparator();
+            this.relinkMissingMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.autoOrganizeMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.queueProfilesMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveQueueProfileMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.loadQueueProfileMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1 = new System.Windows.Forms.Panel();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
@@ -303,7 +309,11 @@
             this.neverPlayedMenuItem,
             this.byFolderMenuItem,
             this.smartMenuSeparator,
-            this._showAllSmartMenuItem});
+            this._showAllSmartMenuItem,
+            this.advancedPlaylistSeparator,
+            this.relinkMissingMenuItem,
+            this.autoOrganizeMenuItem,
+            this.queueProfilesMenuItem});
             this.smartMenu.Name = "smartMenu";
             this.smartMenu.Size = new System.Drawing.Size(50, 20);
             this.smartMenu.Text = "Smart";
@@ -347,6 +357,48 @@
             this._showAllSmartMenuItem.Size = new System.Drawing.Size(164, 22);
             this._showAllSmartMenuItem.Text = "Reset Smart View";
             this._showAllSmartMenuItem.Click += new System.EventHandler(this.showAllSmartMenuItem_Click);
+            // 
+            // advancedPlaylistSeparator
+            // 
+            this.advancedPlaylistSeparator.Name = "advancedPlaylistSeparator";
+            this.advancedPlaylistSeparator.Size = new System.Drawing.Size(161, 6);
+            // 
+            // relinkMissingMenuItem
+            // 
+            this.relinkMissingMenuItem.Name = "relinkMissingMenuItem";
+            this.relinkMissingMenuItem.Size = new System.Drawing.Size(164, 22);
+            this.relinkMissingMenuItem.Text = "Relink Missing Tracks";
+            this.relinkMissingMenuItem.Click += new System.EventHandler(this.relinkMissingItem_Click);
+            // 
+            // autoOrganizeMenuItem
+            // 
+            this.autoOrganizeMenuItem.Name = "autoOrganizeMenuItem";
+            this.autoOrganizeMenuItem.Size = new System.Drawing.Size(164, 22);
+            this.autoOrganizeMenuItem.Text = "Auto Organize";
+            this.autoOrganizeMenuItem.Click += new System.EventHandler(this.autoOrganizeItem_Click);
+            // 
+            // queueProfilesMenuItem
+            // 
+            this.queueProfilesMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.saveQueueProfileMenuItem,
+            this.loadQueueProfileMenuItem});
+            this.queueProfilesMenuItem.Name = "queueProfilesMenuItem";
+            this.queueProfilesMenuItem.Size = new System.Drawing.Size(164, 22);
+            this.queueProfilesMenuItem.Text = "Queue Profiles";
+            // 
+            // saveQueueProfileMenuItem
+            // 
+            this.saveQueueProfileMenuItem.Name = "saveQueueProfileMenuItem";
+            this.saveQueueProfileMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.saveQueueProfileMenuItem.Text = "Save Current Queue...";
+            this.saveQueueProfileMenuItem.Click += new System.EventHandler(this.saveQueueProfileItem_Click);
+            // 
+            // loadQueueProfileMenuItem
+            // 
+            this.loadQueueProfileMenuItem.Name = "loadQueueProfileMenuItem";
+            this.loadQueueProfileMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.loadQueueProfileMenuItem.Text = "Load Queue Profile...";
+            this.loadQueueProfileMenuItem.Click += new System.EventHandler(this.loadQueueProfileItem_Click);
             // 
             // panel1
             // 
@@ -844,6 +896,12 @@
         private System.Windows.Forms.ToolStripMenuItem byFolderMenuItem;
         private System.Windows.Forms.ToolStripSeparator smartMenuSeparator;
         private System.Windows.Forms.ToolStripMenuItem _showAllSmartMenuItem;
+        private System.Windows.Forms.ToolStripSeparator advancedPlaylistSeparator;
+        private System.Windows.Forms.ToolStripMenuItem relinkMissingMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem autoOrganizeMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem queueProfilesMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem saveQueueProfileMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem loadQueueProfileMenuItem;
         private System.Windows.Forms.ContextMenuStrip rowContextMenu;
         private System.Windows.Forms.ToolStripMenuItem playNextMenuItem;
         private System.Windows.Forms.ToolStripMenuItem queueLastMenuItem;
